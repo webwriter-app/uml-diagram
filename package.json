@@ -1,0 +1,27 @@
+{
+    "name": "@bamoritzs/oowidget",
+    "version": "0.0.1",
+    "scripts": {
+        "prepublishOnly": "npx @webwriter/build",
+        "dev": "npx @webwriter/build dev",
+        "localize": "lit-localize extract && npx @webwriter/build localize && lit-localize build"
+    },
+    "dependencies": {
+        "lit": "^3",
+        "@webwriter/lit": "^2"
+    },
+    "devDependencies": {
+        "@lit/localize-tools": "^0.8"
+    },
+    "exports": {
+        "./widgets/bamoritzs-oowidget.*": {
+            "source": "./widgets/bamoritzs-oowidget.ts",
+            "default": "./dist/widgets/bamoritzs-oowidget.*"
+        }
+    },
+    "keywords": [
+        "webwriter-widget"
+    ],
+    "license": "MIT",
+    "author": "moritz.sander@rwth-aachen.de"
+}
