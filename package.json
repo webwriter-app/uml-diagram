@@ -7,8 +7,12 @@
         "localize": "lit-localize extract && npx @webwriter/build localize && lit-localize build"
     },
     "dependencies": {
-        "lit": "^3",
-        "@webwriter/lit": "^2"
+        "@shoelace-style/shoelace": "^2.20.1",
+        "@tabler/icons": "^3.36.1",
+        "@webwriter/lit": "^2",
+        "drawflow": "^0.0.60",
+        "interactjs": "^1.10.27",
+        "lit": "^3"
     },
     "devDependencies": {
         "@lit/localize-tools": "^0.8"

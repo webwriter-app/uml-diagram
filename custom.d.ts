@@ -174,3 +174,7 @@ declare module '*.xml' {
   const content: string;
   export default content;
 }
+
+// Mein Code
+declare module 'drawflow';
+declare module '*.css';

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/lit/lit-localize/main/custom-elements-manifest.json",
+  "sourceLocale": "en",
+  "targetLocales": ["en"],
+  "interchange": {
+    "format": "xliff",
+    "xliffDir": "localization/xliff"
+  },
+  "output": {
+    "mode": "runtime",
+    "outputDir": "localization/generated",
+    "localeCodesModule": "localization/generated/locale-codes.ts"
+  },
+  "tsConfig": "tsconfig.json"
+}
