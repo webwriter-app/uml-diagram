@@ -2,28 +2,24 @@ import { html } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
-import {SlInput, SlDetails, SlDivider, SlSwitch, SlSelect, SlOption, SlTooltip } from "@shoelace-style/shoelace";
+import { SlInput, SlDivider, SlSwitch } from "@shoelace-style/shoelace";
 import { SequenceSettings } from "../../models/sequence-settings-model";
-import styles from "./sequence-diagram-settings-menu.styles";
+import styles from "../../../shared/settings-menu.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 
 /** Configuration menu for the Sequence Diagram Editor */
 @localized()
 export class SequenceDiagramSettingsMenu extends LitElementWw {
 
-    /** styles defined in sequence-diagram-settings-menu.styles.ts */
+    /** styles are shared with the class/object diagram settings menu */
     static styles = [styles];
 
     /** Register used Elements */
     static get scopedElements() {
         return {
             "sl-input": SlInput,
-            "sl-details": SlDetails,
             "sl-divider": SlDivider,
-            "sl-switch" : SlSwitch,
-            "sl-select" : SlSelect,
-            "sl-option" : SlOption,
-            "sl-tooltip" : SlTooltip
+            "sl-switch": SlSwitch
         };
     }
 
@@ -80,12 +76,11 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
     // --------------------------------------------------------------------------------------------------------
 
     render() {
-        return html`
+        const validationDisabled = this.globalSettings.validationMode !== 'custom';
 
-            <sl-details 
-                class="options-group" 
-                summary="${msg('Allowed Elements')}"
-            >
+        return html`
+            <section class="section">
+                <h3 class="section-heading">${msg("Allowed Elements")}</h3>
                 <sl-switch size="small" ?checked=${this.settings.synchronousMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'synchronousMessageExists')}>
                     Synchronous Message
                 </sl-switch>
@@ -128,13 +123,10 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
                 <sl-switch size="small" ?checked=${this.settings.alternativeFragmentExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'alternativeFragmentExists')}>
                     Alternative Fragment
                 </sl-switch>
-            </sl-details>
+            </section>
 
-            <sl-details 
-                class="options-group" 
-                summary="${msg('Constraints')}"
-            >
-                
+            <section class="section">
+                <h3 class="section-heading">${msg("Constraints")}</h3>
                 <sl-input 
                     type="number" 
                     label=${msg("Max. Objects (Lifelines)")}
@@ -170,45 +162,36 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
                     .value=${this.settings.maxNumberOfActivations.toString()}
                     @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxNumberOfActivations')}
                 ></sl-input>
-            </sl-details>
+            </section>
 
-            <sl-tooltip 
-                content=${msg("Set Validation Mode to 'Custom' in Global Settings to configure individual rules")}
-                ?disabled=${this.globalSettings.validationMode === 'custom'}
-                hoist
-                placement="bottom"
-            >
-                <div>
-                    <sl-details 
-                        class="options-group" 
-                        summary="${msg('Validation')}"
-                        ?disabled=${this.globalSettings.validationMode !== 'custom'}
-                    >
+            <section class="section">
+                <h3 class="section-heading">${msg("Validation")}</h3>
+                ${validationDisabled ? html`
+                    <p class="help-text">${msg("Set Validation Mode to 'Custom' to configure individual rules")}</p>
+                ` : ''}
 
-                        <sl-switch size="small" ?checked=${this.settings.checkForEmptyGuards} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyGuards')}>
-                            Empty Guards
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForEmptyClassNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyClassNames')}>
-                            Empty Class Names
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForEmptyObjectNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyObjectNames')}>
-                            Empty Object Names
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForFirstLetterOfClass} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfClass')}>
-                            Class Naming Rules
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForFirstLetterOfMessages} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfMessages')}>
-                            Message Naming Rules
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForFirstLetterOfObject} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfObject')}>
-                            Object Naming Rules
-                        </sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.checkForFragmentOverlap} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFragmentOverlap')}>
-                            Overlapping Fragments
-                        </sl-switch>
-                    </sl-details>
-                </div>
-            </sl-tooltip>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyGuards} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyGuards')}>
+                    Empty Guards
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyClassNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyClassNames')}>
+                    Empty Class Names
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyObjectNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyObjectNames')}>
+                    Empty Object Names
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfClass} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfClass')}>
+                    Class Naming Rules
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfMessages} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfMessages')}>
+                    Message Naming Rules
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfObject} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfObject')}>
+                    Object Naming Rules
+                </sl-switch>
+                <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFragmentOverlap} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFragmentOverlap')}>
+                    Overlapping Fragments
+                </sl-switch>
+            </section>
         `;
     }
 }
