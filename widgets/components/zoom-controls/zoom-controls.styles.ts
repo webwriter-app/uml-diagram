@@ -1,40 +1,48 @@
 import { css } from "lit";
 /**
  * Styles for the Zoom Controls component.
- * Floating panel in the top-right corner of the editor canvas.
+ * Floating panel in the bottom-right corner of the editor canvas, sized and bordered
+ * like the small buttons in the toolbar.
  */
 export default css`
 
-    /* Floating panel in the top-right corner of the canvas */
+    /* Floating panel in the bottom-right corner of the canvas, as tall as a small button */
     :host {
         display: flex;
         align-items: center;
+        box-sizing: border-box;
         position: absolute;
-        top: var(--sl-spacing-medium);
+        bottom: var(--sl-spacing-medium);
         right: var(--sl-spacing-medium);
         z-index: 10;
-        padding: var(--sl-spacing-3x-small);
+        height: var(--sl-input-height-small);
+        padding: 0 var(--sl-spacing-3x-small);
 
         background-color: rgba(255, 255, 255, 0.9);
-        border: var(--sl-panel-border-width) solid var(--sl-panel-border-color);
-        border-radius: var(--sl-border-radius-large);
+        border: var(--sl-input-border-width) solid var(--sl-input-border-color);
+        border-radius: var(--sl-input-border-radius-small);
 
         color: var(--sl-color-neutral-700);
-        font-size: var(--sl-font-size-large);
+        font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-medium);
         -webkit-user-select: none;
         user-select: none;
     }
 
+    sl-icon-button::part(base) {
+        padding: var(--sl-spacing-2x-small);
+    }
+
     .zoom-level {
-        min-width: 3rem;
+        min-width: 2.5rem;
         text-align: center;
-        font-size: var(--sl-font-size-small);
+        font-size: var(--sl-font-size-x-small);
         font-variant-numeric: tabular-nums;
         color: var(--sl-color-neutral-600);
     }
 
     sl-divider {
-        height: 1.25rem;
+        height: 1rem;
         --spacing: var(--sl-spacing-2x-small);
     }
 `;
