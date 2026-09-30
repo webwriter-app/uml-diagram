@@ -9,7 +9,7 @@ import { SequenceSettings } from "./components/sequence-diagram/models/sequence-
 import { GlobalSettings } from "./components/global-settings/global-settings-model";
 import { GlobalSettingsMenu } from "./components/global-settings/global-settings-menu/global-settings-menu";
 import { SequenceModel } from "./components/sequence-diagram/models/sequence-model";
-import styles from "./bamoritzs-oowidget.styles";
+import styles from "./webwriter-uml-diagram.styles";
 import { localized } from "@lit/localize";
 
 /**
@@ -21,8 +21,8 @@ import { localized } from "@lit/localize";
  * Holds and distributes settings
  */
 @localized()
-@customElement("bamoritzs-oowidget")
-export class BamoritzsOowidget extends LitElementWw {
+@customElement("webwriter-uml-diagram")
+export class WebwriterUmlDiagram extends LitElementWw {
 
     /** Register used Elements */
     static get scopedElements() {

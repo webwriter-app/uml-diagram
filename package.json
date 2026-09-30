@@ -1,5 +1,5 @@
 {
-    "name": "@bamoritzs/oowidget",
+    "name": "@webwriter/uml-diagram",
     "version": "0.0.1",
     "keywords": [
         "webwriter-widget"
@@ -23,10 +23,11 @@
         "@lit/localize-tools": "^0.8"
     },
     "exports": {
-        "./widgets/bamoritzs-oowidget.*": {
-            "source": "./widgets/bamoritzs-oowidget.ts",
-            "default": "./dist/widgets/bamoritzs-oowidget.*"
+        "./widgets/webwriter-uml-diagram.*": {
+            "source": "./widgets/webwriter-uml-diagram.ts",
+            "default": "./dist/widgets/webwriter-uml-diagram.*"
         },
-        "./icon": "./icon.svg"
+        "./icon": "./icon.svg",
+        "./editing-config.json": "./editing-config.json"
     }
 }
