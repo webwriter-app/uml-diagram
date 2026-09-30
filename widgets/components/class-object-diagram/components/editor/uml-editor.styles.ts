@@ -67,7 +67,7 @@ export default css`
         min-width: 30px;
         min-height: 30px;
         cursor: grab;
-        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        transition: border-color var(--sl-transition-fast) ease;
     }
 
     /* Switches to grabbing cursor while actively dragging a node */
@@ -75,12 +75,9 @@ export default css`
         cursor: grabbing;
     }
 
-    /* Highlights nodes on hover when not in relation mode */
-    #drawflowEditorDiv:not(.interaction-mode-active) .drawflow-node:hover {
-        border-color: var(--sl-color-primary-500);
-        box-shadow: var(--sl-shadow-medium);
-        transform: translateY(-2px);
-        z-index: 5;
+    /* Outlines hovered nodes in the primary color (without moving them) */
+    .drawflow .drawflow-node:hover {
+        border-color: var(--sl-color-primary-600);
     }
 
     /* Switches to move cursor when panning the canvas background */
@@ -247,18 +244,13 @@ export default css`
         stroke-width: 2px;
         cursor: pointer;
         pointer-events: stroke !important;
-        transition: stroke 0.2s ease, stroke-width 0.2s ease;
+        transition: stroke var(--sl-transition-fast) ease;
         paint-order: stroke;
     }
 
-    /* Thickens the connection line on hover */
-    .drawflow .connection .main-path:hover {
-        stroke-width: 3px;
-    }
-
-    /* Thickens the connection line when the SVG container is hovered */
+    /* Colors hovered connections (incl. their arrow heads) in the primary color */
     .drawflow .connection:hover .main-path {
-        stroke-width: 3px !important;
+        stroke: var(--sl-color-primary-600) !important;
     }
 
     /* Prevents the cursor from flickering over connection text labels */
@@ -328,24 +320,18 @@ export default css`
     /* Relation Mode Interaction                                                  */
     /* -------------------------------------------------------------------------- */
 
-    /* Crosshair cursor and highlight for selectable nodes in relation mode */
-    .interaction-mode-active .drawflow-node {
+    /* In relation mode, marks all nodes that can be clicked with a dashed outline (outside the border, so nothing moves) */
+    .interaction-mode-active .drawflow-node:not(.uml-proxy-node) {
         cursor: crosshair;
-        box-shadow: 0 0 8px var(--sl-color-primary-300);
-        border-color: var(--sl-color-primary-400);
-        transition: all 0.3s ease;
+        outline: 2px dashed var(--sl-color-primary-400);
+        outline-offset: 3px;
     }
 
-    /* Stronger highlight for nodes hovered in relation mode */
-    .interaction-mode-active .drawflow-node:hover {
-        box-shadow: 0 0 15px var(--sl-color-primary-500);
-        transform: scale(1.02);
-    }
-
-    /* Highlights the node selected as the relation source */
-    .node-source-selected {
-        border: 3px solid var(--sl-color-primary-600) !important;
-        box-shadow: 0 0 20px var(--sl-color-primary-600) !important;
+    /* Marks the node selected as the relation source with the (solid) Shoelace focus ring */
+    .interaction-mode-active .drawflow-node.node-source-selected {
+        border-color: var(--sl-color-primary-600);
+        outline: var(--sl-focus-ring);
+        outline-offset: var(--sl-focus-ring-offset);
     }
 
     /* Floating banner shown at the bottom of the editor during relation creation */

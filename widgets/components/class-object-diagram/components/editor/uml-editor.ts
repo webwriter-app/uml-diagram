@@ -2465,6 +2465,7 @@ export class UMLEditor extends LitElementWw{
                 class="${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''} ${this._isEmpty ? 'empty' : ''}"
             >
                 <svg style="position: absolute; width: 0; height: 0;">
+                    <!-- arrow heads use the color of their line (context-stroke), so they follow hover/selection -->
                     <defs>
                         <marker 
                             id="arrow-inheritance" 
@@ -2474,7 +2475,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="12" 
                             markerHeight="12" 
                             orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-700)" stroke-width="1" />
+                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
                         </marker>
 
                         <marker 
@@ -2485,7 +2486,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="12" 
                             markerHeight="12" 
                             orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-700)" stroke-width="1" />
+                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
                         </marker>
 
                         <marker 
@@ -2496,7 +2497,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="8" 
                             markerHeight="8" 
                             orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
+                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
                         </marker>
 
                         <marker 
@@ -2507,7 +2508,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="8" 
                             markerHeight="8" 
                             orient="auto">
-                            <path d="M 10 0 L 0 5 L 10 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
+                            <path d="M 10 0 L 0 5 L 10 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
                         </marker>
 
                         <marker 
@@ -2518,7 +2519,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="8" 
                             markerHeight="8" 
                             orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
+                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
                         </marker>
 
                         <marker 
@@ -2529,7 +2530,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="10" 
                             markerHeight="10" 
                             orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1" />
+                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
                         </marker>
 
                         <marker 
@@ -2540,7 +2541,7 @@ export class UMLEditor extends LitElementWw{
                             markerWidth="10" 
                             markerHeight="10" 
                             orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-900)" stroke="var(--sl-color-neutral-900)" stroke-width="1" />
+                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1" />
                         </marker>
                     </defs>
                 </svg>
