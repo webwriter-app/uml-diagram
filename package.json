@@ -26,6 +26,7 @@
         "./widgets/bamoritzs-oowidget.*": {
             "source": "./widgets/bamoritzs-oowidget.ts",
             "default": "./dist/widgets/bamoritzs-oowidget.*"
-        }
+        },
+        "./icon": "./icon.svg"
     }
 }
