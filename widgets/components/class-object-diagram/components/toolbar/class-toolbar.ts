@@ -5,7 +5,9 @@ import { msg, localized } from "@lit/localize";
 import { ClassSettings } from "../../models/class-settings-model";
 import toolbarStyles from "../../../shared/toolbar.styles";
 import styles from "./class-toolbar.styles";
-import plusIcon from "@tabler/icons/outline/plus.svg";
+import classPlusIcon from "../../../../../assets/icons/class-plus.svg";
+import objectPlusIcon from "../../../../../assets/icons/object-plus.svg";
+import relationPlusIcon from "../../../../../assets/icons/relation-plus.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import { SlButton, SlDivider, SlMenu, SlMenuItem, SlMenuLabel, SlDropdown, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 
@@ -159,7 +161,7 @@ export class ClassToolbar extends LitElementWw{
                                     @click=${() => this._sendClass("object")}
                                     ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                 >
-                                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                    <sl-icon slot="prefix" src=${objectPlusIcon}></sl-icon>
                                     ${msg("Object")}
                                 </sl-button>
                             </sl-tooltip>
@@ -178,7 +180,7 @@ export class ClassToolbar extends LitElementWw{
                                             caret
                                             ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                         >
-                                            <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                            <sl-icon slot="prefix" src=${classPlusIcon}></sl-icon>
                                             ${msg("Class")}
                                         </sl-button>
 
@@ -234,7 +236,7 @@ export class ClassToolbar extends LitElementWw{
                                     caret
                                     ?disabled=${this.currentRelationCount >= this.settings.maxRelations}
                                 >
-                                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                    <sl-icon slot="prefix" src=${relationPlusIcon}></sl-icon>
                                     ${isObjectDiagram ? msg("Link") : msg("Relation")}
                                 </sl-button>
                                 

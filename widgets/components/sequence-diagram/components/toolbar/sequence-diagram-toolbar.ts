@@ -4,7 +4,10 @@ import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { SlButton, SlDropdown, SlMenu, SlMenuItem, SlDivider, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 import trashIcon from "@tabler/icons/outline/trash.svg";
-import plusIcon from "@tabler/icons/outline/plus.svg";
+import lifelinePlusIcon from "../../../../../assets/icons/lifeline-plus.svg";
+import activationPlusIcon from "../../../../../assets/icons/activation-plus.svg";
+import fragmentPlusIcon from "../../../../../assets/icons/fragment-plus.svg";
+import messagePlusIcon from "../../../../../assets/icons/message-plus.svg";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import { SequenceModel } from "../../models/sequence-model";
 import toolbarStyles from "../../../shared/toolbar.styles";
@@ -81,7 +84,7 @@ export class SequenceToolbar extends LitElementWw {
                     @click=${this._handleAddLifeline}
                     ?disabled=${(this.model?.lifelines?.length) >= this.settings.maxNumberOfLifelines}
                 >
-                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                    <sl-icon slot="prefix" src=${lifelinePlusIcon}></sl-icon>
                     ${msg("Lifeline")}
                 </sl-button>
             </sl-tooltip>
@@ -97,7 +100,7 @@ export class SequenceToolbar extends LitElementWw {
                         @click=${this._handleAddActivation}
                         ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) >= this.settings.maxNumberOfActivations}
                     >
-                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        <sl-icon slot="prefix" src=${activationPlusIcon}></sl-icon>
                         ${msg("Activation")}
                     </sl-button>
                 </sl-tooltip>
@@ -115,7 +118,7 @@ export class SequenceToolbar extends LitElementWw {
                         caret 
                         ?disabled=${(this.model?.fragments?.length) >= this.settings.maxNumberOfFragments}
                     >
-                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        <sl-icon slot="prefix" src=${fragmentPlusIcon}></sl-icon>
                         ${msg("Fragment")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="width: 200px;">
@@ -152,7 +155,7 @@ export class SequenceToolbar extends LitElementWw {
                         caret 
                         ?disabled=${(this.model?.messages?.length) >= this.settings.maxNumberOfMessages}
                     >
-                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        <sl-icon slot="prefix" src=${messagePlusIcon}></sl-icon>
                         ${msg("Message")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="width: 200px;">
