@@ -3,11 +3,10 @@ import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { ClassSettings } from "../../models/class-settings-model";
+import toolbarStyles from "../../../shared/toolbar.styles";
 import styles from "./class-toolbar.styles";
-import squareIcon from "@tabler/icons/outline/square.svg";
-import arrowUpRightIcon from "@tabler/icons/outline/arrow-up-right.svg";
+import plusIcon from "@tabler/icons/outline/plus.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { SlButton, SlDivider, SlMenu, SlMenuItem, SlMenuLabel, SlDropdown, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 
 /** 
@@ -32,7 +31,7 @@ export class ClassToolbar extends LitElementWw{
     }
 
     /** Styles are definied in the corespondig file ./class-toolbar.styles.ts */
-    static styles = [styles];
+    static styles = [toolbarStyles, styles];
 
     /** Property to hold the current diagram type passed down by the widget */
     @property() accessor diagramType: string = "class-diagram";
@@ -40,17 +39,11 @@ export class ClassToolbar extends LitElementWw{
     /** Property to hold the passed down settings for the diagram */
     @property({ attribute: false }) accessor settings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
 
-    /** Property to hold the passed down global settings */
-    @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
-
     /** Property to hold the current number of classes/objects passed down by the container*/
     @property({ type: Number }) accessor currentClassCount: number = 0;
 
     /** Property to hold the current number of relations/links passed down by the container */
     @property({ type: Number }) accessor currentRelationCount: number = 0;
-
-    /** Property to hold the current state of the fullscreen mode (on or off) */
-    @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
     /** Property to inform the toolbar that a dialog is opend to deactivate it */
     @property({ type: Boolean, reflect: true }) accessor dialogOpen: boolean = false;
@@ -89,17 +82,6 @@ export class ClassToolbar extends LitElementWw{
                 })
             );
         }
-    }
-
-    /** Dispatch an event to inform the widget to change the diagram type */
-    private _changeDiagram(diagramType: string) {
-        this.dispatchEvent(
-            new CustomEvent('changeDiagram', {
-                bubbles: true,
-                composed: true,
-                detail: { diagramType }
-            })
-        )
     }
 
     // --------------------------------------------------------------------------------------------------------
@@ -163,38 +145,8 @@ export class ClassToolbar extends LitElementWw{
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
         return html`
-            <div class="toolbar-container ${this.isFullscreen ? 'fullscreen' : ''}">
-                
-                <div class="left-section">
-                    <sl-dropdown hoist>
-                        <sl-button class="toolbar-btn" slot="trigger" caret>${msg(this.diagramType)}</sl-button>
-                        
-                        <sl-menu class="toolbar-menu" style="width: 265px;">
-    
-                            ${!isObjectDiagram && this.globalSettings.objectDiagramEnabled ? html`
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("object-diagram")}>
-                                    ${msg("Switch to Object-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                            ${isObjectDiagram && this.globalSettings.classDiagramEnabled ? html`
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("class-diagram")}>
-                                    ${msg("Switch to Class-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                            ${this.globalSettings.sequenceDiagramEnabled ? html`
-                                <sl-divider class="toolbar-divider"></sl-divider>
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("sequence-diagram")}>
-                                    ${msg("Switch to Sequence-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                        </sl-menu>
-                    </sl-dropdown>
-                </div>
-
-                <div class="center-section">
+            <div class="toolbar-container">
+                <div class="actions">
                     ${isObjectDiagram 
                         ? html`
                             <sl-tooltip
@@ -203,16 +155,12 @@ export class ClassToolbar extends LitElementWw{
                                 hoist
                             >
                                 <sl-button 
-                                    class="toolbar-btn" 
-                                    variant="text" 
+                                    size="small"
                                     @click=${() => this._sendClass("object")}
                                     ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                 >
-                                    <sl-icon 
-                                        slot="prefix" 
-                                        src=${squareIcon}
-                                    ></sl-icon>
-                                    ${msg("Add Object")}
+                                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                    ${msg("Object")}
                                 </sl-button>
                             </sl-tooltip>
                         ` 
@@ -223,16 +171,15 @@ export class ClassToolbar extends LitElementWw{
                                 hoist
                             >
                                 <div>
-                                    <sl-dropdown placement="bottom-end" hoist>
+                                    <sl-dropdown placement="bottom-start" hoist>
                                         <sl-button 
-                                            class="toolbar-btn" 
+                                            size="small"
                                             slot="trigger" 
-                                            variant="text" 
                                             caret
                                             ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                         >
-                                            <sl-icon slot="prefix" src=${squareIcon}></sl-icon>
-                                            ${msg("Add Class")}
+                                            <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                            ${msg("Class")}
                                         </sl-button>
 
                                         <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
@@ -274,24 +221,21 @@ export class ClassToolbar extends LitElementWw{
                         `
                     }
 
-                    <sl-divider vertical style="height: 30px"></sl-divider>
-
                     <sl-tooltip
                         content=${msg("Max. number of connections reached")}
                         ?disabled=${this.currentRelationCount < this.settings.maxRelations}
                         hoist
                     >
                         <div>
-                            <sl-dropdown placement="bottom-end" hoist>
+                            <sl-dropdown placement="bottom-start" hoist>
                                 <sl-button 
-                                    class="toolbar-btn" 
+                                    size="small"
                                     slot="trigger" 
-                                    variant="text" 
                                     caret
                                     ?disabled=${this.currentRelationCount >= this.settings.maxRelations}
                                 >
-                                    <sl-icon slot="prefix" src=${arrowUpRightIcon}></sl-icon>
-                                    ${isObjectDiagram ? msg("Add Link") : msg("Add Relation")}
+                                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                                    ${isObjectDiagram ? msg("Link") : msg("Relation")}
                                 </sl-button>
                                 
                                 <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
@@ -379,15 +323,15 @@ export class ClassToolbar extends LitElementWw{
                     </sl-tooltip>
                 </div>
                 
-                <div class="right-section">
+                <sl-tooltip content=${msg("Reset diagram")} hoist>
                     <sl-button 
                         class="clear-btn" 
-                        variant="text" 
+                        size="small"
                         @click=${() => this.dispatchEvent(new CustomEvent('clearCanvas', { bubbles: true, composed: true }))}
                     >
-                        <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
+                        <sl-icon src=${trashIcon} label=${msg("Reset diagram")}></sl-icon>
                     </sl-button>
-                </div>
+                </sl-tooltip>
             </div>
         `;
     }

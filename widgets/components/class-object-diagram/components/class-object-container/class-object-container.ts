@@ -124,10 +124,8 @@ export class ClassObjectContainer extends LitElementWw {
             <class-toolbar
                 .diagramType=${this.diagramType}
                 .settings=${this.settings}
-                .globalSettings=${this.globalSettings}
                 .currentClassCount=${this.currentClassCount}
                 .currentRelationCount=${this.currentRelationCount}
-                .isFullscreen=${this.isFullscreen}
                 ?dialogopen=${this._dialogOpen}
                 @addClass=${this._handleClassAdd}
                 @addObject=${this._handleObjectAdd}

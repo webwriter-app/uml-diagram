@@ -9,6 +9,7 @@ import { SequenceSettings } from "./components/sequence-diagram/models/sequence-
 import { GlobalSettings } from "./components/global-settings/global-settings-model";
 import { GlobalSettingsMenu } from "./components/global-settings/global-settings-menu/global-settings-menu";
 import { SequenceModel } from "./components/sequence-diagram/models/sequence-model";
+import { DiagramTabs, visibleDiagramTypes } from "./components/diagram-tabs/diagram-tabs";
 import styles from "./webwriter-uml-diagram.styles";
 import { localized } from "@lit/localize";
 
@@ -29,7 +30,8 @@ export class WebwriterUmlDiagram extends LitElementWw {
         return {
             "class-object-container": ClassObjectContainer,
             "sequence-diagram-container": SequenceDiagramContainer,
-            "global-settings-menu": GlobalSettingsMenu
+            "global-settings-menu": GlobalSettingsMenu,
+            "diagram-tabs": DiagramTabs
         };
     }
 
@@ -241,59 +243,68 @@ export class WebwriterUmlDiagram extends LitElementWw {
         const hideObjectDiagram = this.diagramType === 'object-diagram' ? '' : 'display: none;';
         const hideSequenceDiagram = this.diagramType === 'sequence-diagram' ? '' : 'display: none;';
 
+        // The first visible tab sits on the frame's top left corner, so that corner is only rounded when another tab is active
+        const firstTabType = visibleDiagramTypes(this.globalSettings, this.diagramType)[0];
+
         return html`
-            
-            <div 
-                class="diagram-wrapper" 
-                style="${hideSequenceDiagram}"
-            >
-                <sequence-diagram-container
-                    @change-diagram-type=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
-                    .settings=${this.sequenceSettings}
+            <div class="root">
+                <diagram-tabs
+                    .active=${this.diagramType}
                     .globalSettings=${this.globalSettings}
-                    .model=${this.sequenceModelData}
-                    .checkpoint=${this.savedSequenceDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @sequence-model-changed=${this._handleSequenceModelChanged}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></sequence-diagram-container>
-            </div>
+                    @select-diagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
+                ></diagram-tabs>
 
-            <div 
-                class="diagram-wrapper" 
-                style="${hideClassDiagram}"
-            >
-                <class-object-container 
-                    diagramType="class-diagram"
-                    .settings=${this.classSettings}
-                    .globalSettings=${this.globalSettings}
-                    .savedDiagramData=${this.classDiagramData}
-                    .checkpoint=${this.savedClassDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @diagram-data-changed=${this._handleDiagramDataChanged}
-                    @changeDiagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.diagramType)}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></class-object-container>
-            </div>
+                <div class="frame ${this.diagramType === firstTabType ? 'first-tab-active' : ''}">
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideSequenceDiagram}"
+                    >
+                        <sequence-diagram-container
+                            .settings=${this.sequenceSettings}
+                            .globalSettings=${this.globalSettings}
+                            .model=${this.sequenceModelData}
+                            .checkpoint=${this.savedSequenceDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @sequence-model-changed=${this._handleSequenceModelChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></sequence-diagram-container>
+                    </div>
 
-            <div 
-                class="diagram-wrapper" 
-                style="${hideObjectDiagram}"
-            >
-                <class-object-container 
-                    diagramType="object-diagram"
-                    .settings=${this.objectSettings}
-                    .globalSettings=${this.globalSettings}
-                    .savedDiagramData=${this.objectDiagramData}
-                    .checkpoint=${this.savedObjectDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @diagram-data-changed=${this._handleDiagramDataChanged}
-                    @changeDiagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.diagramType)}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></class-object-container>
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideClassDiagram}"
+                    >
+                        <class-object-container 
+                            diagramType="class-diagram"
+                            .settings=${this.classSettings}
+                            .globalSettings=${this.globalSettings}
+                            .savedDiagramData=${this.classDiagramData}
+                            .checkpoint=${this.savedClassDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @diagram-data-changed=${this._handleDiagramDataChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></class-object-container>
+                    </div>
+
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideObjectDiagram}"
+                    >
+                        <class-object-container 
+                            diagramType="object-diagram"
+                            .settings=${this.objectSettings}
+                            .globalSettings=${this.globalSettings}
+                            .savedDiagramData=${this.objectDiagramData}
+                            .checkpoint=${this.savedObjectDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @diagram-data-changed=${this._handleDiagramDataChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></class-object-container>
+                    </div>
+                </div>
             </div>
 
             <global-settings-menu

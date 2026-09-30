@@ -7,7 +7,7 @@ export default css`
         display: block;
         width: 100%;
         height: 100%;
-        background-color: var(--sl-color-neutral-50);
+        background-color: var(--uml-canvas-background, var(--sl-color-neutral-0));
         background-image: radial-gradient(circle, var(--sl-color-neutral-300) 1px, transparent 1px);
         background-size: var(--grid-size, 40px) var(--grid-size, 40px);
         background-position: var(--grid-x, 0) var(--grid-y, 0);

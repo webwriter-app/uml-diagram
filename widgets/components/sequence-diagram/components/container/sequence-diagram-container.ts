@@ -607,10 +607,7 @@ export class SequenceDiagramContainer extends LitElementWw {
         return html`
             <sequence-toolbar 
                 .model=${this.model}
-                .diagramType=${'sequence-diagram'}
                 .settings=${this.settings}
-                .globalSettings=${this.globalSettings}
-                .isFullscreen=${this.isFullscreen}
                 @add-lifeline=${this._handleAddLifeline}
                 @add-activation=${this._handleAddActivationMode}
                 @add-message-mode=${this._startMessageMode}

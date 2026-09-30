@@ -4,10 +4,10 @@ import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { SlButton, SlDropdown, SlMenu, SlMenuItem, SlDivider, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 import trashIcon from "@tabler/icons/outline/trash.svg";
+import plusIcon from "@tabler/icons/outline/plus.svg";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import { SequenceModel } from "../../models/sequence-model";
-import styles from "./sequence-diagram-toolbar.styles";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import toolbarStyles from "../../../shared/toolbar.styles";
 
 /** Toolbar for the sequence diagram */
 @localized()
@@ -25,28 +25,14 @@ export class SequenceToolbar extends LitElementWw {
     };
   }
 
-  /** styles are defined in the toolbar.styles file */
-  static styles = [styles];
+  /** styles are shared with the class/object toolbar */
+  static styles = [toolbarStyles];
 
   /** Property to get the current state of the diagram */
   @property({ type: Object }) accessor model: SequenceModel = new SequenceModel();
 
-  /** Property to receive the current diagram type */
-  @property({ type: String }) diagramType = "sequence-diagram";
-
   /** Property to receive the settings from the main widget */
   @property({ attribute: false }) accessor settings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
-  
-  /** Property to hold the passed down global settings */
-  @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
-
-  /** Property to hold the passed down info if fullscreen is active */
-  @property({ type: Boolean }) accessor isFullscreen: boolean = false;
-
-  /** send an event to inform the widget to change the current diagram type */
-  private _changeDiagram(type: string) {
-    this.dispatchEvent(new CustomEvent("change-diagram-type", { detail: { type }, bubbles: true, composed: true }));
-  }
 
   /** send an event to inform the container to add a new object/lifeline */
   private _handleAddLifeline() {
@@ -83,46 +69,20 @@ export class SequenceToolbar extends LitElementWw {
 
   render() {
     return html`
-      <div class="toolbar-container ${this.isFullscreen ? 'fullscreen' : ''}">
-        <div class="left-section">
-            <sl-dropdown hoist>
-                <sl-button 
-                    class="toolbar-btn" 
-                    slot="trigger" 
-                    variant="text" 
-                    caret
-                >
-                    ${msg("Sequence Diagram")}
-                </sl-button>
-                <sl-menu class="toolbar-menu" style="width: 265px;">
-                    ${this.globalSettings.classDiagramEnabled ? html`
-                        <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("class-diagram")}>
-                            ${msg("Switch to Class-Diagram")}
-                        </sl-menu-item>
-                    ` : ''}
-                    ${this.globalSettings.objectDiagramEnabled ? html`
-                        <sl-divider class="toolbar-divider"></sl-divider>
-                        <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("object-diagram")}>
-                            ${msg("Switch to Object-Diagram")}
-                        </sl-menu-item>
-                    ` : ''}
-                </sl-menu>
-            </sl-dropdown>
-        </div>
-
-        <div class="center-section">
+      <div class="toolbar-container">
+        <div class="actions">
             <sl-tooltip
                 content=${msg("Max. number of objects reached")}
                 ?disabled=${this.model?.lifelines?.length < this.settings.maxNumberOfLifelines}
                 hoist
             >
                 <sl-button 
-                    class="toolbar-btn"
-                    variant="text" 
+                    size="small"
                     @click=${this._handleAddLifeline}
                     ?disabled=${(this.model?.lifelines?.length) >= this.settings.maxNumberOfLifelines}
                 >
-                    ${msg("Add Lifeline")}
+                    <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                    ${msg("Lifeline")}
                 </sl-button>
             </sl-tooltip>
 
@@ -133,12 +93,12 @@ export class SequenceToolbar extends LitElementWw {
                     hoist
                 >
                     <sl-button 
-                        class="toolbar-btn"
-                        variant="text" 
+                        size="small"
                         @click=${this._handleAddActivation}
                         ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) >= this.settings.maxNumberOfActivations}
                     >
-                        ${msg("Add Activation")}
+                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        ${msg("Activation")}
                     </sl-button>
                 </sl-tooltip>
             ` : ''}
@@ -148,15 +108,15 @@ export class SequenceToolbar extends LitElementWw {
                 ?disabled=${this.model?.fragments?.length < this.settings.maxNumberOfFragments}
                 hoist
             >
-                <sl-dropdown hoist>
+                <sl-dropdown placement="bottom-start" hoist>
                     <sl-button 
-                        class="toolbar-btn"
+                        size="small"
                         slot="trigger" 
-                        variant="text" 
                         caret 
                         ?disabled=${(this.model?.fragments?.length) >= this.settings.maxNumberOfFragments}
                     >
-                        ${msg("Add Fragment")}
+                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        ${msg("Fragment")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="width: 200px;">
                         ${this.settings.alternativeFragmentExists ? html`
@@ -185,15 +145,15 @@ export class SequenceToolbar extends LitElementWw {
                 ?disabled=${this.model?.messages?.length < this.settings.maxNumberOfMessages}
                 hoist
             >
-                <sl-dropdown hoist>
+                <sl-dropdown placement="bottom-start" hoist>
                     <sl-button 
-                        class="toolbar-btn"
+                        size="small"
                         slot="trigger" 
-                        variant="text" 
                         caret 
                         ?disabled=${(this.model?.messages?.length) >= this.settings.maxNumberOfMessages}
                     >
-                        ${msg("Add Message")}
+                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
+                        ${msg("Message")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="width: 200px;">
 
@@ -259,11 +219,11 @@ export class SequenceToolbar extends LitElementWw {
             </sl-tooltip>
         </div>
 
-        <div class="right-section">
-            <sl-button class="clear-btn" variant="text" @click=${this._handleClear}>
-                <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
+        <sl-tooltip content=${msg("Reset diagram")} hoist>
+            <sl-button class="clear-btn" size="small" @click=${this._handleClear}>
+                <sl-icon src=${trashIcon} label=${msg("Reset diagram")}></sl-icon>
             </sl-button>
-        </div>
+        </sl-tooltip>
       </div>
     `;
   }
