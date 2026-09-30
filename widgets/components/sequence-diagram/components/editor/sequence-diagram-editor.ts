@@ -542,8 +542,24 @@ export class SequenceEditor extends LitElementWw {
     // Viewpoint and Canvas Controles
     // --------------------------------------------------------------------------------------------------------
 
+    /** Without any lifelines there is no reference point, so the canvas cannot be panned or zoomed */
+    private get _isEmpty(): boolean {
+        return !this.model?.lifelines?.length;
+    }
+
+    /** Reset an empty canvas to its initial view before rendering */
+    protected willUpdate(changedProperties: any) {
+        super.willUpdate(changedProperties);
+        if (this._isEmpty) {
+            this.zoom = 1;
+            this.panX = 0;
+            this.panY = 0;
+        }
+    }
+
     /** Handle the zooming with the mouseweel taking the mouse position into account */
     private _handleWheel(e: WheelEvent) {
+        if (this._isEmpty) return;
         e.preventDefault(); 
         
         const zoomSensitivity = 0.0015;
@@ -572,6 +588,7 @@ export class SequenceEditor extends LitElementWw {
 
     /** if mousclick down on the background activate panning */
     private _handlePointerDown(e: PointerEvent) {
+        if (this._isEmpty) return;
         const target = e.target as SVGElement;
         if (target.tagName.toLowerCase() === 'svg') {
             this._isPanning = true;
@@ -1370,6 +1387,7 @@ export class SequenceEditor extends LitElementWw {
             ` : ''}
 
             <svg 
+                class=${this._isEmpty ? 'empty' : ''}
                 viewBox="${this.panX} ${this.panY} ${this._svgWidth / this.zoom} ${this._svgHeight / this.zoom}"
                 @wheel=${this._handleWheel}
                 @pointerdown=${this._handlePointerDown}
@@ -1761,12 +1779,17 @@ export class SequenceEditor extends LitElementWw {
                 })}
             </svg>
 
+            ${this._isEmpty ? html`
+                <div class="empty-hint">${msg("Add lifelines via the toolbar above.")}</div>
+            ` : ''}
+
             <zoom-controls
                 style="right: ${(this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null) && this.drawerPlacement === 'end' ? 'calc(33% + var(--sl-spacing-medium))' : 'var(--sl-spacing-medium)'};"
                 .zoomLevel=${this.zoom}
                 .minZoom=${0.3}
                 .maxZoom=${3}
                 .isFullscreen=${this.isFullscreen}
+                ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${this._zoomIn}
                 @zoom-out=${this._zoomOut}
             ></zoom-controls>

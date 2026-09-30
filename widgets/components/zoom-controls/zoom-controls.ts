@@ -36,9 +36,12 @@ export class ZoomControls extends LitElementWw {
 
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
+    /** Disables both zoom buttons, e.g. while the canvas is empty */
+    @property({ type: Boolean }) accessor zoomDisabled: boolean = false;
+
     render() {
-        const atMin = this.zoomLevel <= this.minZoom * 1.001;
-        const atMax = this.zoomLevel >= this.maxZoom * 0.999;
+        const atMin = this.zoomDisabled || this.zoomLevel <= this.minZoom * 1.001;
+        const atMax = this.zoomDisabled || this.zoomLevel >= this.maxZoom * 0.999;
 
         return html`
             <sl-tooltip content=${msg("Toggle Fullscreen")} hoist>

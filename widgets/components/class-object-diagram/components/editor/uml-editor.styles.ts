@@ -88,6 +88,29 @@ export default css`
         cursor: move;
     }
 
+    /* The empty canvas cannot be panned */
+    #drawflowEditorDiv.empty:active {
+        cursor: default;
+    }
+
+    /* Hint in the center of an empty canvas, pointing to the toolbar */
+    .empty-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sl-spacing-large);
+        box-sizing: border-box;
+        text-align: center;
+        font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-small);
+        color: var(--sl-color-neutral-500);
+        -webkit-user-select: none;
+        user-select: none;
+        pointer-events: none;
+    }
+
     /* -------------------------------------------------------------------------- */
     /* Node Ports (Input / Output)                                                */
     /* -------------------------------------------------------------------------- */

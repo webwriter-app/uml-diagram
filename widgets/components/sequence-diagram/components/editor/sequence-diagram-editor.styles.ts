@@ -27,6 +27,29 @@ export default css`
         cursor: move;
     }
 
+    /* The empty canvas cannot be panned */
+    svg.empty:active {
+        cursor: default;
+    }
+
+    /* Hint in the center of an empty canvas, pointing to the toolbar */
+    .empty-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sl-spacing-large);
+        box-sizing: border-box;
+        text-align: center;
+        font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-small);
+        color: var(--sl-color-neutral-500);
+        -webkit-user-select: none;
+        user-select: none;
+        pointer-events: none;
+    }
+
     /* Styles the visual representation of the lifeline as a dashed line and disables pointer events so clicks pass through to the hitbox. */
     .lifeline-line {
         stroke: var(--sl-color-neutral-900);

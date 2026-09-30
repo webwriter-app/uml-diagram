@@ -67,6 +67,9 @@ export class UMLEditor extends LitElementWw{
     /** Tracks the current step of the relation creation process ('first' = select source, 'second' = select target) */
     @state() private firstOrSecondClass: 'first' | 'second' | null = null;
 
+    /** Whether the diagram has no classes/objects; the canvas then shows a hint and cannot be panned or zoomed */
+    @state() private accessor _isEmpty: boolean = true;
+
     /** Property to store the passed down diagram type */
     @property({ type: String }) accessor diagramType: string = 'class-diagram';
 
@@ -106,6 +109,7 @@ export class UMLEditor extends LitElementWw{
         // Reload stored diagram or else create initial data
         if (this.savedDiagramData) {
             this.editor.import(JSON.parse(this.savedDiagramData));
+            this._updateEmptyState();
             
             // Regenerate HTML for all nodes using our template
             const exportedData = JSON.parse(this.savedDiagramData);
@@ -195,8 +199,19 @@ export class UMLEditor extends LitElementWw{
         // The zoom origin is the canvas center, so the grid offset also depends on the canvas size
         new ResizeObserver(() => this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y)).observe(this.drawflowEditorDiv);
 
-        // Listener for mouse weel to zoom in and out
+        // Without any classes there is no reference point, so block panning the empty canvas
+        // (captured on the shadow root so Drawflow's own mousedown/touchstart handlers never see it)
+        const blockPanWhenEmpty = (e: Event) => {
+            if (this._isEmpty && this.drawflowEditorDiv.contains(e.target as Node)) {
+                e.stopPropagation();
+            }
+        };
+        this.renderRoot.addEventListener('mousedown', blockPanWhenEmpty, true);
+        this.renderRoot.addEventListener('touchstart', blockPanWhenEmpty, true);
+
+        // Listener for mouse weel to zoom in and out (disabled while the canvas is empty)
         this.drawflowEditorDiv.addEventListener('wheel', (e: WheelEvent) => {
+            if (this._isEmpty) return;
             e.preventDefault();
             if (e.deltaY < 0) {
                 this.editor.zoom_in();
@@ -307,6 +322,7 @@ export class UMLEditor extends LitElementWw{
         if (!this.editor || !data) return;
         this.editor.clear();
         this.editor.import(JSON.parse(data));
+        this._updateEmptyState();
         
         const exportedData = JSON.parse(data);
         const nodes = exportedData?.drawflow?.Home?.data;
@@ -368,6 +384,7 @@ export class UMLEditor extends LitElementWw{
 
     /** Serializes the current Drawflow state and send it to the parent to update widget state */
     private _serializeAndEmit() {
+        this._updateEmptyState();
         const data = this.editor.export();
         this.dispatchEvent(new CustomEvent('diagram-data-changed', {
             detail: { 
@@ -379,6 +396,17 @@ export class UMLEditor extends LitElementWw{
             bubbles: true,
             composed: true
         }));
+    }
+
+    /** Track whether the diagram is empty; an empty canvas is reset to its initial view */
+    private _updateEmptyState() {
+        this._isEmpty = this._getClassCount() === 0;
+        if (this._isEmpty && (this.editor.canvas_x !== 0 || this.editor.canvas_y !== 0 || this.editor.zoom !== 1)) {
+            this.editor.canvas_x = 0;
+            this.editor.canvas_y = 0;
+            this.editor.zoom = 1;
+            this.editor.zoom_refresh();
+        }
     }
 
     /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */
@@ -2432,7 +2460,7 @@ export class UMLEditor extends LitElementWw{
 
             <div 
                 id="drawflowEditorDiv" 
-                class=${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''}
+                class="${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''} ${this._isEmpty ? 'empty' : ''}"
             >
                 <svg style="position: absolute; width: 0; height: 0;">
                     <defs>
@@ -2529,11 +2557,20 @@ export class UMLEditor extends LitElementWw{
                 </div>
             ` : ''}
 
+            ${this._isEmpty ? html`
+                <div class="empty-hint">
+                    ${this.diagramType === 'object-diagram'
+                        ? msg("Add objects via the toolbar above.")
+                        : msg("Add classes via the toolbar above.")}
+                </div>
+            ` : ''}
+
             <zoom-controls
                 .zoomLevel=${this.editor?.zoom ?? 1}
                 .minZoom=${this.editor?.zoom_min ?? 0.5}
                 .maxZoom=${this.editor?.zoom_max ?? 1.6}
                 .isFullscreen=${this.isFullscreen}
+                ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${() => this.editor.zoom_in()}
                 @zoom-out=${() => this.editor.zoom_out()}
             ></zoom-controls>
