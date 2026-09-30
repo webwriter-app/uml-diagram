@@ -182,8 +182,18 @@ export class UMLEditor extends LitElementWw{
             this._serializeAndEmit();
         });
 
-        // Re-render on zoom changes to update the zoom level display
-        this.editor.on("zoom", () => this.requestUpdate());
+        // Re-render on zoom changes to update the zoom level display and move the background grid
+        // (Drawflow updates canvas_x/canvas_y only after dispatching "zoom", so defer reading them)
+        this.editor.on("zoom", () => {
+            this.requestUpdate();
+            queueMicrotask(() => this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y));
+        });
+
+        // While panning, Drawflow only reports the new offset through the "translate" event
+        this.editor.on("translate", ({ x, y }: { x: number, y: number }) => this._updateGridBackground(x, y));
+
+        // The zoom origin is the canvas center, so the grid offset also depends on the canvas size
+        new ResizeObserver(() => this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y)).observe(this.drawflowEditorDiv);
 
         // Listener for mouse weel to zoom in and out
         this.drawflowEditorDiv.addEventListener('wheel', (e: WheelEvent) => {
@@ -369,6 +379,18 @@ export class UMLEditor extends LitElementWw{
             bubbles: true,
             composed: true
         }));
+    }
+
+    /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */
+    private _updateGridBackground(canvasX: number, canvasY: number) {
+        const zoom = this.editor.zoom;
+        const { clientWidth, clientHeight } = this.drawflowEditorDiv;
+        // Drawflow scales around the canvas center, so shift the grid origin accordingly
+        const originX = canvasX + (clientWidth / 2) * (1 - zoom);
+        const originY = canvasY + (clientHeight / 2) * (1 - zoom);
+        this.drawflowEditorDiv.style.setProperty('--grid-size', `${40 * zoom}px`);
+        this.drawflowEditorDiv.style.setProperty('--grid-x', `${originX}px`);
+        this.drawflowEditorDiv.style.setProperty('--grid-y', `${originY}px`);
     }
 
     /* 

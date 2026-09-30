@@ -150,6 +150,14 @@ export class SequenceEditor extends LitElementWw {
         this._bindActivationDragAndResize();
         this._bindMessageDrag();
         this._bindFragmentDragAndResize();
+        this._updateGridBackground();
+    }
+
+    /** Move and scale the dotted background grid with the view, keeping the dots themselves the same size */
+    private _updateGridBackground() {
+        this.style.setProperty('--grid-size', `${40 * this.zoom}px`);
+        this.style.setProperty('--grid-x', `${-this.panX * this.zoom}px`);
+        this.style.setProperty('--grid-y', `${-this.panY * this.zoom}px`);
     }
 
     // --------------------------------------------------------------------------------------------------------

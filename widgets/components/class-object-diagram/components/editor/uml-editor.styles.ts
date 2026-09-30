@@ -18,14 +18,15 @@ export default css`
     /* Drawflow Canvas                                                            */
     /* -------------------------------------------------------------------------- */
 
-    /* Main editor canvas with a dotted grid background */
+    /* Main editor canvas with a dotted grid background that follows panning and zooming (grid variables are set by the editor) */
     #drawflowEditorDiv {
         position: relative;
         width: 100%;
         height: 100%;
         background-color: var(--sl-color-neutral-0);
         background-image: radial-gradient(circle, var(--sl-color-neutral-300) 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+        background-position: var(--grid-x, 0) var(--grid-y, 0);
         overflow: hidden;
     }
 
