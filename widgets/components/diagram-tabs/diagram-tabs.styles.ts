@@ -59,4 +59,15 @@ export default css`
         padding-bottom: 1px;
         cursor: default;
     }
+
+    /* In fullscreen the tabs start at the screen edge: square corners, no top border and
+       no left border on the first tab */
+    :host([fullscreen]) .tab {
+        border-radius: 0;
+        border-top: none;
+    }
+
+    :host([fullscreen]) .tab:first-child {
+        border-left: none;
+    }
 `;

@@ -247,10 +247,11 @@ export class WebwriterUmlDiagram extends LitElementWw {
         const firstTabType = visibleDiagramTypes(this.globalSettings, this.diagramType)[0];
 
         return html`
-            <div class="root">
+            <div class="root ${this.isFullscreen ? 'fullscreen' : ''}">
                 <diagram-tabs
                     .active=${this.diagramType}
                     .globalSettings=${this.globalSettings}
+                    ?fullscreen=${this.isFullscreen}
                     @select-diagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
                 ></diagram-tabs>
 

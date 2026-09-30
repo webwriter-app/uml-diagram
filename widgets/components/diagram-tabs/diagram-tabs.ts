@@ -31,6 +31,9 @@ export class DiagramTabs extends LitElementWw {
     /** The currently shown diagram type */
     @property({ type: String }) accessor active: string = "class-diagram";
 
+    /** In fullscreen the tabs sit on the screen edge, so they are drawn without rounded corners */
+    @property({ type: Boolean, reflect: true }) accessor fullscreen: boolean = false;
+
     /** Global settings, used to only show the enabled diagram types */
     @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 

@@ -43,6 +43,18 @@ export default css`
         border-top-left-radius: 0;
     }
 
+    /* In fullscreen the widget fills the screen: the tab row needs a background (instead of the
+       black fullscreen backdrop) and the frame only keeps the line below the tabs.
+       A class instead of :fullscreen, because the editor handles fullscreen itself. */
+    .root.fullscreen {
+        background-color: var(--sl-color-neutral-0);
+    }
+
+    .root.fullscreen .frame {
+        border-width: 1px 0 0;
+        border-radius: 0;
+    }
+
     /* Container for the diagram instances to ensure they take up the remaining space */
     .diagram-wrapper {
         flex: 1;
