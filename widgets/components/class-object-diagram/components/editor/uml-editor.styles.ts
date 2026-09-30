@@ -343,35 +343,4 @@ export default css`
         pointer-events: auto;
         border: 1px solid var(--sl-color-primary-900);
     }
-
-    /* -------------------------------------------------------------------------- */
-    /* Zoom Controls                                                              */
-    /* -------------------------------------------------------------------------- */
-
-    /* Floating panel in the bottom-right corner for zoom buttons */
-    .zoomControls {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        z-index: 10;
-        padding: 4px;
-        background-color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-medium);
-        border: 1px solid var(--sl-color-neutral-200);
-        box-shadow: var(--sl-shadow-small);
-    }
-
-    /* Default color and padding for zoom icon buttons */
-    .zoomControls sl-icon-button::part(base) {
-        padding: 4px;
-        color: var(--sl-color-neutral-700);
-    }
-
-    /* Highlights zoom buttons on hover */
-    .zoomControls sl-icon-button:hover::part(base) {
-        color: var(--sl-color-primary-600);
-    }
 `;

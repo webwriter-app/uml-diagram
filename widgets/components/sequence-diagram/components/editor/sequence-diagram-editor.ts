@@ -3,16 +3,12 @@ import { html, svg } from "lit";
 import { property, state } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import interact from 'interactjs';
-import { SlButton, SlDrawer, SlInput, SlIconButton, SlDivider, SlIcon, SlSelect, SlOption } from "@shoelace-style/shoelace";
-import zoomIn from "@tabler/icons/outline/zoom-in.svg";
-import zoomOut from "@tabler/icons/outline/zoom-out.svg";
+import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
 import databaseIcon from '@tabler/icons/outline/database.svg';
 import serverIcon from '@tabler/icons/outline/server.svg';
 import desktopIcon from '@tabler/icons/outline/device-desktop.svg';
 import { repeat } from 'lit/directives/repeat.js';
-import maximizeIcon from "@tabler/icons/outline/arrows-maximize.svg";
-import minimizeIcon from "@tabler/icons/outline/arrows-minimize.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import xIcon from "@tabler/icons/outline/x.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
@@ -21,6 +17,7 @@ import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import styles from "./sequence-diagram-editor.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
@@ -51,11 +48,10 @@ export class SequenceEditor extends LitElementWw {
             "sl-button": SlButton,
             "sl-drawer": SlDrawer, 
             "sl-input": SlInput,
-            "sl-icon-button": SlIconButton,
-            "sl-divider": SlDivider,
             "sl-icon": SlIcon,
             "sl-select": SlSelect,
-            "sl-option": SlOption
+            "sl-option": SlOption,
+            "zoom-controls": ZoomControls
         };
     }
 
@@ -154,14 +150,6 @@ export class SequenceEditor extends LitElementWw {
         this._bindActivationDragAndResize();
         this._bindMessageDrag();
         this._bindFragmentDragAndResize();
-    }
-
-    /** Send Event to main widget to toggle fullscreen mode */
-    private _toggleFullscreen() {
-        this.dispatchEvent(new CustomEvent('toggle-fullscreen', {
-            bubbles: true,
-            composed: true
-        }));
     }
 
     // --------------------------------------------------------------------------------------------------------
@@ -1765,29 +1753,15 @@ export class SequenceEditor extends LitElementWw {
                 })}
             </svg>
 
-            <div class="zoomControls" style="right: ${(this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null) && this.drawerPlacement === 'end' ? 'calc(33% + 20px)' : '20px'};">
-                <sl-icon-button
-                    src=${zoomIn}
-                    label="${msg("Zoom In")}"
-                    @click=${this._zoomIn}
-                ></sl-icon-button>
-                
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-
-                <sl-icon-button
-                    src=${this.isFullscreen ? minimizeIcon : maximizeIcon}
-                    label="${msg("Toggle Fullscreen")}"
-                    @click=${this._toggleFullscreen}
-                ></sl-icon-button>
-
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-                
-                <sl-icon-button
-                    src=${zoomOut}
-                    label="${msg("Zoom Out")}"
-                    @click=${this._zoomOut}
-                ></sl-icon-button>
-            </div>
+            <zoom-controls
+                style="right: ${(this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null) && this.drawerPlacement === 'end' ? 'calc(33% + var(--sl-spacing-medium))' : 'var(--sl-spacing-medium)'};"
+                .zoomLevel=${this.zoom}
+                .minZoom=${0.3}
+                .maxZoom=${3}
+                .isFullscreen=${this.isFullscreen}
+                @zoom-in=${this._zoomIn}
+                @zoom-out=${this._zoomOut}
+            ></zoom-controls>
 
             <sl-drawer 
                 contained

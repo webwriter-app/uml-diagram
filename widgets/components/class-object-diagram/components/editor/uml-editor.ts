@@ -6,13 +6,10 @@ import { ClassModel } from "../../models/class-model";
 import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
 import { RelationDialog, RelationDialogData } from "../relation-link-dialog/relation-dialog";
-import zoomIn from "@tabler/icons/outline/zoom-in.svg";
-import zoomOut from "@tabler/icons/outline/zoom-out.svg";
-import maximizeIcon from "@tabler/icons/outline/arrows-maximize.svg";
-import minimizeIcon from "@tabler/icons/outline/arrows-minimize.svg";
 import Drawflow from 'drawflow'
 import styles from "./uml-editor.styles";
-import { SlButton, SlDivider, SlIcon, SlIconButton } from "@shoelace-style/shoelace";
+import { SlButton, SlIcon } from "@shoelace-style/shoelace";
+import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 
 /** custom type for relation mode */
@@ -42,9 +39,8 @@ export class UMLEditor extends LitElementWw{
     static get scopedElements() {
         return {
             "sl-button": SlButton,
-            "sl-divider": SlDivider,
             "sl-icon": SlIcon,
-            "sl-icon-button": SlIconButton,
+            "zoom-controls": ZoomControls,
             "uml-class-dialog": ClassDialog,
             "uml-relation-dialog": RelationDialog  
         };
@@ -185,6 +181,9 @@ export class UMLEditor extends LitElementWw{
             this.updateNodeVisuals(nodeId);
             this._serializeAndEmit();
         });
+
+        // Re-render on zoom changes to update the zoom level display
+        this.editor.on("zoom", () => this.requestUpdate());
 
         // Listener for mouse weel to zoom in and out
         this.drawflowEditorDiv.addEventListener('wheel', (e: WheelEvent) => {
@@ -367,14 +366,6 @@ export class UMLEditor extends LitElementWw{
                 classCount: this._getClassCount(),
                 relationCount: this._getRelationCount() 
             },
-            bubbles: true,
-            composed: true
-        }));
-    }
-
-    /** Send event to main widget to Toggle Fullscreen */
-    private _toggleFullscreen() {
-        this.dispatchEvent(new CustomEvent('toggle-fullscreen', {
             bubbles: true,
             composed: true
         }));
@@ -2516,32 +2507,14 @@ export class UMLEditor extends LitElementWw{
                 </div>
             ` : ''}
 
-            <div class="zoomControls">
-                <sl-icon-button
-                    src=${zoomIn}
-                    label="${msg("Zoom In")}"
-                    style="font-size: var(--sl-font-size-x-large);"
-                    @click=${() => this.editor.zoom_in()}
-                ></sl-icon-button>
-                
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-
-                <sl-icon-button
-                    src=${this.isFullscreen ? minimizeIcon : maximizeIcon}
-                    label="${msg("Toggle Fullscreen")}"
-                    style="font-size: 20px;"
-                    @click=${this._toggleFullscreen}
-                ></sl-icon-button>
-
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-                
-                <sl-icon-button
-                    src=${zoomOut}
-                    label="${msg("Zoom Out")}"
-                    style="font-size: 20px;"
-                    @click=${() => this.editor.zoom_out()}
-                ></sl-icon-button>
-            </div>
+            <zoom-controls
+                .zoomLevel=${this.editor?.zoom ?? 1}
+                .minZoom=${this.editor?.zoom_min ?? 0.5}
+                .maxZoom=${this.editor?.zoom_max ?? 1.6}
+                .isFullscreen=${this.isFullscreen}
+                @zoom-in=${() => this.editor.zoom_in()}
+                @zoom-out=${() => this.editor.zoom_out()}
+            ></zoom-controls>
 
             <uml-class-dialog 
                 .settings=${this.settings}

@@ -167,32 +167,9 @@ export default css`
         line-height: 1.2;
     }
 
-    /* Styles the floating zoom control panel in the bottom right corner, including a smooth transition to shift its position when the drawer opens on the right. */
-    .zoomControls {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        position: absolute;
-        bottom: 20px; 
-        right: 20px;
-        z-index: 10;
-        padding: 4px;
-        background-color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-medium);
-        border: 1px solid var(--sl-color-neutral-200);
-        box-shadow: var(--sl-shadow-small);
+    /* Smoothly shifts the zoom controls when the drawer opens on the right */
+    zoom-controls {
         transition: right 0.3s ease;
-    }
-
-    /* Sets the default padding and color for the zoom icons, and applies a primary color highlight when hovered. */
-    .zoomControls sl-icon-button::part(base) {
-        padding: 4px;
-        color: var(--sl-color-neutral-700);
-        font-size: var(--sl-font-size-x-large);
-    }
-
-    .zoomControls sl-icon-button:hover::part(base) {
-        color: var(--sl-color-primary-600);
     }
 
     /* Limits the width of the Shoelace settings drawer to approximately one-third of the screen. */
