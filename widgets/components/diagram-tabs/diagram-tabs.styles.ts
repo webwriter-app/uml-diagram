@@ -21,7 +21,7 @@ export default css`
         justify-content: center;
         box-sizing: border-box;
         height: var(--sl-input-height-small);
-        padding: 0 var(--sl-spacing-medium);
+        padding: 0 var(--sl-spacing-x-small);
         min-width: 5rem;
 
         font-family: var(--sl-font-sans);
