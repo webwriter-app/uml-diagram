@@ -899,10 +899,7 @@ export class ClassDialog extends LitElementWw{
                     this.dispatchEvent(new CustomEvent('dialog-opened', { bubbles: true, composed: true }));
                 }}
             >
-            <span 
-                slot="label" 
-                style="font-weight: bold; font-size: var(--sl-font-size-large);"
-            >
+            <span slot="label">
                 ${isObjectDiagram ? msg("Object Editor") : msg("Class Editor")}
             </span>
 
@@ -923,10 +920,7 @@ export class ClassDialog extends LitElementWw{
                                     @sl-blur=${(e: any) => { this._editingNodeData = { ...this._editingNodeData, objectName: e.target.value.trim() }; this._handleBlur('objectname'); }}
                                     @sl-focus=${() => this._handleFocus(`objectname`)}
                                 >
-                                    <span 
-                                        slot="label" 
-                                        style="font-weight: bold; font-size: var(--sl-font-size-medium);"
-                                    >
+                                    <span slot="label">
                                         ${msg("Instance Name")}
                                     </span>
                                 </sl-input>
@@ -950,10 +944,7 @@ export class ClassDialog extends LitElementWw{
                                 @sl-focus=${() => this._handleFocus(`classname`)}
                                 class=${shouldShowError('classname') ? 'has-error' : ''}
                             >
-                                <span 
-                                    slot="label" 
-                                    style="font-weight: bold; font-size: var(--sl-font-size-medium);"
-                                >
+                                <span slot="label">
                                     ${isObj ? msg("Class Name") : msg("Name")}
                                 </span>
                             </sl-input>
@@ -977,10 +968,7 @@ export class ClassDialog extends LitElementWw{
                                     @sl-focus=${() => this._handleFocus(`classtype`)}
                                     class=${shouldShowError('classtype') ? 'has-error' : ''}
                                 >
-                                    <span 
-                                        slot="label" 
-                                        style="font-weight: bold; font-size: var(--sl-font-size-medium);"
-                                    >
+                                    <span slot="label">
                                         ${msg("Type")}
                                     </span>
                                     ${this.settings.standardExists ? html`<sl-option value="standard">${msg("Standard")}</sl-option>` : ''}
@@ -1419,7 +1407,7 @@ export class ClassDialog extends LitElementWw{
                     </sl-button>
 
                     <sl-button 
-                        class="save-btn" 
+                        variant="primary" 
                         @click=${this._save}
                     >
                         ${msg("Save")}

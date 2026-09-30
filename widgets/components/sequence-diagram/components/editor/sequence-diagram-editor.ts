@@ -3,7 +3,7 @@ import { html, svg } from "lit";
 import { property, state } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import interact from 'interactjs';
-import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption } from "@shoelace-style/shoelace";
+import { SlButton, SlDrawer, SlInput, SlIcon, SlIconButton, SlSelect, SlOption } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
 import databaseIcon from '@tabler/icons/outline/database.svg';
 import serverIcon from '@tabler/icons/outline/server.svg';
@@ -49,6 +49,7 @@ export class SequenceEditor extends LitElementWw {
             "sl-drawer": SlDrawer, 
             "sl-input": SlInput,
             "sl-icon": SlIcon,
+            "sl-icon-button": SlIconButton,
             "sl-select": SlSelect,
             "sl-option": SlOption,
             "zoom-controls": ZoomControls
@@ -1380,9 +1381,11 @@ export class SequenceEditor extends LitElementWw {
                             ? msg("Select end lifeline")
                             : msg("Select receiving liveline")}
                     </span>
-                    <sl-button size="small" pill @click=${() => this.dispatchEvent(new CustomEvent('cancel-interaction'))}>
-                        ${msg("Cancel")}
-                    </sl-button>
+                    <sl-icon-button
+                        src=${xIcon}
+                        label="${msg("Cancel")}"
+                        @click=${() => this.dispatchEvent(new CustomEvent('cancel-interaction'))}
+                    ></sl-icon-button>
                 </div>
             ` : ''}
 
@@ -1799,7 +1802,6 @@ export class SequenceEditor extends LitElementWw {
                 label="${editingLifeline ? msg("Lifeline") : editingMessage ? msg("Message") : this.editingActivation ? msg("Activation") : msg("Fragment")}"
                 .placement=${this.drawerPlacement}
                 .open=${this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null}
-                class=${this.drawerPlacement === 'start' ? 'drawer-left' : 'drawer-right'}
                 @sl-after-hide=${(e: Event) => {
                     if (e.target === e.currentTarget) {
                         this.editingLifelineId = null;
@@ -1867,7 +1869,7 @@ export class SequenceEditor extends LitElementWw {
                             </sl-select>
                         ` : ''}
 
-                        <sl-button class="delete-btn" @click=${this._handleDeleteLifelineClick}>
+                        <sl-button variant="danger" outline @click=${this._handleDeleteLifelineClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
                             ${msg("Delete Object")}
                         </sl-button>
@@ -1931,7 +1933,7 @@ export class SequenceEditor extends LitElementWw {
                             <sl-input label="${msg("Message Type")}" value="${editingMessage.type}" disabled></sl-input>
                         `}
 
-                        <sl-button class="delete-btn" @click=${this._handleDeleteMessageClick}>
+                        <sl-button variant="danger" outline @click=${this._handleDeleteMessageClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
                             ${msg("Delete Message")}
                         </sl-button>
@@ -1941,7 +1943,8 @@ export class SequenceEditor extends LitElementWw {
                 ${this.editingActivation ? html`
                     <div class="drawer-content">
                         <sl-button 
-                            class="delete-btn" 
+                            variant="danger" 
+                            outline 
                             @click=${this._handleDeleteActivationClick}
                         >
                             <sl-icon 
@@ -2031,7 +2034,6 @@ export class SequenceEditor extends LitElementWw {
                                 <sl-icon 
                                     slot="prefix" 
                                     src=${trashIcon}
-                                    class="delete-btn"
                                 ></sl-icon>
                                 ${msg("Delete Fragment")}
                             </sl-button>

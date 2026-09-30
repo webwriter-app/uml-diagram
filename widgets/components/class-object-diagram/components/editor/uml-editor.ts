@@ -8,7 +8,8 @@ import { ClassSettings } from "../../models/class-settings-model";
 import { RelationDialog, RelationDialogData } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
 import styles from "./uml-editor.styles";
-import { SlButton, SlIcon } from "@shoelace-style/shoelace";
+import { SlButton, SlIcon, SlIconButton } from "@shoelace-style/shoelace";
+import xIcon from "@tabler/icons/outline/x.svg";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 
@@ -40,6 +41,7 @@ export class UMLEditor extends LitElementWw{
         return {
             "sl-button": SlButton,
             "sl-icon": SlIcon,
+            "sl-icon-button": SlIconButton,
             "zoom-controls": ZoomControls,
             "uml-class-dialog": ClassDialog,
             "uml-relation-dialog": RelationDialog  
@@ -2551,9 +2553,11 @@ export class UMLEditor extends LitElementWw{
                         ${this.firstOrSecondClass === 'first' ? 'Select Source: ' : 'Select Target: '}
                         <strong>${this.interactionMode}</strong>
                     </span>
-                    <sl-button size="small" pill @click=${this._cancelAddRelation}>
-                        ${msg("Cancel")}
-                    </sl-button>
+                    <sl-icon-button
+                        src=${xIcon}
+                        label="${msg("Cancel")}"
+                        @click=${this._cancelAddRelation}
+                    ></sl-icon-button>
                 </div>
             ` : ''}
 

@@ -456,7 +456,7 @@ export class RelationDialog extends LitElementWw {
                         <div style="display: flex; gap: 15px;">
                             
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Source")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Source")}</span>
                                 <sl-input 
                                     autocomplete="off"
                                     label="${msg('Role')}" 
@@ -474,7 +474,7 @@ export class RelationDialog extends LitElementWw {
                                         @sl-focus=${() => this._handleFocus('sourceMultiplicity')}
                                     ></sl-input>
                                     ${this._focusedField !== 'sourceMultiplicity' && this._touchedFields.has('sourceMultiplicity') && this._activeIssues.find(i => i.target === 'sourceMultiplicity') ? html`
-                                        <div style="color: var(--sl-color-danger-600); font-size: font-size: var(--sl-font-size-small); margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                                        <div style="color: var(--sl-color-danger-600); font-size: var(--sl-font-size-small); margin-top: 2px; display: flex; align-items: center; gap: 4px;">
                                             <sl-icon name="exclamation-triangle"></sl-icon>
                                             ${this._activeIssues.find(i => i.target === 'sourceMultiplicity')?.message}
                                         </div>
@@ -485,7 +485,7 @@ export class RelationDialog extends LitElementWw {
                             <sl-divider vertical style="height: auto;"></sl-divider>
 
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style=font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Target")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Target")}</span>
                                 <sl-input 
                                     autocomplete="off"
                                     label="${msg('Role')}" 
@@ -531,13 +531,13 @@ export class RelationDialog extends LitElementWw {
                     <div style="display: flex; gap: 10px;">
                         
                         ${((type === 'association' || type === 'association-bidirectional' || type === 'association-undirected') && !isObjectDiagram) ? html`
-                            <sl-button class="save-btn" @click=${this._saveAndAddClass}>
+                            <sl-button @click=${this._saveAndAddClass}>
                                 <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
                                 ${msg("Assoc. Class & Save")}
                             </sl-button>
                         ` : ''}
                         
-                        <sl-button class="save-btn" @click=${this._save}>
+                        <sl-button variant="primary" @click=${this._save}>
                             ${msg("Save")}
                         </sl-button>
                     </div>

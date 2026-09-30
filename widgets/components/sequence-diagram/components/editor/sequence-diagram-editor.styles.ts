@@ -103,25 +103,26 @@ export default css`
         fill: var(--sl-color-primary-100);
     }
 
-    /* Styles the floating instruction banner centered at the top of the editor to guide the user during specific interactions. */
+    /* Styles the floating instruction banner centered at the bottom of the editor to guide the user during specific interactions. */
     .interaction-banner {
         position: absolute;
-        top: 20px;
+        bottom: var(--sl-spacing-medium);
         left: 50%;
         transform: translateX(-50%);
         z-index: 999;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 20px;
-        background-color: var(--sl-color-primary-700);
-        color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-pill);
-        box-shadow: var(--sl-shadow-large);
-        font-size: var(--sl-font-size-small);
+        gap: var(--sl-spacing-small);
+        padding: var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-medium);
+        background-color: var(--sl-color-neutral-0);
+        color: var(--sl-color-neutral-700);
+        border: var(--sl-input-border-width) solid var(--sl-input-border-color);
+        border-radius: var(--sl-input-border-radius-medium);
+        box-shadow: var(--sl-shadow-medium);
         font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-small);
+        white-space: nowrap;
         pointer-events: auto;
-        border: 1px solid var(--sl-color-primary-900);
     }
 
     /* Defines the visual appearance of the solid line connecting lifelines for a message. */
@@ -201,40 +202,12 @@ export default css`
         --size: 33%;
     }
 
-    /* defines a border for the drawer sensitive to the side it is open */
-    sl-drawer::part(panel) {
-        border-left: 2px solid var(--sl-color-neutral-900);
-        border-right: 2px solid var(--sl-color-neutral-900);
-        border-top: 1px solid var(--sl-color-neutral-900);
-        overflow: visible;
-    }
-
+    /* the drawer body scrolls vertically, but lets popups of its inputs overflow sideways */
     sl-drawer::part(body) {
         box-sizing: border-box;
         width: 100%;
         overflow-x: visible;
         overflow-y: auto;
-    }
-
-    sl-drawer.drawer-left::part(panel) {
-        border-left: none;
-    }
-
-    sl-drawer.drawer-right::part(panel) {
-        border-right: none;
-    }
-
-    /* similar style for delete button to be consistent to other diagrams */
-    .delete-btn::part(base) {
-        background-color: transparent;
-        border-color: var(--sl-color-danger-600);
-        color: var(--sl-color-danger-600);
-    }
-
-    .delete-btn::part(base):hover {
-        background-color: var(--sl-color-danger-50);
-        border-color: var(--sl-color-danger-700);
-        color: var(--sl-color-danger-700);
     }
 
     /* Standardlayout für Drawer-Inhalte */
@@ -245,13 +218,6 @@ export default css`
         width: 100%;
         box-sizing: border-box;
         //overflow-x: hidden;
-    }
-
-    /* change styles of the drawer close button */
-    sl-drawer::part(close-button) {
-        font-size: var(--sl-font-size-x-large);
-        display: flex;
-        align-items: center;
     }
 
     /* Styles the main container for the lifeline header, using flexbox to center the icon and text with a fixed gap, while hiding any overflow. */

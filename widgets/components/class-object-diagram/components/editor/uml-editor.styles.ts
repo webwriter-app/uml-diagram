@@ -348,23 +348,25 @@ export default css`
         box-shadow: 0 0 20px var(--sl-color-primary-600) !important;
     }
 
-    /* Floating banner shown at the top of the editor during relation creation */
+    /* Floating banner shown at the bottom of the editor during relation creation */
     .interaction-banner {
         position: absolute;
-        top: 20px;
+        bottom: var(--sl-spacing-medium);
         left: 50%;
         transform: translateX(-50%);
         z-index: 999;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 10px 20px;
-        background-color: var(--sl-color-primary-700);
-        color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-pill);
-        box-shadow: var(--sl-shadow-large);
+        gap: var(--sl-spacing-small);
+        padding: var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-medium);
+        background-color: var(--sl-color-neutral-0);
+        color: var(--sl-color-neutral-700);
+        border: var(--sl-input-border-width) solid var(--sl-input-border-color);
+        border-radius: var(--sl-input-border-radius-medium);
+        box-shadow: var(--sl-shadow-medium);
+        font-family: var(--sl-font-sans);
         font-size: var(--sl-font-size-small);
+        white-space: nowrap;
         pointer-events: auto;
-        border: 1px solid var(--sl-color-primary-900);
     }
 `;

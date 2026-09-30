@@ -9,37 +9,9 @@ export default css`
 
     /* Sets a fixed width with a maximum to ensure responsiveness */
     #relation-dialog::part(panel) {
-        width: 800px; 
-        max-width: 90%; 
+        width: 800px;
+        max-width: 90%;
         max-height: 100%;
-        border: 2px solid var(--sl-color-neutral-900);
-    }
-
-    /* Reduces header padding */
-    #relation-dialog::part(header) {
-        padding-top: 0px;
-        padding-bottom: 0px;
-        min-height: 0;
-    }
-
-    /* Reduces body padding */
-    #relation-dialog::part(body) {
-        padding-top: 1px;
-        padding-bottom: 1px;
-        min-height: 0;
-    }
-
-    /* Sets line hight of dialog title */
-    #relation-dialog::part(title) {
-        line-height: 1.2;
-    }
-
-    /* Reduces the close button size and centers it */
-    #relation-dialog::part(close-button) {
-        font-size: 20px;
-        padding: 0px;
-        display: flex;
-        align-items: center;
     }
 
     /* Binds the dialog to the widget instead of the document */
@@ -122,19 +94,5 @@ export default css`
     sl-input.has-error::part(base) {
         border-color: var(--sl-color-danger-500);
         background-color: var(--sl-color-danger-50);
-    }
-
-    /* Styles the save button */
-    .save-btn::part(base) {
-        background-color: transparent;
-        border-color: var(--sl-color-neutral-900);
-        color: var(--sl-color-neutral-900);
-    }
-
-    /* Adds highlight background on hover */
-    .save-btn:hover::part(base) {
-        background-color: var(--sl-color-neutral-100);
-        border-color: var(--sl-color-neutral-900);
-        color: var(--sl-color-neutral-900);
     }
 `;
