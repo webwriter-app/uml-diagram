@@ -51,6 +51,11 @@ export default css`
         align-items: center;
     }
 
+    /* Dividers separate menu groups; hide one that ends up first because the groups before it are disabled */
+    sl-menu > sl-divider:first-child {
+        display: none;
+    }
+
     /* Reset button in a light danger tone to signal the destructive action */
     .clear-btn::part(base) {
         color: var(--sl-color-danger-700);

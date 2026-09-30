@@ -4,6 +4,7 @@ import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { ClassSettings } from "../../models/class-settings-model";
 import toolbarStyles from "../../../shared/toolbar.styles";
+import { closeOtherDropdowns } from "../../../shared/toolbar-dropdowns";
 import styles from "./class-toolbar.styles";
 import classPlusIcon from "../../../../../assets/icons/class-plus.svg";
 import objectPlusIcon from "../../../../../assets/icons/object-plus.svg";
@@ -147,7 +148,7 @@ export class ClassToolbar extends LitElementWw{
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
         return html`
-            <div class="toolbar-container">
+            <div class="toolbar-container" @sl-show=${closeOtherDropdowns}>
                 <div class="actions">
                     ${isObjectDiagram 
                         ? html`
@@ -186,8 +187,7 @@ export class ClassToolbar extends LitElementWw{
 
                                         <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
                                             ${ (this.settings.standardExists || this.settings.abstractExists || this.settings.parameterizedExists) ? html`
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Classes:")}</sl-menu-label>
-                                                <sl-divider class="toolbar-divider"></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Classes")}</sl-menu-label>
                                                 ${this.settings.standardExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("standard")}>${msg("Class")}</sl-menu-item>` : ''}
                                                 ${this.settings.abstractExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("abstract")}>${msg("Abstract Class")}</sl-menu-item>` : ''}
                                                 ${this.settings.parameterizedExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("param-class")}>${msg("Parameterized Class")}</sl-menu-item>` : ''}
@@ -195,16 +195,14 @@ export class ClassToolbar extends LitElementWw{
 
                                             ${ (this.settings.interfaceExists || this.settings.annotationExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Interfaces & Metadata:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Interfaces & Metadata")}</sl-menu-label>
                                                 ${this.settings.interfaceExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("interface")}>${msg("Interface")}</sl-menu-item>` : ''}
                                                 ${this.settings.annotationExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("annotation")}>${msg("Annotation")}</sl-menu-item>` : ''}
                                             ` : '' }
 
                                             ${ (this.settings.recordExists || this.settings.dataTypeExists || this.settings.enumExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Data Types:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Data Types")}</sl-menu-label>
                                                 ${this.settings.recordExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("record")}>${msg("Record")}</sl-menu-item>` : ''}
                                                 ${this.settings.dataTypeExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("datatype")}>${msg("DataType")}</sl-menu-item>` : ''}
                                                 ${this.settings.enumExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("enum")}>${msg("Enumeration")}</sl-menu-item>` : ''}
@@ -212,8 +210,7 @@ export class ClassToolbar extends LitElementWw{
 
                                             ${ (this.settings.objectExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Runtime:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Runtime")}</sl-menu-label>
                                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("object")}>${msg("Object")}</sl-menu-item>
                                             ` : '' }
                                         </sl-menu>
@@ -243,8 +240,7 @@ export class ClassToolbar extends LitElementWw{
                                 <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
                                     
                                     ${ (this.settings.associationExists || this.settings.associationBidirectionalExists || this.settings.associationUndirectedExists) ? html`
-                                        <sl-menu-label class="toolbar-menu-label">${isObjectDiagram ? msg("Links") : msg("Connections")}</sl-menu-label>
-                                        <sl-divider class="toolbar-divider"></sl-divider>
+                                        ${!isObjectDiagram ? html`<sl-menu-label class="toolbar-menu-label">${msg("Connections")}</sl-menu-label>` : ''}
                                         
                                         ${this.settings.associationExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("association")}>
@@ -271,7 +267,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (!isObjectDiagram && (this.settings.inheritanceExists || this.settings.realizationExists)) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Generalization")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         ${this.settings.inheritanceExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("inheritance")}>
@@ -291,7 +286,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (!isObjectDiagram && this.settings.dependencyExists) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Dependencies")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("dependency")}>
                                             <div slot="prefix" style="display: flex; align-items: center;">${this._renderRelationIcon('dependency')}</div>
@@ -302,7 +296,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (this.settings.aggregationExists || this.settings.compositionExists) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Part / Whole")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         ${this.settings.aggregationExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("aggregation")}>
