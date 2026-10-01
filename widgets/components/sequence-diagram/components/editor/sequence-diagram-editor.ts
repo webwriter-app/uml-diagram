@@ -71,6 +71,13 @@ export class SequenceEditor extends LitElementWw {
     /** State to store the id of the current edited lifeline */
     @state() private accessor editingLifelineId: string | null = null;
 
+    /**
+     * The drag in progress (moving/resizing an element or panning the view): the id of the dragged element
+     * (null while panning) and the cursor to show. While set, the dragged element stays highlighted,
+     * other elements show no hover state and the cursor stays the same everywhere.
+     */
+    @state() private accessor _activeDrag: { id: string | null, cursor: string } | null = null;
+
     /** State to store the id of the current edited activation bar */
     @state() private accessor editingActivation: { lifelineId: string, id: string } | null = null;
 
@@ -161,9 +168,31 @@ export class SequenceEditor extends LitElementWw {
         this.style.setProperty('--grid-y', `${-this.panY * this.zoom}px`);
     }
 
+    /**
+     * The dragged value (position or size) at the start of the current drag. Drags compute the new value from it and
+     * the total pointer movement, so the element follows the pointer again only once the pointer is back in the
+     * allowed range, instead of adding up movements onto an already clamped value.
+     */
+    private _dragStartValue = 0;
+
+    /** The current drag's start value plus the total vertical pointer movement since the drag started */
+    private _draggedValueY(event: any): number {
+        return this._dragStartValue + (event.clientY - event.clientY0) / this.zoom;
+    }
+
+    /** Marks an element as being dragged (only in idle mode, as the drags do nothing in the other modes) */
+    private _startDrag(id: string | null, cursor: string) {
+        if (this.interactionMode === 'idle') {
+            this._activeDrag = { id, cursor };
+        }
+    }
+
     // --------------------------------------------------------------------------------------------------------
     // InteractJS Binding Methods (to simplify the updated method
     // --------------------------------------------------------------------------------------------------------
+
+    // All draggables use styleCursor(false): the cursors are defined in the stylesheet, otherwise interact.js
+    // sets an inline 'move' cursor on hover that parts without their own cursor (e.g. message lines) inherit.
 
     /** Iterate over all lifeline elements and bind interactJs to it. The lifelines should be free movable while "in hand" but droped to fixed slots */
     private _bindLifelineDrag() {
@@ -173,13 +202,14 @@ export class SequenceEditor extends LitElementWw {
             el.setAttribute('data-bound', 'true');
             const id = el.getAttribute('data-id');
 
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
                 startAxis: 'x',
                 lockAxis: 'x',
                 allowFrom: '.lifeline-click-area',
                 ignoreFrom: '.lifeline-handle',
                 listeners: {
                     start: (event) => {
+                        this._startDrag(id, 'grabbing');
                         event.target.setAttribute('data-drag-x', '0');
                         (event.target as HTMLElement).style.opacity = '0.7'; 
                     },
@@ -215,6 +245,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
 
                         const target = event.target as SVGGElement;
@@ -235,15 +266,19 @@ export class SequenceEditor extends LitElementWw {
             handle.setAttribute('data-bound', 'true');
             const id = handle.getAttribute('data-id');
             
-            interact(handle).draggable({
+            interact(handle).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
+                    start: () => {
+                        this._startDrag(id, 'ns-resize');
+                        this._dragStartValue = this.model.lifelines.find(l => l.id === id)?.length ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         const lifeline = this.model.lifelines.find(l => l.id === id);
                         if (lifeline) {
-                            let newLength = lifeline.length + (event.dy / this.zoom);
+                            let newLength = this._draggedValueY(event);
                             
                             // messages as boundary
                             const connectedMessages = this.model.messages.filter(m => m.sourceId === id || m.targetId === id);
@@ -280,6 +315,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         const lifeline = this.model.lifelines.find(l => l.id === id);
                         if (lifeline) {
@@ -296,16 +332,19 @@ export class SequenceEditor extends LitElementWw {
     /** Bind InteractJs to the activation bars to allow moving them up and down the lifelines and add a handle to the end to make it editable in its size (length) */
     private _bindActivationDragAndResize() {
         // movable in y direction
-        interact('.draggable-activation').draggable({
+        interact('.draggable-activation').styleCursor(false).draggable({
             listeners: {
+                start: (event) => {
+                    this._activeDrag = { id: event.target.getAttribute('data-id'), cursor: 'grabbing' };
+                    this._dragStartValue = parseFloat(event.target.getAttribute('y') || '0');
+                },
                 move: (event) => {
                     const target = event.target as SVGRectElement;
                     const lifelineId = target.getAttribute('data-lifeline-id');
                     if (!lifelineId) return;
 
-                    const currentY = parseFloat(target.getAttribute('y') || '0');
                     const height = parseFloat(target.getAttribute('height') || '0');
-                    let newY = currentY + (event.dy / this.zoom);
+                    let newY = this._draggedValueY(event);
                     
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
                     
@@ -327,6 +366,7 @@ export class SequenceEditor extends LitElementWw {
                     }
                 },
                 end: (event) => {
+                    this._activeDrag = null;
                     const target = event.target as SVGRectElement;
                     const newY = parseFloat(target.getAttribute('y') || '0');
                     const id = target.getAttribute('data-id');
@@ -340,8 +380,13 @@ export class SequenceEditor extends LitElementWw {
         });
 
         // resizing in length
-        interact('.activation-resize-handle').draggable({
+        interact('.activation-resize-handle').styleCursor(false).draggable({
             listeners: {
+                start: (event) => {
+                    this._activeDrag = { id: event.target.getAttribute('data-id'), cursor: 'ns-resize' };
+                    const actBox = event.target.parentNode?.querySelector('.activation-box');
+                    this._dragStartValue = parseFloat(actBox?.getAttribute('height') || '0');
+                },
                 move: (event) => {
                     const handle = event.target as SVGRectElement;
                     const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
@@ -349,10 +394,9 @@ export class SequenceEditor extends LitElementWw {
                     
                     if (!actBox || !lifelineId) return;
 
-                    const currentHeight = parseFloat(actBox.getAttribute('height') || '0');
                     const startY = parseFloat(actBox.getAttribute('y') || '0');
                     
-                    let newHeight = currentHeight + (event.dy / this.zoom);
+                    let newHeight = this._draggedValueY(event);
                     
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
                     
@@ -366,6 +410,7 @@ export class SequenceEditor extends LitElementWw {
                     handle.setAttribute('y', (startY + newHeight - 4).toString());
                 },
                 end: (event) => {
+                    this._activeDrag = null;
                     const handle = event.target as SVGRectElement;
                     const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
                     if (!actBox) return;
@@ -390,16 +435,20 @@ export class SequenceEditor extends LitElementWw {
             el.setAttribute('data-bound', 'true');
             const id = el.getAttribute('data-id');
             
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
+                    start: () => {
+                        this._startDrag(id, 'grabbing');
+                        this._dragStartValue = this.model.messages.find(m => m.id === id)?.y ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const message = this.model.messages.find(m => m.id === id);
                         if (message) {
-                            let proposedY = message.y + (event.dy / this.zoom); 
+                            let proposedY = this._draggedValueY(event); 
 
                             const bounds = this._getMessageBounds(message.sourceId, message.targetId, message.type, message.id);
 
@@ -425,6 +474,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const message = this.model.messages.find(m => m.id === id);
@@ -461,16 +511,20 @@ export class SequenceEditor extends LitElementWw {
             el.setAttribute('data-bound', 'true');
             const id = el.getAttribute('data-id');
             
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
+                    start: () => {
+                        this._startDrag(id, 'grabbing');
+                        this._dragStartValue = this.model.fragments?.find(f => f.id === id)?.y ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === id);
                         if (fragment) {
-                            let proposedY = fragment.y + (event.dy / this.zoom); 
+                            let proposedY = this._draggedValueY(event); 
                             
                             const bounds = this._getLifelineVerticalBounds(fragment.startLifelineId);
                             
@@ -483,6 +537,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === id);
@@ -504,10 +559,15 @@ export class SequenceEditor extends LitElementWw {
             const fId = handle.getAttribute('data-fragment-id');
             const oId = handle.getAttribute('data-operand-id');
             
-            interact(handle).draggable({
+            interact(handle).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
+                    start: () => {
+                        this._startDrag(fId, 'ns-resize');
+                        const fragment = this.model.fragments?.find(f => f.id === fId);
+                        this._dragStartValue = fragment?.operands.find(o => o.id === oId)?.height ?? 0;
+                    },
                     move: (event) => {
                         if (!fId || !oId || this.interactionMode !== 'idle') return;
                         
@@ -515,11 +575,12 @@ export class SequenceEditor extends LitElementWw {
                         const operand = fragment?.operands.find(o => o.id === oId);
                         
                         if (fragment && operand) {
-                            operand.height = Math.max(30, operand.height + (event.dy / this.zoom));
+                            operand.height = Math.max(30, this._draggedValueY(event));
                             this.requestUpdate();
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!fId || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === fId);
@@ -593,6 +654,7 @@ export class SequenceEditor extends LitElementWw {
         const target = e.target as SVGElement;
         if (target.tagName.toLowerCase() === 'svg') {
             this._isPanning = true;
+            this._activeDrag = { id: null, cursor: 'move' };
             this._lastPointerX = e.clientX;
             this._lastPointerY = e.clientY;
             target.setPointerCapture(e.pointerId);
@@ -619,6 +681,7 @@ export class SequenceEditor extends LitElementWw {
     private _handlePointerUp(e: PointerEvent) {
         if (this._isPanning) {
             this._isPanning = false;
+            this._activeDrag = null;
             const target = e.target as SVGElement;
             target.releasePointerCapture(e.pointerId);
         }
@@ -1390,7 +1453,8 @@ export class SequenceEditor extends LitElementWw {
             ` : ''}
 
             <svg 
-                class=${this._isEmpty ? 'empty' : ''}
+                class="${this._isEmpty ? 'empty' : ''} ${this._activeDrag ? 'dragging' : ''}"
+                style=${this._activeDrag ? `--drag-cursor: ${this._activeDrag.cursor}` : ''}
                 viewBox="${this.panX} ${this.panY} ${this._svgWidth / this.zoom} ${this._svgHeight / this.zoom}"
                 @wheel=${this._handleWheel}
                 @pointerdown=${this._handlePointerDown}
@@ -1401,11 +1465,11 @@ export class SequenceEditor extends LitElementWw {
             >
                 <defs>
                     <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--sl-color-neutral-900)" />
+                        <polygon class="arrowhead-filled" points="0 0, 10 3.5, 0 7" />
                     </marker>
                     
                     <marker id="arrowhead-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polyline points="0 0, 9 3.5, 0 7" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5" />
+                        <polyline class="arrowhead-open" points="0 0, 9 3.5, 0 7" fill="none" stroke-width="1.5" />
                     </marker>
                 </defs>
 
@@ -1420,7 +1484,7 @@ export class SequenceEditor extends LitElementWw {
                     const clickAreaHeight = Math.max(0, lineEndY - clickAreaStartY);
 
                     return svg`
-                        <g class="lifeline" data-id="${ll.id}">
+                        <g class="lifeline ${this._activeDrag?.id === ll.id ? 'active' : ''}" data-id="${ll.id}">
                             
                             <rect 
                                 class="lifeline-click-area ${this.messageSourceId === ll.id ? 'selected-source' : ''}" 
@@ -1517,7 +1581,7 @@ export class SequenceEditor extends LitElementWw {
                         
                         return svg`
                             <g 
-                                class="message" 
+                                class="message ${this._activeDrag?.id === msg.id ? 'active' : ''}" 
                                 data-id="${msg.id}" 
                                 @dblclick=${(e: MouseEvent) => this._handleMessageDblClick(e, msg.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleMessageDblClick(e, msg.id)}}
@@ -1548,7 +1612,7 @@ export class SequenceEditor extends LitElementWw {
 
                         return svg`
                             <g 
-                                class="message" 
+                                class="message ${this._activeDrag?.id === msg.id ? 'active' : ''}" 
                                 data-id="${msg.id}" 
                                 @dblclick=${(e: MouseEvent) => this._handleMessageDblClick(e, msg.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleMessageDblClick(e, msg.id)}}
@@ -1593,7 +1657,7 @@ export class SequenceEditor extends LitElementWw {
                         const xPos = currentX - (boxWidth / 2) + (nestingLevel * 8);
                         return svg`
                             <g 
-                                class="activation" 
+                                class="activation ${this._activeDrag?.id === act.id ? 'active' : ''}" 
                                 data-id="${act.id}"
                                 data-lifeline-id="${ll.id}"
                                 @click=${(e: MouseEvent) => this._handleLifelineClick(e, ll.id)}
@@ -1676,9 +1740,9 @@ export class SequenceEditor extends LitElementWw {
                     const boxWidth = rightX - leftX;
 
                     return svg`
-                        <g class="fragment" data-id="${frag.id}">
+                        <g class="fragment ${this._activeDrag?.id === frag.id ? 'active' : ''}" data-id="${frag.id}">
                             <rect 
-                                class="fragment-background"
+                                class="fragment-background ${overlappingFragmentIds.has(frag.id) ? 'overlapping' : ''}"
                                 x="${leftX}" 
                                 y="${frag.y}" 
                                 width="${boxWidth}" 
@@ -1705,6 +1769,7 @@ export class SequenceEditor extends LitElementWw {
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._editFragment(e, frag.id)}}
                             />
                             <polyline 
+                                class="fragment-header-fold"
                                 points="${leftX + 50},${frag.y} ${leftX + 50},${frag.y + 10} ${leftX + 60},${frag.y + 10}" 
                                 fill="none" 
                                 stroke="var(--sl-color-neutral-900)"
