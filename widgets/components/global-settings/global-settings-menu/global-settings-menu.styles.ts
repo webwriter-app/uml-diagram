@@ -6,10 +6,12 @@ import { css } from "lit";
  */
 export default css`
 
-    /* Space between the general settings and the diagram sections */
+    /* Space between the general settings and the diagram sections.
+       The panel scrolls, so it clips focus rings at its sides: pad by the ring width and offset with a negative margin. */
     :host {
         gap: var(--sl-spacing-large);
-        overflow: visible !important;
+        padding-inline: var(--sl-focus-ring-width);
+        margin-inline: calc(-1 * var(--sl-focus-ring-width));
     }
 
     /* Stacks the expandable diagram sections */
