@@ -66,15 +66,14 @@ export default css`
     }
 
     /* Reveals the resize handle by making it semi-transparent when hovering over the lifeline. */
-    svg:not(.dragging) .lifeline:hover .lifeline-handle,
-    .lifeline.active .lifeline-handle {
+    :host([interactionMode="idle"]) svg:not(.dragging) .lifeline:hover .lifeline-handle,
+    :host([interactionMode="idle"]) .lifeline.active .lifeline-handle {
         opacity: 0.5;
     }
 
-    /* Creates an invisible, interactive area over the lifeline with a smooth transition for background color changes. */
+    /* Creates an invisible, interactive area over the lifeline */
     .lifeline-click-area {
         fill: transparent;
-        transition: fill 0.2s ease;
     }
 
     /* Colors a hovered or dragged lifeline (header box and dashed line) in the primary color, like hovered classes.
@@ -88,16 +87,15 @@ export default css`
         stroke: var(--sl-color-primary-600);
     }
 
-    /* Applies a light blue highlight and pointer cursor to lifelines only when actively selecting a message source or target. */
-    :host([interactionMode="add-message-source"]) .lifeline:hover .lifeline-click-area,
-    :host([interactionMode="add-message-target"]) .lifeline:hover .lifeline-click-area {
-        fill: var(--sl-color-primary-100); 
-        cursor: pointer;
+    /* While selecting lifelines (adding messages, activations or fragments), only the lifelines' line areas can be
+       interacted with (the click position is used, e.g. for the message height): clicks on other elements fall through */
+    :host(:not([interactionMode="idle"])) :is(.message, .activation, .fragment, .fragment *, .lifeline-handle, .lifeline foreignObject) {
+        pointer-events: none !important;
     }
 
-    /* Visually emphasizes the lifeline that has been selected as the starting point for a new message. */
-    .lifeline-click-area.selected-source {
-        fill: var(--sl-color-primary-100);
+    /* Applies a pointer cursor to lifelines while selecting them (e.g. as message source or target). */
+    :host(:not([interactionMode="idle"])) .lifeline:hover .lifeline-click-area {
+        cursor: pointer;
     }
 
     /* Styles the floating instruction banner centered at the bottom of the editor to guide the user during specific interactions. */

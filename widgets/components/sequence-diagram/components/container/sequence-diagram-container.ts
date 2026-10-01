@@ -1,4 +1,4 @@
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { state, property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
@@ -8,6 +8,7 @@ import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import styles from "./sequence-diagram-container.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 
 /** Different types of Interaction Modes the editor can be in */
 export type InteractionMode = 'idle' | 'add-message-source' | 'add-message-target' | 'add-activation' | 'creating-fragment-start' | 'creating-fragment-end';
@@ -92,6 +93,28 @@ export class SequenceDiagramContainer extends LitElementWw {
         }
     }
     
+    /** Aborting it removes the listeners that cancel the current interaction mode */
+    private _cancelListeners?: AbortController;
+
+    /**
+     * While an interaction mode is active, cancel it on Escape, on pointer presses or focus outside of the diagram
+     * and when the window loses focus. Presses on the toolbar cancel it as well (see render).
+     */
+    protected updated(changed: PropertyValues) {
+        if (changed.has('interactionMode')) {
+            this._cancelListeners?.abort();
+            this._cancelListeners = this.interactionMode !== 'idle'
+                ? cancelOnOutsideInteraction(this, () => this._cancelInteractionMode())
+                : undefined;
+        }
+    }
+
+    disconnectedCallback() {
+        this._cancelListeners?.abort();
+        this._cancelInteractionMode();
+        super.disconnectedCallback();
+    }
+
     /** Cancel the current interaction mode (like message mode, ...) */
     private _cancelInteractionMode() {
         this.interactionMode = 'idle';
@@ -606,6 +629,7 @@ export class SequenceDiagramContainer extends LitElementWw {
     render() {
         return html`
             <sequence-toolbar 
+                @pointerdown=${this._cancelInteractionMode}
                 .model=${this.model}
                 .settings=${this.settings}
                 @add-lifeline=${this._handleAddLifeline}
@@ -621,6 +645,7 @@ export class SequenceDiagramContainer extends LitElementWw {
                 .model=${this.model}
                 .interactionMode=${this.interactionMode}
                 .messageSourceId=${this.messageSourceId}
+                .fragmentSourceId=${this.fragmentSourceId}
                 .settings=${this.settings}
                 .globalSettings=${this.globalSettings}
                 .pendingMessageType=${this.pendingMessageType}

@@ -12,6 +12,7 @@ import { SlButton, SlIcon, SlIconButton } from "@shoelace-style/shoelace";
 import xIcon from "@tabler/icons/outline/x.svg";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -93,6 +94,9 @@ export class UMLEditor extends LitElementWw{
     /** The diagram data last loaded or sent to the widget, to tell outside changes (e.g. undo/redo) apart from our own edits */
     private _lastEmittedData: string | null = null;
 
+    /** Aborting it removes the listeners that cancel the relation mode */
+    private _cancelListeners?: AbortController;
+
     /** variable to block the doubleclick while adding self-relations */
     private _blockDblClick: boolean = false;
 
@@ -101,6 +105,11 @@ export class UMLEditor extends LitElementWw{
     Lifecycle and Init
     #################################################################################
     */
+
+    disconnectedCallback() {
+        this._cancelAddRelation();
+        super.disconnectedCallback();
+    }
 
     /** Reload the diagram if the stored data was changed from outside, e.g. by undo/redo in WebWriter */
     protected updated(changed: Map<string, unknown>) {
@@ -576,9 +585,13 @@ export class UMLEditor extends LitElementWw{
         }
 
         // initialize states for the "relation mode"
+        this._cancelAddRelation();
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = 'first';
+
+        // cancel on Escape, on presses or focus outside of the editor (e.g. on the toolbar) and when the window loses focus
+        this._cancelListeners = cancelOnOutsideInteraction(this, () => this._cancelAddRelation());
 
         this.requestUpdate();
     }
@@ -797,6 +810,8 @@ export class UMLEditor extends LitElementWw{
     /** End the "relation mode" adding relations process due to canceling or just to reset environment after adding relation */
     private _cancelAddRelation() {
         // Resetting the mode and associated variables
+        this._cancelListeners?.abort();
+        this._cancelListeners = undefined;
         this.interactionMode = 'idle';
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = null;

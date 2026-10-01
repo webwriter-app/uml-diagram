@@ -253,6 +253,11 @@ export default css`
         stroke: var(--sl-color-primary-600) !important;
     }
 
+    /* In relation mode only classes can be selected, so connections can't be hovered or selected */
+    .interaction-mode-active .drawflow .connection :is(.main-path, .back-path) {
+        pointer-events: none !important;
+    }
+
     /* Prevents the cursor from flickering over connection text labels */
     .drawflow .connection text {
         pointer-events: none;

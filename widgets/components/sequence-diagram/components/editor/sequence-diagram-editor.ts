@@ -68,6 +68,9 @@ export class SequenceEditor extends LitElementWw {
     /** Store the source id of a new message while creating a new one */
     @property({ type: String }) accessor messageSourceId: string | null = null;
 
+    /** Store the id of the lifeline a new fragment starts at while creating a new one */
+    @property({ type: String }) accessor fragmentSourceId: string | null = null;
+
     /** State to store the id of the current edited lifeline */
     @state() private accessor editingLifelineId: string | null = null;
 
@@ -209,6 +212,11 @@ export class SequenceEditor extends LitElementWw {
                 ignoreFrom: '.lifeline-handle',
                 listeners: {
                     start: (event) => {
+                        // lifelines can only be selected (not moved) while adding messages, fragments, ...
+                        if (this.interactionMode !== 'idle') {
+                            event.interaction.stop();
+                            return;
+                        }
                         this._startDrag(id, 'grabbing');
                         event.target.setAttribute('data-drag-x', '0');
                         (event.target as HTMLElement).style.opacity = '0.7'; 
@@ -1484,10 +1492,10 @@ export class SequenceEditor extends LitElementWw {
                     const clickAreaHeight = Math.max(0, lineEndY - clickAreaStartY);
 
                     return svg`
-                        <g class="lifeline ${this._activeDrag?.id === ll.id ? 'active' : ''}" data-id="${ll.id}">
+                        <g class="lifeline ${[this._activeDrag?.id, this.messageSourceId, this.fragmentSourceId].includes(ll.id) ? 'active' : ''}" data-id="${ll.id}">
                             
                             <rect 
-                                class="lifeline-click-area ${this.messageSourceId === ll.id ? 'selected-source' : ''}" 
+                                class="lifeline-click-area" 
                                 x="${currentX - 35}" 
                                 y="${clickAreaStartY}" 
                                 width="70" 
