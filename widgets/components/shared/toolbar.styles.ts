@@ -56,16 +56,4 @@ export default css`
         display: none;
     }
 
-    /* Reset button in a light danger tone to signal the destructive action */
-    .clear-btn::part(base) {
-        color: var(--sl-color-danger-700);
-        background-color: var(--sl-color-danger-50);
-        border-color: var(--sl-color-danger-200);
-    }
-
-    .clear-btn::part(base):hover {
-        color: var(--sl-color-danger-800);
-        background-color: var(--sl-color-danger-100);
-        border-color: var(--sl-color-danger-300);
-    }
 `;
