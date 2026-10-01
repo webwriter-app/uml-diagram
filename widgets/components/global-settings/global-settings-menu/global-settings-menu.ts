@@ -41,9 +41,6 @@ export class GlobalSettingsMenu extends LitElementWw {
     @property({ attribute: false }) accessor objectSettings: ClassSettings = ClassSettings.getInitialObjectDiagramSettings();
     @property({ attribute: false }) accessor sequenceSettings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
 
-    /** The currently shown diagram type; its section is opened */
-    @property({ type: String }) accessor diagramType: string = "class-diagram";
-
     // --------------------------------------------------------------------------------------------------------
     // Handlers
     // --------------------------------------------------------------------------------------------------------
@@ -98,7 +95,7 @@ export class GlobalSettingsMenu extends LitElementWw {
     // --------------------------------------------------------------------------------------------------------
 
     /** Renders the expandable section of one diagram type with its enable switch and settings */
-    private _renderDiagramSection(type: string, label: string, enabledKey: 'classDiagramEnabled' | 'objectDiagramEnabled' | 'sequenceDiagramEnabled', content: unknown) {
+    private _renderDiagramSection(label: string, enabledKey: 'classDiagramEnabled' | 'objectDiagramEnabled' | 'sequenceDiagramEnabled', content: unknown) {
         const enabled = this.globalSettings[enabledKey];
         const enabledCount = [this.globalSettings.classDiagramEnabled, this.globalSettings.objectDiagramEnabled, this.globalSettings.sequenceDiagramEnabled].filter(Boolean).length;
         // at least one diagram has to stay enabled
@@ -108,7 +105,7 @@ export class GlobalSettingsMenu extends LitElementWw {
         const keepFromHeader = (e: Event) => e.stopPropagation();
 
         return html`
-            <sl-details ?open=${type === this.diagramType}>
+            <sl-details>
                 <div slot="summary" class="diagram-summary">
                     <sl-switch
                         size="small"
@@ -149,7 +146,7 @@ export class GlobalSettingsMenu extends LitElementWw {
             </section>
 
             <div class="diagram-sections">
-                ${this._renderDiagramSection('class-diagram', msg("Class Diagram"), 'classDiagramEnabled', html`
+                ${this._renderDiagramSection(msg("Class Diagram"), 'classDiagramEnabled', html`
                     <class-settings-menu
                         .settings=${this.classSettings}
                         .globalSettings=${this.globalSettings}
@@ -157,7 +154,7 @@ export class GlobalSettingsMenu extends LitElementWw {
                     ></class-settings-menu>
                 `)}
 
-                ${this._renderDiagramSection('object-diagram', msg("Object Diagram"), 'objectDiagramEnabled', html`
+                ${this._renderDiagramSection(msg("Object Diagram"), 'objectDiagramEnabled', html`
                     <class-settings-menu
                         .settings=${this.objectSettings}
                         .globalSettings=${this.globalSettings}
@@ -165,7 +162,7 @@ export class GlobalSettingsMenu extends LitElementWw {
                     ></class-settings-menu>
                 `)}
 
-                ${this._renderDiagramSection('sequence-diagram', msg("Sequence Diagram"), 'sequenceDiagramEnabled', html`
+                ${this._renderDiagramSection(msg("Sequence Diagram"), 'sequenceDiagramEnabled', html`
                     <sequence-diagram-settings-menu
                         .settings=${this.sequenceSettings}
                         .globalSettings=${this.globalSettings}

@@ -314,7 +314,6 @@ export class WebwriterUmlDiagram extends LitElementWw {
                 .classSettings=${this.classSettings}
                 .objectSettings=${this.objectSettings}
                 .sequenceSettings=${this.sequenceSettings}
-                .diagramType=${this.diagramType}
                 @settings-changed=${this._handleSettingsUpdate}
             ></global-settings-menu>
         `;
