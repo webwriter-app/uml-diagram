@@ -133,14 +133,51 @@ export class WebwriterUmlDiagram extends LitElementWw {
     /** Property to store the state of the object diagram */
     @property({ attribute: 'object-diagram-data', reflect: true }) accessor objectDiagramData: string = '';
 
-    /** Property to store a initial state of the class diagram */
-    @property({ attribute: 'class-diagram-checkpoint', reflect: true}) accessor savedClassDiagramCheckpoint: string = '';
+    /**
+     * Checkpoints learners can return to: the diagrams as saved by the author, i.e. as loaded.
+     * Taken from the attributes on the first update, so they are not affected by later (learner) changes.
+     */
+    private _classDiagramCheckpoint = '';
+    private _objectDiagramCheckpoint = '';
+    private _sequenceDiagramCheckpoint = '';
 
-    /** Property to store a initial state of the object diagram */
-    @property({ attribute: 'object-diagram-checkpoint', reflect: true}) accessor savedObjectDiagramCheckpoint: string = '';
+    /**
+     * Diagram changes are written to the attributes only after editing has paused for this long (ms).
+     * WebWriter records every attribute change as its own undo step, and a single user action
+     * (e.g. creating a relation) can emit several intermediate states.
+     */
+    private static readonly SAVE_DELAY = 300;
 
-    /** Property to store a initial state of the sequence diagram */
-    @property({ attribute: 'sequence-diagram-checkpoint', reflect: true}) accessor savedSequenceDiagramCheckpoint: string = '';
+    /** Pending diagram changes by diagram type, applied together after SAVE_DELAY */
+    private _pendingSaves = new Map<string, () => void>();
+    private _saveTimeout?: ReturnType<typeof setTimeout>;
+
+    protected willUpdate() {
+        if (!this.hasUpdated) {
+            this._classDiagramCheckpoint = this.getAttribute('class-diagram-data') ?? '';
+            this._objectDiagramCheckpoint = this.getAttribute('object-diagram-data') ?? '';
+            this._sequenceDiagramCheckpoint = this.getAttribute('sequence-model-data') ?? '';
+        }
+    }
+
+    disconnectedCallback() {
+        this._flushSaves();
+        super.disconnectedCallback();
+    }
+
+    /** Schedules a diagram change to be written once editing has paused, replacing an earlier pending one */
+    private _scheduleSave(diagramType: string, save: () => void) {
+        this._pendingSaves.set(diagramType, save);
+        clearTimeout(this._saveTimeout);
+        this._saveTimeout = setTimeout(() => this._flushSaves(), WebwriterUmlDiagram.SAVE_DELAY);
+    }
+
+    /** Writes all pending diagram changes */
+    private _flushSaves() {
+        clearTimeout(this._saveTimeout);
+        this._pendingSaves.forEach(save => save());
+        this._pendingSaves.clear();
+    }
 
     /** getter for state of fullscreen */
     get isFullscreen() {
@@ -163,25 +200,17 @@ export class WebwriterUmlDiagram extends LitElementWw {
 
     /** Handles model changes from the sequence diagram container */
     private _handleSequenceModelChanged(e: CustomEvent) {
-        this.sequenceModelData = e.detail.model;
-        if(this.contentEditable !== undefined) {
-            this.savedSequenceDiagramCheckpoint = JSON.stringify(e.detail.model);
-        }
+        const model = e.detail.model;
+        this._scheduleSave('sequence-diagram', () => this.sequenceModelData = model);
     }
 
     /** Handles diagram data changes from the class/object diagram editor */
     private _handleDiagramDataChanged(e: CustomEvent) {
         const { diagramType, data } = e.detail;
         if (diagramType === 'class-diagram') {
-            this.classDiagramData = data;
-            if (this.contentEditable !== undefined) {
-                this.savedClassDiagramCheckpoint = data;
-            }
+            this._scheduleSave(diagramType, () => this.classDiagramData = data);
         } else if (diagramType === 'object-diagram') {
-            this.objectDiagramData = data;
-            if (this.contentEditable !== undefined) {
-                this.savedObjectDiagramCheckpoint = data;
-            }
+            this._scheduleSave(diagramType, () => this.objectDiagramData = data);
         }
     }
 
@@ -264,7 +293,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
                             .settings=${this.sequenceSettings}
                             .globalSettings=${this.globalSettings}
                             .model=${this.sequenceModelData}
-                            .checkpoint=${this.savedSequenceDiagramCheckpoint}
+                            .checkpoint=${this._sequenceDiagramCheckpoint}
                             .contentEditable=${this.contentEditable}
                             @sequence-model-changed=${this._handleSequenceModelChanged}
                             @toggle-fullscreen=${this._handleToggleFullscreen}
@@ -281,7 +310,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
                             .settings=${this.classSettings}
                             .globalSettings=${this.globalSettings}
                             .savedDiagramData=${this.classDiagramData}
-                            .checkpoint=${this.savedClassDiagramCheckpoint}
+                            .checkpoint=${this._classDiagramCheckpoint}
                             .contentEditable=${this.contentEditable}
                             @diagram-data-changed=${this._handleDiagramDataChanged}
                             @toggle-fullscreen=${this._handleToggleFullscreen}
@@ -298,7 +327,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
                             .settings=${this.objectSettings}
                             .globalSettings=${this.globalSettings}
                             .savedDiagramData=${this.objectDiagramData}
-                            .checkpoint=${this.savedObjectDiagramCheckpoint}
+                            .checkpoint=${this._objectDiagramCheckpoint}
                             .contentEditable=${this.contentEditable}
                             @diagram-data-changed=${this._handleDiagramDataChanged}
                             @toggle-fullscreen=${this._handleToggleFullscreen}

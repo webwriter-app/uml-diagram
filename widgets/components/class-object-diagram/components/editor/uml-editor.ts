@@ -90,6 +90,9 @@ export class UMLEditor extends LitElementWw{
     /** 'any' because Drawflow's TypeScript definitions are apparently incomplete */
     private editor!: any;
 
+    /** The diagram data last loaded or sent to the widget, to tell outside changes (e.g. undo/redo) apart from our own edits */
+    private _lastEmittedData: string | null = null;
+
     /** variable to block the doubleclick while adding self-relations */
     private _blockDblClick: boolean = false;
 
@@ -98,6 +101,13 @@ export class UMLEditor extends LitElementWw{
     Lifecycle and Init
     #################################################################################
     */
+
+    /** Reload the diagram if the stored data was changed from outside, e.g. by undo/redo in WebWriter */
+    protected updated(changed: Map<string, unknown>) {
+        if (changed.has('savedDiagramData') && this.editor && this.savedDiagramData !== this._lastEmittedData) {
+            this._loadDiagramData(this.savedDiagramData);
+        }
+    }
 
     /** Init the whole editor, set important variables, initial state and listeners */
     protected firstUpdated() {
@@ -108,71 +118,8 @@ export class UMLEditor extends LitElementWw{
         this.editor.curvature = 0;
         this.editor.start();
 
-        // Reload stored diagram or else create initial data
-        if (this.savedDiagramData) {
-            this.editor.import(JSON.parse(this.savedDiagramData));
-            this._updateEmptyState();
-            
-            // Regenerate HTML for all nodes using our template
-            const exportedData = JSON.parse(this.savedDiagramData);
-            const nodes = exportedData?.drawflow?.Home?.data;
-            if (nodes) {
-                Object.keys(nodes).forEach(nodeId => {
-                    const nodeData = nodes[nodeId].data;
-                    const newHTML = this._createClassNodeHTML(nodeData);
-                    const nodeContent = this.shadowRoot?.querySelector(`#node-${nodeId} .drawflow_content_node`);
-                    if (nodeContent) {
-                        nodeContent.innerHTML = newHTML;
-                    }
-                });
-
-                // restore diagram correctly
-                setTimeout(() => {
-                    // restore css classes
-                    Object.keys(nodes).forEach(sourceId => {
-                        const sourceNode = nodes[sourceId];
-                        if (sourceNode.outputs) {
-                            Object.keys(sourceNode.outputs).forEach(outputKey => {
-                                const connections = sourceNode.outputs[outputKey].connections;
-                                connections.forEach((conn: any) => {
-                                    const targetId = conn.node.toString();
-                                    const inPort = conn.output;
-                                    const connectionType = conn.data?.connectionType;
-                                    if (connectionType) {
-                                        const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outputKey}.${inPort}`;
-                                        const connectionSvg = this.shadowRoot?.querySelector(selector);
-                                        if (connectionSvg) {
-                                            connectionSvg.classList.add(connectionType);
-                                        }
-                                    }
-                                });
-                            });
-                        }
-                    });
-
-                    // render labels
-                    Object.keys(nodes).forEach(sourceId => {
-                        const sourceNode = nodes[sourceId];
-                        if (sourceNode.outputs) {
-                            Object.keys(sourceNode.outputs).forEach(outputKey => {
-                                const connections = sourceNode.outputs[outputKey].connections;
-                                connections.forEach((conn: any) => {
-                                    const targetId = conn.node.toString();
-                                    const inPort = conn.output;
-                                    const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outputKey}_${inPort}`;
-                                    this.renderRelationLabels(connectionId);
-                                });
-                            });
-                        }
-                    });
-
-                    //update node visuals
-                    Object.keys(nodes).forEach(nodeId => {
-                        this.updateNodeVisuals(nodeId);
-                    });
-                }, 300);
-            }
-        }
+        // Reload stored diagram
+        this._loadDiagramData(this.savedDiagramData);
 
         // Realtime updates of the diagram while node is moving
         this.drawflowEditorDiv.addEventListener('mousemove', (e) => {
@@ -322,7 +269,20 @@ export class UMLEditor extends LitElementWw{
     /** Load a checkpoint state into the editor */
     public loadCheckpoint(data: string) {
         if (!this.editor || !data) return;
+        this._loadDiagramData(data, () => this._serializeAndEmit());
+    }
+
+    /**
+     * Replaces the diagram with the given serialized Drawflow data (or clears it if there is none).
+     * Relation styles, labels and node visuals are restored after Drawflow has rendered, then onRestored is called.
+     */
+    private _loadDiagramData(data: string | null, onRestored?: () => void) {
+        this._lastEmittedData = data;
         this.editor.clear();
+        if (!data) {
+            this._updateEmptyState();
+            return;
+        }
         this.editor.import(JSON.parse(data));
         this._updateEmptyState();
         
@@ -379,7 +339,7 @@ export class UMLEditor extends LitElementWw{
                     this.updateNodeVisuals(nodeId);
                 });
 
-                this._serializeAndEmit();
+                onRestored?.();
             }, 300);
         }
     }
@@ -387,11 +347,12 @@ export class UMLEditor extends LitElementWw{
     /** Serializes the current Drawflow state and send it to the parent to update widget state */
     private _serializeAndEmit() {
         this._updateEmptyState();
-        const data = this.editor.export();
+        const data = JSON.stringify(this.editor.export());
+        this._lastEmittedData = data;
         this.dispatchEvent(new CustomEvent('diagram-data-changed', {
             detail: { 
                 diagramType: this.diagramType, 
-                data: JSON.stringify(data),
+                data,
                 classCount: this._getClassCount(),
                 relationCount: this._getRelationCount() 
             },
