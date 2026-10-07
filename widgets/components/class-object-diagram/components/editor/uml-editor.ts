@@ -176,8 +176,12 @@ export class UMLEditor extends LitElementWw{
         // While panning, Drawflow only reports the new offset through the "translate" event
         this.editor.on("translate", ({ x, y }: { x: number, y: number }) => this._updateGridBackground(x, y));
 
-        // The zoom origin is the canvas center, so the grid offset also depends on the canvas size
-        new ResizeObserver(() => this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y)).observe(this.drawflowEditorDiv);
+        // The zoom origin is the canvas center, so the grid offset also depends on the canvas size.
+        // Classes have no size while the editor is hidden (e.g. loaded in another tab), so route again once it is shown
+        new ResizeObserver(() => {
+            this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y);
+            this._scheduleRouting();
+        }).observe(this.drawflowEditorDiv);
 
         // Without any classes there is no reference point, so block panning the empty canvas
         // (captured on the shadow root so Drawflow's own mousedown/touchstart handlers never see it)
