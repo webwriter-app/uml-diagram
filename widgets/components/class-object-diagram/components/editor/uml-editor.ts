@@ -13,6 +13,7 @@ import xIcon from "@tabler/icons/outline/x.svg";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
+import { arrowMarkers } from "../../../shared/arrow-markers";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -1264,22 +1265,7 @@ export class UMLEditor extends LitElementWw{
                         const curveX = startX - 40; 
                         const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
 
-                        // fix arrowhead after reload
-                        const types = ['association', 'inheritance', 'composition', 'aggregation', 'dependency', 'realization'];
-                        const relType = classList.find(c => types.includes(c)) || 'association';
-                        const markerMap: Record<string, string> = {
-                            'association': 'url(#arrow-association)',
-                            'inheritance': 'url(#arrow-inheritance)',
-                            'realization': 'url(#arrow-realization)',
-                            'dependency': 'url(#arrow-dependency)',
-                            'aggregation': 'url(#arrow-aggregation)',
-                            'composition': 'url(#arrow-composition)',
-                        };
-                        if (mainPath) {
-                            mainPath.setAttribute('d', pathData);
-                            mainPath.setAttribute('marker-end', markerMap[relType] || 'url(#arrow-association)');
-                        }
-
+                        if (mainPath) mainPath.setAttribute('d', pathData);
                         if (backPath) backPath.setAttribute('d', pathData);
                     }
                 }
@@ -2436,85 +2422,7 @@ export class UMLEditor extends LitElementWw{
                 class="${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''} ${this._isEmpty ? 'empty' : ''}"
             >
                 <svg style="position: absolute; width: 0; height: 0;">
-                    <!-- arrow heads use the color of their line (context-stroke), so they follow hover/selection -->
-                    <defs>
-                        <marker 
-                            id="arrow-inheritance" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="12" 
-                            markerHeight="12" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-realization" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="12" 
-                            markerHeight="12" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-association" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-association-reverse" 
-                            viewBox="0 0 10 10" 
-                            refX="0" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 10 0 L 0 5 L 10 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-dependency" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="context-stroke" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-aggregation" 
-                            viewBox="0 0 12 10" 
-                            refX="12" 
-                            refY="5" 
-                            markerWidth="10" 
-                            markerHeight="10" 
-                            orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-0)" stroke="context-stroke" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-composition" 
-                            viewBox="0 0 12 10" 
-                            refX="12" 
-                            refY="5" 
-                            markerWidth="10" 
-                            markerHeight="10" 
-                            orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="context-stroke" stroke="context-stroke" stroke-width="1" />
-                        </marker>
-                    </defs>
+                    <defs>${arrowMarkers(2)}</defs>
                 </svg>
             </div>
 

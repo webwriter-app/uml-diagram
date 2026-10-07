@@ -96,12 +96,12 @@ export class ClassToolbar extends LitElementWw{
         const s = "currentColor"; 
         const w = 1.5;            
         
-        // define different arrowheads
-        const arrowRight = svg`<path d="M 26 3 L 34 7 L 26 11" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const arrowLeft = svg`<path d="M 9 3 L 1 7 L 9 11" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const triangleEmpty = svg`<path d="M 24 2 L 34 7 L 24 12 Z" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const diamondEmpty = svg`<path d="M 20 7 L 27 3 L 34 7 L 27 11 Z" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const diamondFilled = svg`<path d="M 20 7 L 27 3 L 34 7 L 27 11 Z" fill="${s}" stroke="${s}" stroke-width="${w}" />`;
+        // define different arrowheads (rounded tips and proportions as in the diagram)
+        const arrowRight = svg`<path d="M 26 3 L 34 7 L 26 11" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const arrowLeft = svg`<path d="M 9 3 L 1 7 L 9 11" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const triangleEmpty = svg`<path d="M 24 2 L 34 7 L 24 12 Z" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const diamondEmpty = svg`<path d="M 22 7 L 28 2.5 L 34 7 L 28 11.5 Z" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const diamondFilled = svg`<path d="M 22 7 L 28 2.5 L 34 7 L 28 11.5 Z" fill="${s}" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
 
 
         // define different Arrowlines
@@ -109,7 +109,7 @@ export class ClassToolbar extends LitElementWw{
         const lineToArrowDashed = svg`<line x1="0" y1="7" x2="26" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="4,2" />`;
         const lineToTriangle = svg`<line x1="0" y1="7" x2="24" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineToTriangleDashed = svg`<line x1="0" y1="7" x2="24" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="4,2" />`;
-        const lineToDiamond = svg`<line x1="0" y1="7" x2="20" y2="7" stroke="${s}" stroke-width="${w}" />`;
+        const lineToDiamond = svg`<line x1="0" y1="7" x2="22" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineBiDir = svg`<line x1="9" y1="7" x2="26" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineFull = svg`<line x1="0" y1="7" x2="35" y2="7" stroke="${s}" stroke-width="${w}" />`;
 

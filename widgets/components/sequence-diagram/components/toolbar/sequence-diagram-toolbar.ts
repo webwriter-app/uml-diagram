@@ -78,10 +78,10 @@ export class SequenceToolbar extends LitElementWw {
     const w = 1.5;
 
     // arrow heads as in the relation icons: open for async/reply/create, filled for the others
-    const headOpen = (x: number) => svg`<path d="M ${x} 3 L ${x + 8} 7 L ${x} 11" fill="none" stroke="${s}" stroke-width="${w}" />`;
-    const headFilled = (x: number) => svg`<path d="M ${x} 3 L ${x + 8} 7 L ${x} 11 Z" fill="${s}" stroke="${s}" stroke-width="${w}" />`;
+    const headOpen = (x: number) => svg`<path d="M ${x} 3 L ${x + 8} 7 L ${x} 11" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+    const headFilled = (x: number) => svg`<path d="M ${x} 3 L ${x + 8} 7 L ${x} 11 Z" fill="${s}" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
     // message line, dashed for reply/create
-    const line = (x1: number, x2: number, dashed = false) => svg`<line x1="${x1}" y1="7" x2="${x2}" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="${dashed ? "4,2" : "none"}" />`;
+    const line = (x1: number, x2: number, dashed = false) => svg`<line x1="${x1}" y1="7" x2="${x2}" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="${dashed ? "3,3" : "none"}" />`;
     // found/lost dot, destroy cross and the head of the lifeline a create message points to
     const dot = (cx: number) => svg`<circle cx="${cx}" cy="7" r="2.5" fill="${s}" />`;
     const cross = (cx: number) => svg`<path d="M ${cx - 3} 4 L ${cx + 3} 10 M ${cx - 3} 10 L ${cx + 3} 4" fill="none" stroke="${s}" stroke-width="${w}" />`;

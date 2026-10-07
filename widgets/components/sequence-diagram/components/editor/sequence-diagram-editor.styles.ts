@@ -153,17 +153,6 @@ export default css`
         stroke: var(--sl-color-primary-600);
     }
 
-    /* Arrow heads take the color of their message line; the plain color is a fallback for browsers without context-stroke */
-    .arrowhead-filled {
-        fill: var(--sl-color-neutral-900);
-        fill: context-stroke;
-    }
-
-    .arrowhead-open {
-        stroke: var(--sl-color-neutral-900);
-        stroke: context-stroke;
-    }
-
     /* Colors the outline of a hovered activation box in the primary color */
     .activation-box {
         transition: stroke 0.2s ease;

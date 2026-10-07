@@ -9,6 +9,7 @@ import { ClassSettings } from "../../models/class-settings-model";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { arrowMarkers } from "../../../shared/arrow-markers";
 
 /** Interface for the structure of Validation Issues */
 interface ValidationIssue {
@@ -292,7 +293,7 @@ export class RelationDialog extends LitElementWw {
 
         // arrow line style (dashed or not)
         const isDashed = ['dependency', 'realization'].includes(type);
-        const dashArray = isDashed ? "5,5" : "none";
+        const dashArray = isDashed ? "10,5" : "none";
 
         // arrow heads
         let markerStartId = "none";
@@ -301,7 +302,7 @@ export class RelationDialog extends LitElementWw {
         if (type === 'association') {
             markerEndId = "arrow-open";         
         } else if (type === 'association-bidirectional') {
-            markerStartId = "arrow-open-reverse"; 
+            markerStartId = "arrow-open"; 
             markerEndId = "arrow-open";      
         } else if (type === 'association-undirected') {
             markerStartId = "none";
@@ -309,11 +310,11 @@ export class RelationDialog extends LitElementWw {
         } else if (type === 'dependency') {
             markerEndId = "arrow-open";
         } else if (['inheritance', 'realization'].includes(type)) {
-            markerEndId = "arrow-triangle-white";
+            markerEndId = "arrow-triangle";
         } else if (type === 'aggregation') {
-            markerEndId = "arrow-diamond-white";
+            markerEndId = "arrow-diamond-hollow";
         } else if (type === 'composition') {
-            markerEndId = "arrow-diamond-black";
+            markerEndId = "arrow-diamond-filled";
         }
 
         const showName = ['association', 'association-bidirectional', 'association-undirected', 'dependency'].includes(type);
@@ -334,27 +335,7 @@ export class RelationDialog extends LitElementWw {
                 <div class="preview-connection">
                     ${svg`
                         <svg width="100%" height="80" style="overflow: visible;">
-                            <defs>
-                                <marker id="arrow-open" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
-                                    <path d="M0,0 L11,6 L0,12" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-                                
-                                <marker id="arrow-open-reverse" markerWidth="12" markerHeight="12" refX="1" refY="6" orient="auto">
-                                    <path d="M12,0 L1,6 L12,12" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-triangle-white" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
-                                    <path d="M0,0 L11,6 L0,12 L0,0" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-diamond-white" markerWidth="16" markerHeight="10" refX="15" refY="5" orient="auto">
-                                    <path d="M0,5 L8,0 L16,5 L8,10 L0,5" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-diamond-black" markerWidth="16" markerHeight="10" refX="15" refY="5" orient="auto">
-                                    <path d="M0,5 L8,0 L16,5 L8,10 L0,5" fill="var(--sl-color-neutral-900)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-                            </defs>
+                            <defs>${arrowMarkers(1.5)}</defs>
 
                             <line 
                                 x1="0" y1="${lineY}" x2="100%" y2="${lineY}" 

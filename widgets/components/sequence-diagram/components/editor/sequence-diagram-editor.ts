@@ -17,6 +17,7 @@ import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import styles from "./sequence-diagram-editor.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 
 /** icon map to ease the use of them */
@@ -1472,13 +1473,7 @@ export class SequenceEditor extends LitElementWw {
                 @contextmenu=${(e: MouseEvent) => e.preventDefault()}
             >
                 <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon class="arrowhead-filled" points="0 0, 10 3.5, 0 7" />
-                    </marker>
-                    
-                    <marker id="arrowhead-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polyline class="arrowhead-open" points="0 0, 9 3.5, 0 7" fill="none" stroke-width="1.5" />
-                    </marker>
+                    ${arrowMarkers(1.5)}
                 </defs>
 
                 ${repeat(this.model.lifelines, (ll) => ll.id, (ll, index) => {
@@ -1570,7 +1565,7 @@ export class SequenceEditor extends LitElementWw {
                     const y = msg.y;
                     
                     const dashArray = (isReply || isCreate) ? "5, 5" : "none";
-                    const markerUrl = (isAsync || isReply || isCreate) ? "url(#arrowhead-open)" : "url(#arrowhead)";
+                    const markerUrl = (isAsync || isReply || isCreate) ? "url(#arrow-open)" : "url(#arrow-filled)";
 
                     let actualEndX = endX;
                     if (isCreate) {

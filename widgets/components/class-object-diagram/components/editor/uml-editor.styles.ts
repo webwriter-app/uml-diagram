@@ -275,42 +275,42 @@ export default css`
 
     /* Closed triangle arrowhead for inheritance */
     .drawflow .connection.inheritance .main-path {
-        marker-end: url(#arrow-inheritance);
+        marker-end: url(#arrow-triangle);
     }
 
     /* Dashed line with closed triangle for realization */
     .drawflow .connection.realization .main-path {
         stroke-dasharray: 10, 5;
-        marker-end: url(#arrow-inheritance);
+        marker-end: url(#arrow-triangle);
     }
 
     /* Open arrowhead for directed association */
     .drawflow .connection.association .main-path {
-        marker-end: url(#arrow-association);
+        marker-end: url(#arrow-open);
     }
 
     /* Dashed line with open arrowhead for dependency */
     .drawflow .connection.dependency .main-path {
         stroke-dasharray: 10, 5;
-        marker-end: url(#arrow-association);
+        marker-end: url(#arrow-open);
     }
 
     /* Filled diamond arrowhead for composition */
     .drawflow .connection.composition .main-path {
-        marker-end: url(#arrow-composition);
+        marker-end: url(#arrow-diamond-filled);
     }
 
     /* Empty diamond arrowhead for aggregation */
     .drawflow .connection.aggregation .main-path {
-        marker-end: url(#arrow-aggregation);
+        marker-end: url(#arrow-diamond-hollow);
     }
 
     /* Open arrowheads at both ends for bidirectional association */
     .drawflow .connection.association-bidirectional .main-path {
         stroke-width: 1.5px;
         stroke: var(--sl-color-neutral-700);
-        marker-end: url(#arrow-association);
-        marker-start: url(#arrow-association-reverse);
+        marker-end: url(#arrow-open);
+        marker-start: url(#arrow-open);
     }
 
     /* No arrowheads for undirected association */
