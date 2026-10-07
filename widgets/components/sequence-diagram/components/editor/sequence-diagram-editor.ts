@@ -127,6 +127,10 @@ export class SequenceEditor extends LitElementWw {
     private readonly SLOT_SPACING = 250; 
     private readonly START_X = 100;
 
+    /** width of an activation bar and how far each nested bar is shifted to the right */
+    private readonly ACTIVATION_WIDTH = 14;
+    private readonly ACTIVATION_NESTING_OFFSET = 8;
+
     /** Fragment Puffer hight for collision with lifeline end */
     private readonly FRAGMENT_MIN_OVERLAP = 30;
 
@@ -1424,6 +1428,28 @@ export class SequenceEditor extends LitElementWw {
 
         if (!this.model) return html``;
 
+        // the activation bars of every lifeline from top to bottom with their x position, shifted right for each bar they start inside of
+        const activationBars = new Map(this.model.lifelines.map(ll => {
+            const activations = [...(ll.activations || [])].sort((a, b) => a.y - b.y);
+            const lifelineX = this._getLifelineX(ll.id);
+            return [ll.id, activations.map((activation, index) => {
+                const nestingLevel = activations.slice(0, index)
+                    .filter(outer => activation.y >= outer.y && activation.y < outer.y + outer.length).length;
+                return { activation, x: lifelineX - this.ACTIVATION_WIDTH / 2 + nestingLevel * this.ACTIVATION_NESTING_OFFSET };
+            })];
+        }));
+
+        // messages start and end at the edges of the activation bars active at their height (the right edge if
+        // they continue to the right) instead of running underneath them, or at the lifeline if there are none
+        const messageEndX = (lifelineId: string, y: number, rightEdge: boolean) => {
+            const bars = (activationBars.get(lifelineId) || [])
+                .filter(({ activation }) => y >= activation.y && y <= activation.y + activation.length);
+            if (bars.length === 0) return this._getLifelineX(lifelineId);
+            return rightEdge
+                ? Math.max(...bars.map(bar => bar.x + this.ACTIVATION_WIDTH))
+                : Math.min(...bars.map(bar => bar.x));
+        };
+
         // get the current edited lifeline for the drawer
         const editingLifeline = this.editingLifelineId 
             ? this.model.lifelines.find(l => l.id === this.editingLifelineId) 
@@ -1560,27 +1586,32 @@ export class SequenceEditor extends LitElementWw {
 
                     if ((!sourceLL && !isFound) || (!targetLL && !isLost)) return svg``;
 
-                    const startX = isFound ? targetX - 150 : sourceX;
-                    const endX = isLost ? sourceX + 150 : targetX;
                     const y = msg.y;
                     
                     const dashArray = (isReply || isCreate) ? "5, 5" : "none";
                     const markerUrl = (isAsync || isReply || isCreate) ? "url(#arrow-open)" : "url(#arrow-filled)";
-
-                    let actualEndX = endX;
-                    if (isCreate) {
-                        actualEndX = startX < endX ? endX - 70 : endX + 70;
-                    }
 
                     let actualY = y;
                     if (isCreate) {
                         actualY = y+40;
                     }
 
+                    const rightwards = isFound || isLost || isSelfMessage || sourceX < targetX;
+                    const startX = isFound ? targetX - 150 : messageEndX(msg.sourceId, actualY, rightwards);
+                    const endX = isLost ? sourceX + 150 : messageEndX(msg.targetId, actualY, !rightwards);
+
+                    let actualEndX = endX;
+                    if (isCreate) {
+                        actualEndX = rightwards ? targetX - 70 : targetX + 70;
+                    }
+
                     if (isSelfMessage) {
                         const loopWidth = 40;
                         const loopHeight = 30;
-                        const pathD = `M ${startX} ${y} L ${startX + loopWidth} ${y} L ${startX + loopWidth} ${y + loopHeight} L ${startX} ${y + loopHeight}`;
+                        // returns to the edge of the activation bars at its end (e.g. a nested bar for the called operation)
+                        const loopEndX = messageEndX(msg.sourceId, y + loopHeight, true);
+                        const outerX = Math.max(sourceX + loopWidth, startX + 20, loopEndX + 20);
+                        const pathD = `M ${startX} ${y} L ${outerX} ${y} L ${outerX} ${y + loopHeight} L ${loopEndX} ${y + loopHeight}`;
                         
                         return svg`
                             <g 
@@ -1598,12 +1629,12 @@ export class SequenceEditor extends LitElementWw {
                                 
                                 ${isDestroy ? svg`
                                     <g stroke="var(--sl-color-neutral-900)" stroke-width="2.5">
-                                        <line x1="${startX - 15}" y1="${y + loopHeight - 15}" x2="${startX + 15}" y2="${y + loopHeight + 15}" />
-                                        <line x1="${startX - 15}" y1="${y + loopHeight + 15}" x2="${startX + 15}" y2="${y + loopHeight - 15}" />
+                                        <line x1="${sourceX - 15}" y1="${y + loopHeight - 15}" x2="${sourceX + 15}" y2="${y + loopHeight + 15}" />
+                                        <line x1="${sourceX - 15}" y1="${y + loopHeight + 15}" x2="${sourceX + 15}" y2="${y + loopHeight - 15}" />
                                     </g>
                                 ` : ''}
                                 <text class="message-text" 
-                                      x="${startX + loopWidth + 10}" 
+                                      x="${outerX + 10}" 
                                       y="${y + (loopHeight / 2)}" 
                                       style="text-anchor: start; dominant-baseline: middle;">
                                     ${msg.assignment ? `${msg.assignment} = ` : ''}${msg.name}
@@ -1629,8 +1660,8 @@ export class SequenceEditor extends LitElementWw {
                                 ` : ''}
                                 ${isDestroy ? svg`
                                     <g stroke="var(--sl-color-neutral-900)" stroke-width="2.5">
-                                        <line x1="${actualEndX - 15}" y1="${actualY - 15}" x2="${actualEndX + 15}" y2="${actualY + 15}" />
-                                        <line x1="${actualEndX - 15}" y1="${actualY + 15}" x2="${actualEndX + 15}" y2="${actualY - 15}" />
+                                        <line x1="${targetX - 15}" y1="${actualY - 15}" x2="${targetX + 15}" y2="${actualY + 15}" />
+                                        <line x1="${targetX - 15}" y1="${actualY + 15}" x2="${targetX + 15}" y2="${actualY - 15}" />
                                     </g>
                                 ` : ''}
                                 <line class="message-line" 
@@ -1647,17 +1678,8 @@ export class SequenceEditor extends LitElementWw {
                 })}
 
                 ${this.model.lifelines.map(ll => {
-                    const currentX = this._getLifelineX(ll.id);
-                    return (ll.activations || []).sort((a, b) => a.y - b.y).map((act, index, sortedActs) => {
-                        let nestingLevel = 0;
-                        for (let i = 0; i < index; i++) {
-                            const prevAct = sortedActs[i];
-                            if (act.y >= prevAct.y && act.y < prevAct.y + prevAct.length) {
-                                nestingLevel++;
-                            }
-                        }
-                        const boxWidth = 14;
-                        const xPos = currentX - (boxWidth / 2) + (nestingLevel * 8);
+                    return activationBars.get(ll.id)!.map(({ activation: act, x: xPos }) => {
+                        const boxWidth = this.ACTIVATION_WIDTH;
                         return svg`
                             <g 
                                 class="activation ${this._activeDrag?.id === act.id ? 'active' : ''}" 
