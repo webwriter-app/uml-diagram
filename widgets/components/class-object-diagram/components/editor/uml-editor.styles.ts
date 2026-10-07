@@ -307,16 +307,12 @@ export default css`
 
     /* Open arrowheads at both ends for bidirectional association */
     .drawflow .connection.association-bidirectional .main-path {
-        stroke-width: 1.5px;
-        stroke: var(--sl-color-neutral-700);
         marker-end: url(#arrow-open);
         marker-start: url(#arrow-open);
     }
 
     /* No arrowheads for undirected association */
     .drawflow .connection.association-undirected .main-path {
-        stroke-width: 1.5px;
-        stroke: var(--sl-color-neutral-700);
         marker-end: none;
         marker-start: none;
     }
