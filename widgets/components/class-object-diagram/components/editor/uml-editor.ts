@@ -1173,16 +1173,16 @@ export class UMLEditor extends LitElementWw{
         // Return false if no element is found (happens if DOM is not ready yet)
         if (!inNode || !outNode) return false;
 
-        if (inNode) {
-            inNode.style.left = `${positions.portOut.x}px`;
-            inNode.style.top = `${positions.portOut.y}px`;
-        }
+        // ports are centered on their position (translate(-50%, -50%)) and positioned inside the node border,
+        // so the border width is subtracted to place the connection ends exactly on the outer edge of the node
+        const outNodeHTML = inNode.closest('.drawflow-node') as HTMLElement;
+        const inNodeHTML = outNode.closest('.drawflow-node') as HTMLElement;
 
-        if (outNode) {
-            outNode.style.left = `${positions.portIn.x}px`;
-            outNode.style.top = `${positions.portIn.y}px`;
-            outNode.style.transform = 'none';
-        }
+        inNode.style.left = `${positions.portOut.x - outNodeHTML.clientLeft}px`;
+        inNode.style.top = `${positions.portOut.y - outNodeHTML.clientTop}px`;
+
+        outNode.style.left = `${positions.portIn.x - inNodeHTML.clientLeft}px`;
+        outNode.style.top = `${positions.portIn.y - inNodeHTML.clientTop}px`;
 
         // update relations (visible lines)
         try {
@@ -1211,10 +1211,10 @@ export class UMLEditor extends LitElementWw{
                     const inNodeData = this.editor.getNodeFromId(inputNodeId);
 
                     // calculate position
-                    const startX = outNodeData.pos_x + positions.portOut.x + 3;
-                    const startY = outNodeData.pos_y + positions.portOut.y + 3;
-                    const endX = inNodeData.pos_x + positions.portIn.x + 3;
-                    const endY = inNodeData.pos_y + positions.portIn.y + 3;
+                    const startX = outNodeData.pos_x + positions.portOut.x;
+                    const startY = outNodeData.pos_y + positions.portOut.y;
+                    const endX = inNodeData.pos_x + positions.portIn.x;
+                    const endY = inNodeData.pos_y + positions.portIn.y;
 
                     const curveX = startX - 40; 
                     const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
@@ -1257,10 +1257,10 @@ export class UMLEditor extends LitElementWw{
                     const positions = this._calculateOptimalPortPositionsWithIds(outNodeId, inNodeId, outPortId, inPortId);
                     
                     if (positions) {
-                        const startX = outNodeData.pos_x + positions.portOut.x + 3;
-                        const startY = outNodeData.pos_y + positions.portOut.y + 3;
-                        const endX = inNodeData.pos_x + positions.portIn.x + 3;
-                        const endY = inNodeData.pos_y + positions.portIn.y + 3;
+                        const startX = outNodeData.pos_x + positions.portOut.x;
+                        const startY = outNodeData.pos_y + positions.portOut.y;
+                        const endX = inNodeData.pos_x + positions.portIn.x;
+                        const endY = inNodeData.pos_y + positions.portIn.y;
                         const curveX = startX - 40; 
                         const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
 
@@ -1338,8 +1338,8 @@ export class UMLEditor extends LitElementWw{
             const pOutY = Math.max(0, centerY - (spread / 2));
             
             return {
-                portOut: { x: -3, y: pOutY - 3 },
-                portIn:  { x: 50 - 3, y: spread - 3 }
+                portOut: { x: 0, y: pOutY },
+                portIn:  { x: 50, y: spread }
             };
         }
 
@@ -1450,11 +1450,6 @@ export class UMLEditor extends LitElementWw{
         portOut.y = Math.max(0, Math.min(heightOutNode, portOut.y));
         portIn.x = Math.max(0, Math.min(widthInNode, portIn.x));
         portIn.y = Math.max(0, Math.min(heightInNode, portIn.y));
-
-        portOut.x -= 3;
-        portOut.y -= 3;
-        portIn.x -= 3;
-        portIn.y -= 3;
 
         return { portOut, portIn };
     }
