@@ -58,17 +58,28 @@ export default css`
         pointer-events: none;
     }
 
-    /* Styles the resize handle at the bottom of the lifeline, keeping it hidden by default with a smooth fade-in transition. */
-    .lifeline-handle {
-        fill: var(--sl-color-neutral-500);
-        opacity: 0;
-        transition: opacity 0.2s ease;
+    /* Invisible hit areas of the resize handles */
+    :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle) {
+        fill: transparent;
     }
 
-    /* Reveals the resize handle by making it semi-transparent when hovering over the lifeline. */
-    :host([interactionMode="idle"]) svg:not(.dragging) .lifeline:hover .lifeline-handle,
-    :host([interactionMode="idle"]) .lifeline.active .lifeline-handle {
-        opacity: 0.5;
+    /* Grips of the resize handles, shown while hovering or dragging their element and filled while hovering the handle */
+    .resize-grip {
+        fill: var(--sl-color-neutral-0);
+        stroke: var(--sl-color-primary-600);
+        stroke-width: 1.5px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--sl-transition-fast) ease, fill var(--sl-transition-fast) ease;
+    }
+
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline, .activation, .fragment):hover .resize-grip,
+    :host([interactionMode="idle"]) :is(.lifeline, .activation, .fragment).active .resize-grip {
+        opacity: 1;
+    }
+
+    svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle):hover + .resize-grip {
+        fill: var(--sl-color-primary-600);
     }
 
     /* Creates an invisible, interactive area over the lifeline */

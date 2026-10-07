@@ -155,6 +155,9 @@ export class SequenceEditor extends LitElementWw {
             }
         });
         resizeObserver.observe(this);
+
+        // bound by selector, so once is enough (binding again would replace the listeners mid-drag)
+        this._bindActivationDragAndResize();
     }
 
     /** Method to routine check after each render cycle. In this case to bind interactJs to the elements */
@@ -163,7 +166,6 @@ export class SequenceEditor extends LitElementWw {
 
         this._bindLifelineDrag();
         this._bindLifelineResize();
-        this._bindActivationDragAndResize();
         this._bindMessageDrag();
         this._bindFragmentDragAndResize();
         this._updateGridBackground();
@@ -342,98 +344,81 @@ export class SequenceEditor extends LitElementWw {
         });
     }
 
-    /** Bind InteractJs to the activation bars to allow moving them up and down the lifelines and add a handle to the end to make it editable in its size (length) */
+    /** Bind InteractJs to the activation bars to move them along the lifelines and resize them at both ends */
     private _bindActivationDragAndResize() {
+        // looked up at the start, as the bars are re-rendered while dragging
+        let dragged: { lifelineId: string, activation: { id: string, y: number, length: number } } | null = null;
+        const findActivation = (target: Element) => {
+            const lifelineId = target.getAttribute('data-lifeline-id');
+            const id = target.getAttribute('data-id');
+            const activation = this.model.lifelines.find(ll => ll.id === lifelineId)?.activations?.find(act => act.id === id);
+            return lifelineId && activation ? { lifelineId, activation } : null;
+        };
+
         // movable in y direction
         interact('.draggable-activation').styleCursor(false).draggable({
             listeners: {
                 start: (event) => {
-                    this._activeDrag = { id: event.target.getAttribute('data-id'), cursor: 'grabbing' };
-                    this._dragStartValue = parseFloat(event.target.getAttribute('y') || '0');
+                    dragged = findActivation(event.target);
+                    this._activeDrag = { id: dragged?.activation.id ?? null, cursor: 'grabbing' };
+                    this._dragStartValue = dragged?.activation.y ?? 0;
                 },
                 move: (event) => {
-                    const target = event.target as SVGRectElement;
-                    const lifelineId = target.getAttribute('data-lifeline-id');
-                    if (!lifelineId) return;
-
-                    const height = parseFloat(target.getAttribute('height') || '0');
-                    let newY = this._draggedValueY(event);
-                    
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
-                    
-                    // upper bound
-                    if (newY < bounds.minY) {
-                        newY = bounds.minY;
-                    }
-                    // lower bound
-                    if (newY + height > bounds.maxY) {
-                        newY = bounds.maxY - height;
-                    }
 
-                    target.setAttribute('y', newY.toString());
-
-                    // synchronize handle position
-                    const handle = target.parentNode?.querySelector('.activation-resize-handle') as SVGRectElement;
-                    if (handle) {
-                        handle.setAttribute('y', (newY + height - 4).toString());
+                    // stay within the lifeline
+                    let newY = Math.max(bounds.minY, this._draggedValueY(event));
+                    if (newY + activation.length > bounds.maxY) {
+                        newY = bounds.maxY - activation.length;
                     }
+                    activation.y = newY;
+                    this.requestUpdate();
                 },
-                end: (event) => {
+                end: () => {
                     this._activeDrag = null;
-                    const target = event.target as SVGRectElement;
-                    const newY = parseFloat(target.getAttribute('y') || '0');
-                    const id = target.getAttribute('data-id');
-                    const lifelineId = target.getAttribute('data-lifeline-id');
-
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
+                    dragged = null;
                     this.dispatchEvent(new CustomEvent('update-activation', {
-                        detail: { lifelineId, activationId: id, y: newY }
+                        detail: { lifelineId, activationId: activation.id, y: activation.y }
                     }));
                 }
             }
         });
 
-        // resizing in length
+        // resizing at the bottom or top edge
+        let resizingTop = false;
+        let bottomY = 0;
         interact('.activation-resize-handle').styleCursor(false).draggable({
             listeners: {
                 start: (event) => {
-                    this._activeDrag = { id: event.target.getAttribute('data-id'), cursor: 'ns-resize' };
-                    const actBox = event.target.parentNode?.querySelector('.activation-box');
-                    this._dragStartValue = parseFloat(actBox?.getAttribute('height') || '0');
+                    dragged = findActivation(event.target);
+                    resizingTop = event.target.getAttribute('data-edge') === 'top';
+                    bottomY = dragged ? dragged.activation.y + dragged.activation.length : 0;
+                    this._activeDrag = { id: dragged?.activation.id ?? null, cursor: 'ns-resize' };
+                    this._dragStartValue = (resizingTop ? dragged?.activation.y : dragged?.activation.length) ?? 0;
                 },
                 move: (event) => {
-                    const handle = event.target as SVGRectElement;
-                    const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
-                    const lifelineId = handle.getAttribute('data-lifeline-id');
-                    
-                    if (!actBox || !lifelineId) return;
-
-                    const startY = parseFloat(actBox.getAttribute('y') || '0');
-                    
-                    let newHeight = this._draggedValueY(event);
-                    
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
-                    
-                    const maxHeight = bounds.maxY - startY;
-
-                    newHeight = Math.max(15, Math.min(newHeight, maxHeight));
-
-                    actBox.setAttribute('height', newHeight.toString());
-                    
-                    // update handle position
-                    handle.setAttribute('y', (startY + newHeight - 4).toString());
+                    if (resizingTop) {
+                        activation.y = Math.max(bounds.minY, Math.min(this._draggedValueY(event), bottomY - 15));
+                        activation.length = bottomY - activation.y;
+                    } else {
+                        activation.length = Math.max(15, Math.min(this._draggedValueY(event), bounds.maxY - activation.y));
+                    }
+                    this.requestUpdate();
                 },
-                end: (event) => {
+                end: () => {
                     this._activeDrag = null;
-                    const handle = event.target as SVGRectElement;
-                    const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
-                    if (!actBox) return;
-
-                    const newHeight = parseFloat(actBox.getAttribute('height') || '0');
-                    const id = handle.getAttribute('data-id');
-                    const lifelineId = handle.getAttribute('data-lifeline-id');
-
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
+                    dragged = null;
                     this.dispatchEvent(new CustomEvent('update-activation', {
-                        detail: { lifelineId, activationId: id, length: newHeight }
+                        detail: { lifelineId, activationId: activation.id, y: activation.y, length: activation.length }
                     }));
                 }
             }
@@ -737,6 +722,11 @@ export class SequenceEditor extends LitElementWw {
         const index = this.model.lifelines.findIndex(ll => ll.id === id);
         if (index === -1) return 0;
         return this.START_X + (index * this.SLOT_SPACING);
+    }
+
+    /** The grip of a resize handle, shown on hover */
+    private _renderResizeGrip(x: number, y: number) {
+        return svg`<circle class="resize-grip" cx="${x}" cy="${y}" r="4" />`;
     }
 
     /** Determines if the drawer should open on the left or right based on click position */
@@ -1530,7 +1520,8 @@ export class SequenceEditor extends LitElementWw {
                             <line class="lifeline-line" x1="${currentX}" y1="${ll.y + 30}" x2="${currentX}" y2="${lineEndY}" />
 
                             ${!destroyMsg ? svg`
-                                <rect class="lifeline-handle" data-id="${ll.id}" x="${currentX - 15}" y="${ll.y + ll.length}" width="30" height="15" rx="3" ry="3" />
+                                <rect class="lifeline-handle" data-id="${ll.id}" x="${currentX - 15}" y="${ll.y + ll.length - 6}" width="30" height="12" />
+                                ${this._renderResizeGrip(currentX, ll.y + ll.length)}
                             ` : ''}
                             
                             <foreignObject
@@ -1701,17 +1692,19 @@ export class SequenceEditor extends LitElementWw {
                                     stroke="var(--sl-color-neutral-900)"
                                     stroke-width="1.5"
                                 />
-                                <rect 
-                                    class="activation-resize-handle" 
-                                    data-id="${act.id}"
-                                    data-lifeline-id="${ll.id}"
-                                    x="${xPos}" 
-                                    y="${act.y + act.length - 4}" 
-                                    width="${boxWidth}" 
-                                    height="8" 
-                                    fill="transparent" 
-                                    style="cursor: ns-resize;"
-                                />
+                                ${[act.y, act.y + act.length].map((edgeY, index) => svg`
+                                    <rect 
+                                        class="activation-resize-handle" 
+                                        data-id="${act.id}"
+                                        data-lifeline-id="${ll.id}"
+                                        data-edge="${index === 0 ? 'top' : 'bottom'}"
+                                        x="${xPos}" 
+                                        y="${edgeY - 5}" 
+                                        width="${boxWidth}" 
+                                        height="10" 
+                                    />
+                                    ${this._renderResizeGrip(xPos + boxWidth / 2, edgeY)}
+                                `)}
                             </g>
                         `;
                     });
@@ -1856,9 +1849,9 @@ export class SequenceEditor extends LitElementWw {
                                                 y="${currentY + op.height - 5}" 
                                                 width="${boxWidth}" 
                                                 height="10" 
-                                                fill="transparent" 
-                                                style="cursor: ns-resize; pointer-events: auto;"
+                                                style="pointer-events: auto;"
                                             />
+                                            ${this._renderResizeGrip(leftX + boxWidth / 2, currentY + op.height)}
                                         </g>
                                     `;
                                     
