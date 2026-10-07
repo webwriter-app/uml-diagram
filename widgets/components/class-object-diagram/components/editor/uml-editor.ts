@@ -14,6 +14,8 @@ import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 import { arrowMarkers } from "../../../shared/arrow-markers";
+import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
+import { straightRoutes } from "./straight-routes";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -27,6 +29,19 @@ type InteractionType =
     'dependency'   |
     'realization'
 ;
+
+/** Position of a relation label; y is the text baseline and anchor its SVG text-anchor */
+interface LabelPosition {
+    x: number;
+    y: number;
+    anchor: 'start' | 'middle' | 'end';
+}
+
+/** Positions of the multiplicity and role label at one end of a relation */
+interface EndLabelPositions {
+    multiplicity: LabelPosition;
+    role: LabelPosition;
+}
 
 /** Interface for relation validation issues */
 interface RelationValidationIssue {
@@ -100,6 +115,12 @@ export class UMLEditor extends LitElementWw{
 
     /** variable to block the doubleclick while adding self-relations */
     private _blockDblClick: boolean = false;
+
+    /** The last calculated route of every relation, by connection id */
+    private _routes = new Map<string, Point[]>();
+
+    /** Pending animation frame of _scheduleRouting */
+    private _routingFrame = 0;
 
     /* 
     #################################################################################
@@ -194,6 +215,11 @@ export class UMLEditor extends LitElementWw{
         // Inform the widget about a deleted connection
         this.editor.on("connectionRemoved", () => this._serializeAndEmit());
 
+        // Classes and relations that are added or removed change the routes of the other relations
+        for (const event of ["nodeCreated", "nodeRemoved", "connectionCreated", "connectionRemoved"]) {
+            this.editor.on(event, () => this._scheduleRouting());
+        }
+
         // on doubleclick handle any entity interaction
         this.drawflowEditorDiv.addEventListener('dblclick', (e: MouseEvent) => {
             const target = e.target as HTMLElement;
@@ -252,8 +278,7 @@ export class UMLEditor extends LitElementWw{
                     'composition', 
                     'aggregation', 
                     'dependency', 
-                    'realization', 
-                    'self-relation'
+                    'realization'
                 ];
 
                 const connectionId = Array.from(svgElement.classList)
@@ -269,10 +294,10 @@ export class UMLEditor extends LitElementWw{
     private _handleLiveMove() {
         if (this.editor.drag && this.editor.node_selected) {
             const selectedId = this.editor.node_selected.id.replace('node-', '');
-            
-            requestAnimationFrame(() => {
-                this.updateNodeVisuals(selectedId);
-            });
+
+            // Drawflow's own handler (registered first) just redrew the relations of the node as straight lines,
+            // so reroute right away instead of in the next frame, which would show the straight lines for a frame
+            this.updateNodeVisuals(selectedId);
         }
     }
 
@@ -498,6 +523,8 @@ export class UMLEditor extends LitElementWw{
         if (nodeContent) {
             nodeContent.innerHTML = newNodeHTML;
         }
+        // the class size may have changed
+        this.updateNodeVisuals(id);
         this._serializeAndEmit();
     }
 
@@ -699,35 +726,17 @@ export class UMLEditor extends LitElementWw{
                     attempts++;
                     
                     try {
+                        // also routes the new relation
                         this.updateNodeVisuals(nodeId);
-                        const success = this.updatePortPositions(nodeId, proxyId.toString(), outPort, inPort);
-                        if (success) {
-                            const selector = `svg.connection.node_out_node-${nodeId}.node_in_node-${proxyId}.${outPort}.${inPort}`;
-                            const connectionSvg = this.shadowRoot?.querySelector(selector);
-                            
-                            if (connectionSvg) {
-                                connectionSvg.classList.add(currentConnectionType);
-                                connectionSvg.classList.add('self-relation');
-                                this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
-                                const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
-                                this.renderRelationLabels(connectionId);
-                                this._serializeAndEmit(); 
-                            } else {
-                                const allPossible = this.shadowRoot?.querySelectorAll(`svg.connection.node_out_node-${nodeId}.node_in_node-${proxyId}`);
-                                allPossible?.forEach(svg => {
-                                    if (svg.classList.contains(outPort) && svg.classList.contains(inPort)) {
-                                        svg.classList.add(currentConnectionType);
-                                        svg.classList.add('self-relation');
-                                        this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
-                                        const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
-                                        this.renderRelationLabels(connectionId); 
-                                        this._serializeAndEmit(); 
-                                    }
-                                });
-                            }
+
+                        const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
+                        const connectionSvg = this._getConnectionSvg(connectionId);
+                        if (connectionSvg) {
+                            connectionSvg.classList.add(currentConnectionType);
+                            this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
+                            this.renderRelationLabels(connectionId);
+                            this._serializeAndEmit(); 
                         }
-                        // correct self relation paths
-                        this._forceSelfRelationPaths();
                     } catch (e) {
                         // ignore temporary errors during DOM rendering, next frame will retry
                     }
@@ -765,35 +774,17 @@ export class UMLEditor extends LitElementWw{
                     attempts++;
                     
                     try {
-                        // update for all nodes to trigger port correction
+                        // also routes the new relation
                         this.updateNodeVisuals(sourceId);
                         this.updateNodeVisuals(targetId);
-                        const success = this.updatePortPositions(sourceId, targetId, outPort, inPort);
 
-                        if (success) {
-                            const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outPort}.${inPort}`;
-                            const connectionSvg = this.shadowRoot?.querySelector(selector);
-                            
-                            if (connectionSvg) {
-                                connectionSvg.classList.add(currentConnectionType);
-                                this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
-                                this._serializeAndEmit();
-                            } else {
-                                // Fallback
-                                const allPossible = this.shadowRoot?.querySelectorAll(`svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}`);
-                                allPossible?.forEach(svg => {
-                                    if (svg.classList.contains(outPort) && svg.classList.contains(inPort)) {
-                                        svg.classList.add(currentConnectionType);
-                                        this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
-                                        this._serializeAndEmit();
-                                    }
-                                });
-                            }
-
-                            // render labels and self relations corrctly
-                            const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
+                        const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
+                        const connectionSvg = this._getConnectionSvg(connectionId);
+                        if (connectionSvg) {
+                            connectionSvg.classList.add(currentConnectionType);
+                            this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
                             this.renderRelationLabels(connectionId);
-                            this._forceSelfRelationPaths();
+                            this._serializeAndEmit();
                         }
                     } catch (e) {
                         // Just do nothing, the next frame will fix it
@@ -983,7 +974,9 @@ export class UMLEditor extends LitElementWw{
                 );
                 
                 if (connection) {
+                    // keep the other data, e.g. the connection type
                     connection.data = {
+                        ...connection.data,
                         sourceMultiplicity: relationData.sourceMultiplicity,
                         targetMultiplicity: relationData.targetMultiplicity,
                         relationName: relationData.relationName,
@@ -1154,327 +1147,69 @@ export class UMLEditor extends LitElementWw{
         return container.outerHTML;
     }
 
-    /** Update the positions of the ports when node is moved or the relation is created */
-    private updatePortPositions(outputNodeId: string, inputNodeId: string, outputPort: string, inputPort: string): boolean {
-        // Check if still existent
-        if (!this.editor.getNodeFromId(outputNodeId) || !this.editor.getNodeFromId(inputNodeId)) {
-            return false;
-        }
-
-        // Calculate the best port positions
-        const positions = this._calculateOptimalPortPositionsWithIds(outputNodeId, inputNodeId, outputPort, inputPort);
-        if (!positions) return false;
-
-        // Get HTML Elements
-        const selectorIn = `#node-${outputNodeId} .${outputPort}`;
-        const selectorOut = `#node-${inputNodeId} .${inputPort}`;
-        const inNode = this.shadowRoot?.querySelector(selectorIn) as HTMLElement;
-        const outNode = this.shadowRoot?.querySelector(selectorOut) as HTMLElement;
-
-        // Return false if no element is found (happens if DOM is not ready yet)
-        if (!inNode || !outNode) return false;
-
-        // ports are centered on their position (translate(-50%, -50%)) and positioned inside the node border,
-        // so the border width is subtracted to place the connection ends exactly on the outer edge of the node
-        const outNodeHTML = inNode.closest('.drawflow-node') as HTMLElement;
-        const inNodeHTML = outNode.closest('.drawflow-node') as HTMLElement;
-
-        inNode.style.left = `${positions.portOut.x - outNodeHTML.clientLeft}px`;
-        inNode.style.top = `${positions.portOut.y - outNodeHTML.clientTop}px`;
-
-        outNode.style.left = `${positions.portIn.x - inNodeHTML.clientLeft}px`;
-        outNode.style.top = `${positions.portIn.y - inNodeHTML.clientTop}px`;
-
-        // update relations (visible lines)
-        try {
-            this.editor.updateConnectionNodes(`node-${outputNodeId}`);
-            this.editor.updateConnectionNodes(`node-${inputNodeId}`);
-        } catch (e) {
-            // ignore errors in drawflow because the next loop will fix it
-            return false;
-        }
-
-        const connectionSelector = `svg.connection.node_out_node-${outputNodeId}.node_in_node-${inputNodeId}.${outputPort}.${inputPort}`;
-        const connectionSvg = this.shadowRoot?.querySelector(connectionSelector) as SVGElement;
-        
-        if (connectionSvg) {
-            // Ensure that the hitbox (backpath) exist
-            this._ensureBackPath(connectionSvg);
-
-            const mainPath = connectionSvg.querySelector('.main-path') as SVGPathElement;
-            const backPath = connectionSvg.querySelector('.back-path') as SVGPathElement;
-
-            // synchronize path and hitbox (backpath)
-            if (mainPath && backPath) {
-                // Different logic for self-relations
-                if (connectionSvg.classList.contains('self-relation')) {
-                    const outNodeData = this.editor.getNodeFromId(outputNodeId);
-                    const inNodeData = this.editor.getNodeFromId(inputNodeId);
-
-                    // calculate position
-                    const startX = outNodeData.pos_x + positions.portOut.x;
-                    const startY = outNodeData.pos_y + positions.portOut.y;
-                    const endX = inNodeData.pos_x + positions.portIn.x;
-                    const endY = inNodeData.pos_y + positions.portIn.y;
-
-                    const curveX = startX - 40; 
-                    const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
-
-                    // set both paths manually (overwrite default)
-                    mainPath.setAttribute('d', pathData);
-                    backPath.setAttribute('d', pathData);
-                
-                } else {
-                    // apply standard for non selfconnections
-                    const d = mainPath.getAttribute('d');
-                    if (d) backPath.setAttribute('d', d);
-                }
-            }
-        }
-        return true;
+    /** Whether the relation is a self-relation, i.e. its target is a proxy node of its source (Drawflow can't connect a node to itself) */
+    private _isSelfRelation(sourceId: string, targetId: string): boolean {
+        const targetNode = this.editor.getNodeFromId(targetId);
+        return !!targetNode?.data?.isProxy && targetNode.data.parentNodeId === sourceId;
     }
 
-    /** forces right path for self-relations (apply after each creation and node move events to overwrite standard) */
-    private _forceSelfRelationPaths() {
-        const selfRelationSvgs = this.shadowRoot?.querySelectorAll('svg.connection.self-relation') as NodeListOf<SVGElement>;
+    /** Calculates the routes of all relations and redraws their paths, labels and association class lines */
+    private _routeRelations() {
+        if (!this.editor) return;
 
-        selfRelationSvgs?.forEach(svg => {
-            const mainPath = svg.querySelector('.main-path') as SVGPathElement;
-            const backPath = svg.querySelector('.back-path') as SVGPathElement;
-            const classList = Array.from(svg.classList);
-            const nodeOutClass = classList.find(c => c.startsWith('node_out_node-'));
-            const nodeInClass = classList.find(c => c.startsWith('node_in_node-'));
-            const outPortId = classList.find(c => c.startsWith('output_'));
-            const inPortId = classList.find(c => c.startsWith('input_'));
+        const allNodes = this.editor.drawflow.drawflow.Home.data;
+        const boxes = new Map<string, Box>();
+        const relations = new Map<string, RelationEnds>();
+        Object.entries<any>(allNodes).forEach(([id, node]) => {
+            if (node.data?.isProxy) return;
+            const nodeHTML = this.shadowRoot?.querySelector(`#node-${id}`) as HTMLElement;
+            if (!nodeHTML || nodeHTML.offsetWidth <= 0) return;
+            boxes.set(id, { x: node.pos_x, y: node.pos_y, width: nodeHTML.offsetWidth, height: nodeHTML.offsetHeight });
 
-            if (nodeOutClass && nodeInClass && outPortId && inPortId) {
-                const outNodeId = nodeOutClass.replace('node_out_node-', '');
-                const inNodeId = nodeInClass.replace('node_in_node-', '');
+            Object.entries<any>(node.outputs).forEach(([outPort, output]) => {
+                output.connections.forEach((conn: any) => {
+                    const targetId = conn.node.toString();
+                    // self-relations loop back to their class, the proxy node is only their target in Drawflow
+                    relations.set(`node_in_node-${targetId}_node_out_node-${id}_${outPort}_${conn.output}`, {
+                        source: id,
+                        target: this._isSelfRelation(id, targetId) ? id : targetId
+                    });
+                });
+            });
+        });
 
-                const outNodeData = this.editor.getNodeFromId(outNodeId);
-                const inNodeData = this.editor.getNodeFromId(inNodeId);
-
-                if (outNodeData && inNodeData) {
-                    const positions = this._calculateOptimalPortPositionsWithIds(outNodeId, inNodeId, outPortId, inPortId);
-                    
-                    if (positions) {
-                        const startX = outNodeData.pos_x + positions.portOut.x;
-                        const startY = outNodeData.pos_y + positions.portOut.y;
-                        const endX = inNodeData.pos_x + positions.portIn.x;
-                        const endY = inNodeData.pos_y + positions.portIn.y;
-                        const curveX = startX - 40; 
-                        const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
-
-                        if (mainPath) mainPath.setAttribute('d', pathData);
-                        if (backPath) backPath.setAttribute('d', pathData);
-                    }
-                }
-            }
+        this._routes = straightRoutes(boxes, relations);
+        this._drawRoutes();
+        this._routes.forEach((_, connectionId) => {
+            this.renderRelationLabels(connectionId);
+            this._updateRelatedAssociationClass(connectionId);
         });
     }
 
-    /** calculate optimal portpositions */
-    private _calculateOptimalPortPositionsWithIds(outNodeId: string, inNodeId: string, outputPortId: string, inputPortId: string) {
-        const outputNode = this.editor.getNodeFromId(outNodeId);
-        const inputNode = this.editor.getNodeFromId(inNodeId);
-        
-        if (!outputNode || !inputNode) {
-            return null;
-        }
+    /** Draw the last calculated routes, replacing Drawflow's straight lines (also for the hitboxes) */
+    private _drawRoutes() {
+        this._routes.forEach((route, connectionId) => {
+            const connectionSvg = this._getConnectionSvg(connectionId);
+            if (!connectionSvg || route.length < 2) return;
 
-        const outNodeHTML = this.shadowRoot?.querySelector(`#node-${outNodeId}`) as HTMLElement;
-        const inNodeHTML = this.shadowRoot?.querySelector(`#node-${inNodeId}`) as HTMLElement;
-        
-        if (!inNodeHTML || !outNodeHTML) {
-            return null;
-        }
-
-        if (outNodeHTML.offsetWidth <= 0 || inNodeHTML.offsetWidth <= 0) {
-            return null;
-        }
-
-        const widthInNode = inNodeHTML.offsetWidth;
-        const heightInNode = inNodeHTML.offsetHeight;
-        const widthOutNode = outNodeHTML.offsetWidth;
-        const heightOutNode = outNodeHTML.offsetHeight;
-
-        const allConnections = this._getAllConnectionsBetween(outNodeId, inNodeId);
-        const currentConnId = `node_in_node-${inNodeId}_node_out_node-${outNodeId}_${outputPortId}_${inputPortId}`;
-        
-        let connectionIndex = allConnections.indexOf(currentConnId);
-        if (connectionIndex === -1) {
-            connectionIndex = 0;
-        }
-        
-        const totalConnections = allConnections.length;
-
-        // different logic for self relations and their proxys
-        const isSelfRelation = inputNode.data && inputNode.data.isProxy && inputNode.data.parentNodeId === outNodeId;
-        if (isSelfRelation) {
-            const allNodes = this.editor.drawflow.drawflow.Home.data;
-            const myProxies = Object.values(allNodes).filter((n: any) => 
-                n.data.isProxy && n.data.parentNodeId === outNodeId
-            ).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
-
-            const proxyIndex = myProxies.findIndex((n: any) => n.id.toString() === inNodeId.toString());
-            const totalProxies = myProxies.length;
-            const factor = (proxyIndex + 1) / (totalProxies + 1);
-            const centerY = heightOutNode * factor;
-            const spread = 40; 
-            const pOutY = Math.max(0, centerY - (spread / 2));
-            
-            return {
-                portOut: { x: 0, y: pOutY },
-                portIn:  { x: 50, y: spread }
-            };
-        }
-
-        const outX = outputNode.pos_x;
-        const outY = outputNode.pos_y;
-        const inX = inputNode.pos_x;
-        const inY = inputNode.pos_y;
-
-        const outRight = outX + widthOutNode;
-        const outBottom = outY + heightOutNode;
-        const inRight = inX + widthInNode;
-        const inBottom = inY + heightInNode;
-
-        const xOverlap = Math.max(0, Math.min(outRight, inRight) - Math.max(outX, inX));
-        const yOverlap = Math.max(0, Math.min(outBottom, inBottom) - Math.max(outY, inY));
-
-        const outCenter = { x: outX + widthOutNode / 2, y: outY + heightOutNode / 2 };
-        const inCenter = { x: inX + widthInNode / 2, y: inY + heightInNode / 2 };
-
-        let portOut = { x: 0, y: 0 };
-        let portIn = { x: 0, y: 0 };
-
-        const calculateAlignedPosition = (sourceLen: number, sourcePos: number, targetLen: number, targetPos: number) => {
-            const gap = sourceLen / (totalConnections + 1);
-            const startOverlap = Math.max(sourcePos, targetPos);
-            const endOverlap = Math.min(sourcePos + sourceLen, targetPos + targetLen);
-
-            let idealAbsoluteCenter: number;
-
-            if (startOverlap < endOverlap) {
-                idealAbsoluteCenter = (startOverlap + endOverlap) / 2;
-            } else {
-                if (targetPos >= sourcePos + sourceLen) {
-                    idealAbsoluteCenter = sourcePos + sourceLen;
-                } else {
-                    idealAbsoluteCenter = sourcePos;
-                }
-            }
-
-            const idealLocalCenter = idealAbsoluteCenter - sourcePos;
-            const centerOffsetIndex = connectionIndex - (totalConnections - 1) / 2;
-            const posFromCenter = centerOffsetIndex * gap;
-            
-            const halfGroupWidth = ((totalConnections - 1) * gap) / 2;
-            const margin = 10; 
-            const minCenter = halfGroupWidth + margin;
-            const maxCenter = sourceLen - halfGroupWidth - margin;
-            
-            const clampedCenter = Math.max(minCenter, Math.min(maxCenter, idealLocalCenter));
-
-            return clampedCenter + posFromCenter;
-        };
-        
-        const dx = Math.abs(outCenter.x - inCenter.x);
-        const dy = Math.abs(outCenter.y - inCenter.y);
-
-        if (xOverlap > 0 && xOverlap > yOverlap) {
-            portOut.x = calculateAlignedPosition(widthOutNode, outX, widthInNode, inX);
-            portIn.x = calculateAlignedPosition(widthInNode, inX, widthOutNode, outX);
-
-            if (outCenter.y < inCenter.y) {
-                portOut.y = heightOutNode; 
-                portIn.y = 0;              
-            } else {
-                portOut.y = 0;             
-                portIn.y = heightInNode;   
-            }
-
-        } else if (yOverlap > 0 && yOverlap > xOverlap) {
-            portOut.y = calculateAlignedPosition(heightOutNode, outY, heightInNode, inY);
-            portIn.y = calculateAlignedPosition(heightInNode, inY, heightOutNode, outY);
-
-            if (outCenter.x < inCenter.x) {
-                portOut.x = widthOutNode; 
-                portIn.x = 0;             
-            } else {
-                portOut.x = 0;            
-                portIn.x = widthInNode;   
-            }
-
-        } else {
-            if (dx > dy) {
-                portOut.y = calculateAlignedPosition(heightOutNode, outY, heightInNode, inY);
-                portIn.y = calculateAlignedPosition(heightInNode, inY, heightOutNode, outY);
-
-                if (outCenter.x < inCenter.x) {
-                    portOut.x = widthOutNode;
-                    portIn.x = 0;
-                } else {
-                    portOut.x = 0;
-                    portIn.x = widthInNode;
-                }
-            } else {
-                portOut.x = calculateAlignedPosition(widthOutNode, outX, widthInNode, inX);
-                portIn.x = calculateAlignedPosition(widthInNode, inX, widthOutNode, outX);
-
-                if (outCenter.y < inCenter.y) {
-                    portOut.y = heightOutNode;
-                    portIn.y = 0;
-                } else {
-                    portOut.y = 0;
-                    portIn.y = heightInNode;
-                }
-            }
-        }
-
-        portOut.x = Math.max(0, Math.min(widthOutNode, portOut.x));
-        portOut.y = Math.max(0, Math.min(heightOutNode, portOut.y));
-        portIn.x = Math.max(0, Math.min(widthInNode, portIn.x));
-        portIn.y = Math.max(0, Math.min(heightInNode, portIn.y));
-
-        return { portOut, portIn };
+            this._ensureBackPath(connectionSvg);
+            const pathData = routeToPath(route);
+            connectionSvg.querySelector('.main-path')?.setAttribute('d', pathData);
+            connectionSvg.querySelector('.back-path')?.setAttribute('d', pathData);
+        });
     }
 
-    /** Helper function to get all relations between two nodes */
-    private _getAllConnectionsBetween(nodeId1: string, nodeId2: string): string[] {
-        const allNodes = this.editor.drawflow.drawflow.Home.data;
-        const connections: string[] = [];
+    /** Route the relations in the next frame, e.g. after Drawflow added or removed a class or relation */
+    private _scheduleRouting() {
+        cancelAnimationFrame(this._routingFrame);
+        this._routingFrame = requestAnimationFrame(() => this._routeRelations());
+    }
 
-        // search for one direction
-        const node1 = allNodes[nodeId1];
-        if (node1 && node1.outputs) {
-             Object.keys(node1.outputs).forEach(outKey => {
-                 node1.outputs[outKey].connections.forEach((conn: any) => {
-                     if (conn.node.toString() === nodeId2.toString()) {
-                         const connId = `node_in_node-${nodeId2}_node_out_node-${nodeId1}_${outKey}_${conn.output}`;
-                         connections.push(connId);
-                     }
-                 });
-             });
-        }
-
-        // search for the opposite direction
-        if (nodeId1 !== nodeId2) {
-            const node2 = allNodes[nodeId2];
-            if (node2 && node2.outputs) {
-                Object.keys(node2.outputs).forEach(outKey => {
-                    node2.outputs[outKey].connections.forEach((conn: any) => {
-                        if (conn.node.toString() === nodeId1.toString()) {
-                            const connId = `node_in_node-${nodeId1}_node_out_node-${nodeId2}_${outKey}_${conn.output}`;
-                            connections.push(connId);
-                        }
-                    });
-                });
-            }
-        }
-
-        // sort, so that the order remains the same for each new calculation
-        return connections.sort();
+    /** Get the SVG element of a relation by its connection id */
+    private _getConnectionSvg(connectionId: string): SVGElement | null {
+        const parts = connectionId.split('_');
+        const selector = `svg.connection.node_out_${parts[5]}.node_in_${parts[2]}.${parts[6]}_${parts[7]}.${parts[8]}_${parts[9]}`;
+        return this.shadowRoot?.querySelector(selector) as SVGElement | null;
     }
 
     /** calculate the optimal port positions for association classes */
@@ -1535,121 +1270,19 @@ export class UMLEditor extends LitElementWw{
         const partsForSelector = connectionId.split('_');
         const sourceNodeId = partsForSelector[5].replace('node-', '');
         const targetNodeId = partsForSelector[2].replace('node-', '');
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        if (!sourceNode || !targetNode) return;
-
         const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
         const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
 
-        // get the port positions
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        
-        if (!portPositions) return;
+        const route = this._routes.get(connectionId);
+        if (!route || route.length < 2) return;
 
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        let sourceMultiX, sourceMultiY, targetMultiX, targetMultiY, nameLabelX, nameLabelY;
-        
-        let sourceAnchor: 'start' | 'end' = 'start';
-        let targetAnchor: 'start' | 'end' = 'end';
-
-        let nameOffset = { x: 0, y: 5 };
-
-        const isSelfRelation = targetNode.data && targetNode.data.isProxy && targetNode.data.parentNodeId === sourceNodeId;
-        if (isSelfRelation) {
-            // calculate label positions for selfrelations
-            sourceAnchor = 'end';
-            targetAnchor = 'end';
-
-            const curveOffset = 40;
-            const verticalBarX = xOutputNode - curveOffset; 
-            const verticalCenterY = (yOutputNode + yInputNode) / 2;
-
-            sourceMultiX = xOutputNode - 15; 
-            sourceMultiY = yOutputNode - 10; 
-            
-            targetMultiX = xInputNode - 15; 
-            targetMultiY = yInputNode + 20; 
-
-            nameLabelX = verticalBarX;
-            nameLabelY = verticalCenterY;
-            nameOffset = { x: -30, y: 5 };
-
+        let source: EndLabelPositions, target: EndLabelPositions, name: LabelPosition;
+        if (this._isSelfRelation(sourceNodeId, targetNodeId)) {
+            ({ source, target, name } = this._getLoopLabelPositions(route));
         } else {
-            // calculate label positions for the regular case
-            const dx = xInputNode - xOutputNode;
-            const dy = yInputNode - yOutputNode;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            
-            if(length == 0) return;
-
-            const normalX = -(dy / length);
-            const normalY = dx / length;
-
-            let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
-            if (angle < 0) angle += 360;
-            const side = (angle >= 90 && angle < 270) ? 1 : -1;
-
-            const baseOffsetX = normalX * 30 * side;
-            const baseOffsetY = normalY * 30 * side;
-
-            // decides the direction of the label 'growing'
-            const nodeDx = targetNode.pos_x - sourceNode.pos_x;
-            const nodeDy = targetNode.pos_y - sourceNode.pos_y;
-            
-            if (Math.abs(nodeDx) >= Math.abs(nodeDy)) {
-                // fix to prevent the label von crossing the connection line
-                if (baseOffsetX < -1) {
-                    sourceAnchor = 'end';
-                    targetAnchor = 'end';
-                } else if (baseOffsetX > 1) {
-                    sourceAnchor = 'start';
-                    targetAnchor = 'start';
-                } else {
-                    if (xOutputNode < xInputNode) {
-                        sourceAnchor = 'start';
-                        targetAnchor = 'end';
-                    } else {
-                        sourceAnchor = 'end';
-                        targetAnchor = 'start';
-                    }
-                }
-            } else {
-                const isPushedLeft = (normalX * side) < 0;
-
-                if (isPushedLeft) {
-                    sourceAnchor = 'end';
-                    targetAnchor = 'end';
-                } else {
-                    sourceAnchor = 'start';
-                    targetAnchor = 'start';
-                }
-            }
-
-            const distance = Math.max(Math.min(length * 0.1, 30), 20);
-
-            const midX = (xOutputNode + xInputNode) / 2;
-            const midY = (yOutputNode + yInputNode) / 2;
-
-            sourceMultiX = xOutputNode + ((dx / length) * distance) + baseOffsetX;
-            sourceMultiY = yOutputNode + ((dy / length) * distance) + baseOffsetY;
-
-            targetMultiX = xInputNode - ((dx / length) * distance) + baseOffsetX;
-            targetMultiY = yInputNode - ((dy / length) * distance) + baseOffsetY;
-            
-            nameLabelX = midX + baseOffsetX;
-            nameLabelY = midY + baseOffsetY;
-
-            if (yOutputNode > yInputNode) {
-                sourceMultiY -= 15;
-            } else if (yInputNode > yOutputNode) {
-                targetMultiY -= 15;
-            }
+            const positions = this._getStraightLabelPositions(route[0], route[route.length - 1], sourceNodeId, targetNodeId);
+            if (!positions) return;
+            ({ source, target, name } = positions);
         }
 
         // get the data for the connection
@@ -1660,146 +1293,99 @@ export class UMLEditor extends LitElementWw{
 
         if (!connectionData) return;
 
-        let sourceMultiplicity = connectionData.sourceMultiplicity || '';
-        let targetMultiplicity = connectionData.targetMultiplicity || '';
-        let sourceRole = connectionData.sourceRole || '';
-        let targetRole = connectionData.targetRole || '';
-        let relationName = connectionData.relationName || '';
-
         // get the svg element of the connection
-        const selector = `svg.connection.node_out_node-${sourceNodeId}.node_in_node-${targetNodeId}.${outputPortId}.${inputPortId}`;
-        const svgElement = this.shadowRoot?.querySelector(selector) as SVGElement;
-        
+        const svgElement = this._getConnectionSvg(connectionId);
         if (!svgElement) return;
         
         // Add the labels
-        const multiOffset = { x: 0, y: 5 };
-        const roleOffset = { x: 0, y: 20 };
-        // source multiplicity
-        this.updateText('label-source',
-                        sourceMultiplicity,
-                        sourceMultiX,
-                        sourceMultiY,
-                        svgElement,
-                        multiOffset,
-                        sourceAnchor);
-        // target multiplicity
-        this.updateText('label-target',
-                        targetMultiplicity,
-                        targetMultiX,
-                        targetMultiY,
-                        svgElement,
-                        multiOffset,
-                        targetAnchor);
-        // source role
-        this.updateText('label-source-role',
-                        sourceRole,
-                        sourceMultiX,
-                        sourceMultiY,
-                        svgElement,
-                        roleOffset,
-                        sourceAnchor);
-        // target role
-        this.updateText('label-target-role',
-                        targetRole,
-                        targetMultiX,
-                        targetMultiY,
-                        svgElement,
-                        roleOffset,
-                        targetAnchor);
-        // relation name
-        this.updateText('label-name',
-                        relationName,
-                        nameLabelX,
-                        nameLabelY,
-                        svgElement,
-                        nameOffset,
-                        'middle');
+        this.updateText('label-source', connectionData.sourceMultiplicity || '', source.multiplicity, svgElement);
+        this.updateText('label-target', connectionData.targetMultiplicity || '', target.multiplicity, svgElement);
+        this.updateText('label-source-role', connectionData.sourceRole || '', source.role, svgElement);
+        this.updateText('label-target-role', connectionData.targetRole || '', target.role, svgElement);
+        this.updateText('label-name', connectionData.relationName || '', name, svgElement);
+    }
+
+    /**
+     * Label positions of a straight relation from start to end: 30px beside the line (above it, right of vertical ones),
+     * multiplicities and roles 20-30px from the ends, growing away from the line, the name in the middle
+     */
+    private _getStraightLabelPositions(start: Point, end: Point, sourceNodeId: string, targetNodeId: string) {
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const length = Math.hypot(dx, dy);
+        if (length === 0) return null;
+
+        const offset = { x: dx === 0 ? 30 : 30 * dy * Math.sign(dx) / length, y: -30 * Math.abs(dx) / length };
+
+        // labels grow away from the line, or towards each other if they are right above a mostly horizontal relation
+        const nodes = this.editor.drawflow.drawflow.Home.data;
+        const mostlyHorizontal = Math.abs(nodes[targetNodeId].pos_x - nodes[sourceNodeId].pos_x) >= Math.abs(nodes[targetNodeId].pos_y - nodes[sourceNodeId].pos_y);
+        const [sourceAnchor, targetAnchor]: LabelPosition['anchor'][] = mostlyHorizontal && Math.abs(offset.x) <= 1
+            ? (start.x < end.x ? ['start', 'end'] : ['end', 'start'])
+            : (offset.x < 0 ? ['end', 'end'] : ['start', 'start']);
+
+        const distance = Math.max(Math.min(length * 0.1, 30), 20);
+        const along = { x: dx / length * distance, y: dy / length * distance };
+        // the labels at the upper end move up a line further
+        const endLabels = (x: number, y: number, anchor: LabelPosition['anchor']): EndLabelPositions => ({
+            multiplicity: { x, y: y + 5, anchor },
+            role: { x, y: y + 20, anchor }
+        });
+        return {
+            source: endLabels(start.x + along.x + offset.x, start.y + along.y + offset.y - (start.y > end.y ? 15 : 0), sourceAnchor),
+            target: endLabels(end.x - along.x + offset.x, end.y - along.y + offset.y - (end.y > start.y ? 15 : 0), targetAnchor),
+            name: { x: (start.x + end.x) / 2 + offset.x, y: (start.y + end.y) / 2 + offset.y + 5, anchor: 'middle' as const }
+        };
+    }
+
+    /**
+     * Label positions of a self-relation loop (start, outer corners, end) on the left side of its class, all left of it:
+     * the source labels at the top, the target labels at the bottom, the name beside the outer side
+     */
+    private _getLoopLabelPositions(route: Point[]): { source: EndLabelPositions, target: EndLabelPositions, name: LabelPosition } {
+        const [start, outerTop, , end] = route;
+        return {
+            source: {
+                multiplicity: { x: start.x - 15, y: start.y - 5, anchor: 'end' },
+                role: { x: start.x - 15, y: start.y + 10, anchor: 'end' }
+            },
+            target: {
+                multiplicity: { x: end.x - 15, y: end.y + 25, anchor: 'end' },
+                role: { x: end.x - 15, y: end.y + 40, anchor: 'end' }
+            },
+            name: { x: outerTop.x - 30, y: (start.y + end.y) / 2 + 5, anchor: 'middle' }
+        };
     }
 
     /** 
      * Central update method called after every node move or diagram load
-     * Updates association class lines, repositions proxy nodes for self-relations,
-     * recalculates all port positions and connection lines, and corrects self-relation paths
+     * Updates association class lines and reroutes all relations
      */
     private updateNodeVisuals(nodeId: string) {
         const movedNode = this.editor.getNodeFromId(nodeId);
         if (!movedNode) return;
+
+        // While dragging, Drawflow stores the position off by the last mouse movement, so take it from the element
+        const movedNodeHTML = this.shadowRoot?.querySelector(`#node-${nodeId}`) as HTMLElement;
+        const left = parseFloat(movedNodeHTML?.style.left);
+        const top = parseFloat(movedNodeHTML?.style.top);
+        if (!isNaN(left) && !isNaN(top)) {
+            const storedNode = this.editor.drawflow.drawflow.Home.data[nodeId];
+            storedNode.pos_x = left;
+            storedNode.pos_y = top;
+        }
 
         // update asscociation class line to association
         if (movedNode.data && movedNode.data.associatedConnectionId) {
             this._updateAssociationClassLine(nodeId);
         } 
 
-        // update proxy positioning
-        const allNodes = this.editor.drawflow.drawflow.Home.data;
-        const myProxies = Object.values(allNodes).filter((n: any) => 
-            n.data.isProxy && n.data.parentNodeId === nodeId
-        ).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
-        const nodeEl = this.shadowRoot?.querySelector(`#node-${nodeId}`) as HTMLElement;
-        const heightNode = nodeEl?.offsetHeight || 100;
-        myProxies.forEach((proxyData: any, index: number) => {
-            const proxyId = proxyData.id;
-            const proxyEl = this.shadowRoot?.querySelector(`#node-${proxyId}`) as HTMLElement;
-
-            if (proxyEl) {
-                const totalProxies = myProxies.length;
-                const factor = (index + 1) / (totalProxies + 1);
-                const centerY = heightNode * factor;
-                const spread = 40;
-
-                const newX = movedNode.pos_x - 50;
-                
-                const newY = movedNode.pos_y + centerY - (spread / 2);
-
-                this.editor.drawflow.drawflow.Home.data[proxyId].pos_x = newX;
-                this.editor.drawflow.drawflow.Home.data[proxyId].pos_y = newY;
-
-                proxyEl.style.left = newX + "px";
-                proxyEl.style.top = newY + "px";
-
-                this.editor.updateConnectionNodes(`node-${proxyId}`);
-            }
-        });
-
-        // update relations and ports
-        const allConnections = this.getNodeConnectionsById(nodeId);
-        allConnections.forEach(connectionId => {
-            const parts = connectionId.split('_');
-            const targetId = parts[2].replace('node-', '');
-            const sourceId = parts[5].replace('node-', '');
-            const outPortName = parts[6] + '_' + parts[7]; 
-            const inPortName = parts[8] + '_' + parts[9];  
-
-            this.updatePortPositions(sourceId, targetId, outPortName, inPortName);
-
-            const targetNode = this.editor.getNodeFromId(targetId);
-            if (targetNode && targetNode.data.isProxy && targetNode.data.parentNodeId === sourceId) {
-                 const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outPortName}.${inPortName}`;
-                 const connectionSvg = this.shadowRoot?.querySelector(selector);
-                 if (connectionSvg && !connectionSvg.classList.contains('self-relation')) {
-                     connectionSvg.classList.add('self-relation');
-                 }
-            }
-
-            this.renderRelationLabels(connectionId);
-            this._updateRelatedAssociationClass(connectionId);
-        });
-
-        // correct pathes of self relations
-        this._forceSelfRelationPaths();
+        // moving or resizing the class can change the routes of all relations
+        this._routeRelations();
     }
 
     /** Helper method to create or update text elements */
-    private updateText(
-        className: string, 
-        content: string, 
-        x: number, 
-        y: number, 
-        svgElement: SVGElement,
-        offset: { x: number, y: number } = { x: 0, y: 0 },
-        textAnchor: 'start' | 'middle' | 'end' = 'middle'
-        ) {
+    private updateText(className: string, content: string, position: LabelPosition, svgElement: SVGElement) {
         
         // Check if element already exists
         let textEl = svgElement.querySelector(`.${className}`) as SVGTextElement;
@@ -1818,12 +1404,12 @@ export class UMLEditor extends LitElementWw{
 
         // update content
         textEl.textContent = content || '';
-        textEl.setAttribute('x', (x + offset.x).toString());
-        textEl.setAttribute('y', (y + offset.y).toString());
+        textEl.setAttribute('x', position.x.toString());
+        textEl.setAttribute('y', position.y.toString());
         
         // text-anchor controls the alignment point of the SVG text relative to its x coordinate
         // 'start' = grows right, 'middle' = centered, 'end' = grows left
-        textEl.setAttribute('text-anchor', textAnchor);
+        textEl.setAttribute('text-anchor', position.anchor);
     }
 
     /** Handle the clear/reset of the canvas */
@@ -2001,7 +1587,9 @@ export class UMLEditor extends LitElementWw{
 
         if (!svgElement) return;
 
-        const mid = this.getMiddleOfConnection(connectionId);
+        const middle = this.getMiddleOfConnection(connectionId);
+        if (!middle) return;
+        const mid = middle.point;
         const classAnchor = this.calculateOptimalPortPositionsForAssertionClasses(nodeId, mid.x, mid.y);
 
         let line = svgElement.querySelector(`.assoc-line-${nodeId}`) as SVGLineElement;
@@ -2021,31 +1609,10 @@ export class UMLEditor extends LitElementWw{
         line.setAttribute('y2', classAnchor.y.toString());
     }
 
-    /** Helper method to get the middle point of a relation */
-    private getMiddleOfConnection(connectionId: string) {
-        const partsForSelector = connectionId.split('_');
-
-        const sourceNodeId = partsForSelector[5].replace('node-', '');
-        const targetNodeId = partsForSelector[2].replace('node-', '');
-
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
-        const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
-
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        const midX = (xOutputNode + xInputNode) / 2;
-        const midY = (yOutputNode + yInputNode) / 2;
-
-        const mid = {x: midX, y: midY}
-
-        return mid;
+    /** Helper method to get the middle point of a relation and whether the line there is horizontal */
+    private getMiddleOfConnection(connectionId: string): { point: Point, horizontal: boolean } | null {
+        const route = this._routes.get(connectionId);
+        return route && route.length >= 2 ? routeMidpoint(route) : null;
     }
 
     /** create a new Assertion class and draw a line to the middle of the connection */
@@ -2058,45 +1625,16 @@ export class UMLEditor extends LitElementWw{
             return;
         }
 
-        // calculate the middle-point of the association
-        // getMiddleOfConnection() is not used here because we also need the individual
-        // port positions to calculate the placement of the new association class
-        const partsForSelector = connectionId.split('_');
+        // place the new class below a horizontal or right of a vertical middle of the association
+        const middle = this.getMiddleOfConnection(connectionId);
+        if (!middle) return;
 
-        const sourceNodeId = partsForSelector[5].replace('node-', '');
-        const targetNodeId = partsForSelector[2].replace('node-', '');
-
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
-        const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
-
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        
-        if (!portPositions) return;
-
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        const midX = (xOutputNode + xInputNode) / 2;
-        const midY = (yOutputNode + yInputNode) / 2;
-
-        const xDiff = Math.abs(Math.abs(xOutputNode) - Math.abs(xInputNode));
-        const yDiff = Math.abs(Math.abs(yOutputNode) - Math.abs(yInputNode));
-        let centerX = midX;
-        let centerY = midY;
-        
-        if (xDiff > yDiff) {
-            centerY = midY + 100;
+        let centerX = middle.point.x;
+        let centerY = middle.point.y;
+        if (middle.horizontal) {
+            centerY += 100;
         } else {
-            if (xOutputNode > xInputNode){
-                centerX = midX - 250;
-            } else  {
-                centerX = midX + 100;
-            }
+            centerX += 100;
         }
 
         // initialize new class
