@@ -176,8 +176,7 @@ export class UMLEditor extends LitElementWw{
         // While panning, Drawflow only reports the new offset through the "translate" event
         this.editor.on("translate", ({ x, y }: { x: number, y: number }) => this._updateGridBackground(x, y));
 
-        // The zoom origin is the canvas center, so the grid offset also depends on the canvas size.
-        // Classes have no size while the editor is hidden (e.g. loaded in another tab), so route again once it is shown
+        // Resize also fires when a hidden editor becomes visible.
         new ResizeObserver(() => {
             this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y);
             this._scheduleRouting();
@@ -299,8 +298,7 @@ export class UMLEditor extends LitElementWw{
         if (this.editor.drag && this.editor.node_selected) {
             const selectedId = this.editor.node_selected.id.replace('node-', '');
 
-            // Drawflow's own handler (registered first) just redrew the relations of the node as straight lines,
-            // so reroute right away instead of in the next frame, which would show the straight lines for a frame
+            // Overwrite Drawflow's paths before the next paint.
             this.updateNodeVisuals(selectedId);
         }
     }
@@ -359,24 +357,7 @@ export class UMLEditor extends LitElementWw{
                     }
                 });
 
-                Object.keys(nodes).forEach(sourceId => {
-                    const sourceNode = nodes[sourceId];
-                    if (sourceNode.outputs) {
-                        Object.keys(sourceNode.outputs).forEach(outputKey => {
-                            const connections = sourceNode.outputs[outputKey].connections;
-                            connections.forEach((conn: any) => {
-                                const targetId = conn.node.toString();
-                                const inPort = conn.output;
-                                const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outputKey}_${inPort}`;
-                                this.renderRelationLabels(connectionId);
-                            });
-                        });
-                    }
-                });
-
-                Object.keys(nodes).forEach(nodeId => {
-                    this.updateNodeVisuals(nodeId);
-                });
+                this._routeRelations();
 
                 onRestored?.();
             }, 300);
@@ -716,90 +697,27 @@ export class UMLEditor extends LitElementWw{
         const currentConnectionType = this.interactionMode;
         this._cancelAddRelation();
 
-        // Wait for the DOM to be ready before adding a new connection
-        requestAnimationFrame(() => {
-            this.editor.addConnection(nodeId, proxyId, outPort, inPort);
-
-            // Wait for the new conncection to be created before processing visual updates
-            requestAnimationFrame(() => {
-                // retry up to 5 frames to ensure DOM elements are ready for visual updates
-                let attempts = 0;
-                const maxAttempts = 5;
-
-                const tryUpdate = () => {
-                    attempts++;
-                    
-                    try {
-                        // also routes the new relation
-                        this.updateNodeVisuals(nodeId);
-
-                        const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
-                        const connectionSvg = this._getConnectionSvg(connectionId);
-                        if (connectionSvg) {
-                            connectionSvg.classList.add(currentConnectionType);
-                            this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
-                            this.renderRelationLabels(connectionId);
-                            this._serializeAndEmit(); 
-                        }
-                    } catch (e) {
-                        // ignore temporary errors during DOM rendering, next frame will retry
-                    }
-                    if (attempts < maxAttempts) {
-                        requestAnimationFrame(tryUpdate);
-                    }
-                };
-                tryUpdate();
-            });
-        });
+        this._createRelationConnection(nodeId, proxyId.toString(), outPort, inPort, currentConnectionType);
     }
 
-    /** Finaly add the new relaiton at the end of the creation and placing process */
+    /** Add a relation between two different nodes. */
     private _finalizeRelation(sourceId: string, targetId: string) {
-        
-        // create ports
         const outPort = this._addPort(sourceId, 'output');
         const inPort = this._addPort(targetId, 'input');
-
-        // Save the connection type before canceling the relation mode (which resets interactionMode to 'idle')
-        const currentConnectionType = this.interactionMode;
+        const connectionType = this.interactionMode;
         this._cancelAddRelation();
+        this._createRelationConnection(sourceId, targetId, outPort, inPort, connectionType);
+    }
 
-        // create connection at the next frame when the DOM is ready
+    private _createRelationConnection(sourceId: string, targetId: string, outPort: string, inPort: string, connectionType: string) {
         requestAnimationFrame(() => {
+            // Drawflow creates the SVG synchronously.
             this.editor.addConnection(sourceId, targetId, outPort, inPort);
-
-            // start visual update of the editor (but wait for the new connection to be created before)
-            requestAnimationFrame(() => {
-                // retry up to 5 frames to ensure DOM elements are ready for visual updates
-                let attempts = 0;
-                const maxAttempts = 5;
-
-                const tryUpdate = () => {
-                    attempts++;
-                    
-                    try {
-                        // also routes the new relation
-                        this.updateNodeVisuals(sourceId);
-                        this.updateNodeVisuals(targetId);
-
-                        const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
-                        const connectionSvg = this._getConnectionSvg(connectionId);
-                        if (connectionSvg) {
-                            connectionSvg.classList.add(currentConnectionType);
-                            this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
-                            this.renderRelationLabels(connectionId);
-                            this._serializeAndEmit();
-                        }
-                    } catch (e) {
-                        // Just do nothing, the next frame will fix it
-                    }
-
-                    if (attempts < maxAttempts) {
-                        requestAnimationFrame(tryUpdate);
-                    }
-                };
-                tryUpdate();
-            });
+            const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
+            this._getConnectionSvg(connectionId)?.classList.add(connectionType);
+            this._saveConnectionType(sourceId, targetId, inPort, connectionType);
+            this._routeRelations();
+            this._serializeAndEmit();
         });
     }
 
@@ -1151,7 +1069,7 @@ export class UMLEditor extends LitElementWw{
         return container.outerHTML;
     }
 
-    /** Whether the relation is a self-relation, i.e. its target is a proxy node of its source (Drawflow can't connect a node to itself) */
+    /** Drawflow represents a self-relation with a proxy target. */
     private _isSelfRelation(sourceId: string, targetId: string): boolean {
         const targetNode = this.editor.getNodeFromId(targetId);
         return !!targetNode?.data?.isProxy && targetNode.data.parentNodeId === sourceId;
@@ -1160,6 +1078,8 @@ export class UMLEditor extends LitElementWw{
     /** Calculates the routes of all relations and redraws their paths, labels and association class lines */
     private _routeRelations() {
         if (!this.editor) return;
+        cancelAnimationFrame(this._routingFrame);
+        this._routingFrame = 0;
 
         const allNodes = this.editor.drawflow.drawflow.Home.data;
         const boxes = new Map<string, Box>();
@@ -1309,10 +1229,7 @@ export class UMLEditor extends LitElementWw{
         this.updateText('label-name', connectionData.relationName || '', name, svgElement);
     }
 
-    /**
-     * Label positions of a straight relation from start to end: 30px beside the line (above it, right of vertical ones),
-     * multiplicities and roles 20-30px from the ends, growing away from the line, the name in the middle
-     */
+    /** Place labels beside the line, with roles and multiplicities near each end. */
     private _getStraightLabelPositions(start: Point, end: Point, sourceNodeId: string, targetNodeId: string) {
         const dx = end.x - start.x;
         const dy = end.y - start.y;
@@ -1342,10 +1259,7 @@ export class UMLEditor extends LitElementWw{
         };
     }
 
-    /**
-     * Label positions of a self-relation loop (start, outer corners, end) on the left side of its class, all left of it:
-     * the source labels at the top, the target labels at the bottom, the name beside the outer side
-     */
+    /** Place self-relation labels to the left of the loop. */
     private _getLoopLabelPositions(route: Point[]): { source: EndLabelPositions, target: EndLabelPositions, name: LabelPosition } {
         const [start, outerTop, , end] = route;
         return {
@@ -1361,15 +1275,12 @@ export class UMLEditor extends LitElementWw{
         };
     }
 
-    /** 
-     * Central update method called after every node move or diagram load
-     * Updates association class lines and reroutes all relations
-     */
+    /** Sync the moved node's position and reroute the diagram. */
     private updateNodeVisuals(nodeId: string) {
         const movedNode = this.editor.getNodeFromId(nodeId);
         if (!movedNode) return;
 
-        // While dragging, Drawflow stores the position off by the last mouse movement, so take it from the element
+        // Drawflow's stored position is one mouse delta ahead of the element.
         const movedNodeHTML = this.shadowRoot?.querySelector(`#node-${nodeId}`) as HTMLElement;
         const left = parseFloat(movedNodeHTML?.style.left);
         const top = parseFloat(movedNodeHTML?.style.top);
@@ -1379,12 +1290,6 @@ export class UMLEditor extends LitElementWw{
             storedNode.pos_y = top;
         }
 
-        // update asscociation class line to association
-        if (movedNode.data && movedNode.data.associatedConnectionId) {
-            this._updateAssociationClassLine(nodeId);
-        } 
-
-        // moving or resizing the class can change the routes of all relations
         this._routeRelations();
     }
 
