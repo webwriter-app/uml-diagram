@@ -431,13 +431,15 @@ export class SequenceEditor extends LitElementWw {
         
         messageElements.forEach(el => {
             el.setAttribute('data-bound', 'true');
-            const id = el.getAttribute('data-id');
+            // read at drag start, as Lit reuses list elements after deletions
+            let id: string | null = null;
             
             interact(el).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
                     start: () => {
+                        id = el.getAttribute('data-id');
                         this._startDrag(id, 'grabbing');
                         this._dragStartValue = this.model.messages.find(m => m.id === id)?.y ?? 0;
                     },
@@ -507,13 +509,15 @@ export class SequenceEditor extends LitElementWw {
         
         fragmentHeaders.forEach(el => {
             el.setAttribute('data-bound', 'true');
-            const id = el.getAttribute('data-id');
+            // read at drag start, as Lit reuses list elements after deletions
+            let id: string | null = null;
             
             interact(el).styleCursor(false).draggable({
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
                     start: () => {
+                        id = el.getAttribute('data-id');
                         this._startDrag(id, 'grabbing');
                         this._dragStartValue = this.model.fragments?.find(f => f.id === id)?.y ?? 0;
                     },
@@ -554,9 +558,10 @@ export class SequenceEditor extends LitElementWw {
         
         fragmentResizeHandles.forEach(handle => {
             handle.setAttribute('data-bound', 'true');
-            const fId = handle.getAttribute('data-fragment-id');
-            const oId = handle.getAttribute('data-operand-id');
-            const resizingTop = handle.getAttribute('data-edge') === 'top';
+            // read at drag start (see above)
+            let fId: string | null = null;
+            let oId: string | null = null;
+            let resizingTop = false;
             let bottomY = 0;
             
             interact(handle).styleCursor(false).draggable({
@@ -564,6 +569,9 @@ export class SequenceEditor extends LitElementWw {
                 lockAxis: 'y',
                 listeners: {
                     start: () => {
+                        fId = handle.getAttribute('data-fragment-id');
+                        oId = handle.getAttribute('data-operand-id');
+                        resizingTop = handle.getAttribute('data-edge') === 'top';
                         this._startDrag(fId, 'ns-resize');
                         const fragment = this.model.fragments?.find(f => f.id === fId);
                         const height = fragment?.operands.find(o => o.id === oId)?.height ?? 0;
