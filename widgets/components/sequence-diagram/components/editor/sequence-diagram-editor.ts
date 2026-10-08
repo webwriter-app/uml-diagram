@@ -249,14 +249,9 @@ export class SequenceEditor extends LitElementWw {
                 startAxis: 'x',
                 lockAxis: 'x',
                 allowFrom: '.lifeline-click-area',
-                ignoreFrom: '.lifeline-handle',
+                ignoreFrom: '.lifeline-handle, .selecting *',
                 listeners: {
                     start: (event) => {
-                        // lifelines can only be selected (not moved) while adding messages, fragments, ...
-                        if (this.interactionMode !== 'idle') {
-                            event.interaction.stop();
-                            return;
-                        }
                         this._startDrag(id, 'grabbing');
                         event.target.setAttribute('data-drag-x', '0');
                         (event.target as HTMLElement).style.opacity = '0.7'; 
@@ -294,8 +289,6 @@ export class SequenceEditor extends LitElementWw {
                     },
                     end: (event) => {
                         this._activeDrag = null;
-                        if (!id || this.interactionMode !== 'idle') return;
-
                         const target = event.target as SVGGElement;
                         target.style.transform = '';
                         target.setAttribute('data-drag-x', '0');
@@ -315,6 +308,7 @@ export class SequenceEditor extends LitElementWw {
             const id = handle.getAttribute('data-id');
             
             interact(handle).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
@@ -393,6 +387,7 @@ export class SequenceEditor extends LitElementWw {
 
         // movable in y direction
         interact('.draggable-activation').styleCursor(false).draggable({
+            ignoreFrom: '.selecting *',
             listeners: {
                 start: (event) => {
                     dragged = findActivation(event.target);
@@ -400,7 +395,7 @@ export class SequenceEditor extends LitElementWw {
                     this._dragStartValue = dragged?.activation.y ?? 0;
                 },
                 move: (event) => {
-                    if (!dragged) return;
+                    if (!dragged || this.interactionMode !== 'idle') return;
                     const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
                     if (activation.length > bounds.maxY - bounds.minY) return;
@@ -429,6 +424,7 @@ export class SequenceEditor extends LitElementWw {
         let resizingTop = false;
         let bottomY = 0;
         interact('.activation-resize-handle').styleCursor(false).draggable({
+            ignoreFrom: '.selecting *',
             listeners: {
                 start: (event) => {
                     dragged = findActivation(event.target);
@@ -439,7 +435,7 @@ export class SequenceEditor extends LitElementWw {
                     this._dragStartValue = (resizingTop ? dragged?.activation.y : dragged?.activation.length) ?? 0;
                 },
                 move: (event) => {
-                    if (!dragged) return;
+                    if (!dragged || this.interactionMode !== 'idle') return;
                     const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
                     if (resizingTop) {
@@ -476,6 +472,7 @@ export class SequenceEditor extends LitElementWw {
             let id: string | null = null;
             
             interact(el).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
@@ -553,6 +550,7 @@ export class SequenceEditor extends LitElementWw {
             let id: string | null = null;
             
             interact(el).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
@@ -606,6 +604,7 @@ export class SequenceEditor extends LitElementWw {
             let bottomY = 0;
             
             interact(handle).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
@@ -1606,7 +1605,7 @@ export class SequenceEditor extends LitElementWw {
 
             <svg 
                 id="canvas"
-                class="${this._isEmpty ? 'empty' : ''} ${this._activeDrag ? 'dragging' : ''}"
+                class="${this._isEmpty ? 'empty' : ''} ${this._activeDrag ? 'dragging' : ''} ${this.interactionMode !== 'idle' ? 'selecting' : ''}"
                 style=${this._activeDrag ? `--drag-cursor: ${this._activeDrag.cursor}` : ''}
                 viewBox="${this.panX} ${this.panY} ${this._svgWidth / this.zoom} ${this._svgHeight / this.zoom}"
                 @wheel=${this._handleWheel}

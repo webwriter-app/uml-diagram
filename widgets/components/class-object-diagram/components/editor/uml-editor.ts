@@ -206,15 +206,16 @@ export class UMLEditor extends LitElementWw{
             this._scheduleRouting();
         }).observe(this.drawflowEditorDiv);
 
-        // Without any classes there is no reference point, so block panning the empty canvas
-        // (captured on the shadow root so Drawflow's own mousedown/touchstart handlers never see it)
-        const blockPanWhenEmpty = (e: Event) => {
-            if (this._isEmpty && this.drawflowEditorDiv.contains(e.target as Node)) {
+        // Keep selection clicks and canvas panning, but block element gestures in relation mode.
+        const blockGestures = (e: Event) => {
+            const target = e.target as Element;
+            if (!this.drawflowEditorDiv.contains(target)) return;
+            if (this._isEmpty || (this.interactionMode !== 'idle' && target.closest('.drawflow-node, .connection'))) {
                 e.stopPropagation();
             }
         };
-        this.renderRoot.addEventListener('mousedown', blockPanWhenEmpty, true);
-        this.renderRoot.addEventListener('touchstart', blockPanWhenEmpty, true);
+        this.renderRoot.addEventListener('mousedown', blockGestures, true);
+        this.renderRoot.addEventListener('touchstart', blockGestures, true);
 
         // Pinch to zoom, also captured on the shadow root to keep the pinch's touches from Drawflow
         for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
@@ -689,6 +690,12 @@ export class UMLEditor extends LitElementWw{
 
         // initialize states for the "relation mode"
         this._cancelAddRelation();
+        this._endDrawflowGesture();
+        // Clicks no longer reach Drawflow in relation mode, so its selection would stay deletable with the Delete key
+        this.editor.node_selected?.classList.remove('selected');
+        this.editor.node_selected = null;
+        this.editor.connection_selected?.classList.remove('selected');
+        this.editor.connection_selected = null;
         this._notice = null;
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;

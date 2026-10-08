@@ -333,18 +333,16 @@ export default css`
     }
 
     /* Applies a 'grab' cursor to elements that can be moved, switching to a 'grabbing' cursor while the user is pressing them. */
-    :host([interactionMode="idle"]) svg:not(.dragging) .lifeline-click-area,
-    svg:not(.dragging) :is(.message, .draggable-activation, .fragment-header-hitbox) {
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-click-area, .message, .draggable-activation, .fragment-header-hitbox) {
         cursor: grab !important;
     }
 
-    :host([interactionMode="idle"]) svg:not(.dragging) .lifeline-click-area:active,
-    svg:not(.dragging) :is(.message, .draggable-activation, .fragment-header-hitbox):active {
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-click-area, .message, .draggable-activation, .fragment-header-hitbox):active {
         cursor: grabbing !important;
     }
 
     /* Applies a vertical resize cursor to the handles of lifelines, activations, and fragment regions. */
-    svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle) {
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle) {
         cursor: ns-resize !important;
     }
 
