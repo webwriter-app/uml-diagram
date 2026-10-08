@@ -1,9 +1,10 @@
 import { LitElementWw } from "@webwriter/lit";
 import { html, svg } from "lit";
-import { property, state } from "lit/decorators.js";
+import { keyed } from "lit/directives/keyed.js";
+import { property, query, state } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import interact from 'interactjs';
-import { SlButton, SlDrawer, SlInput, SlIcon, SlIconButton, SlSelect, SlOption } from "@shoelace-style/shoelace";
+import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption, SlAlert } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
 import databaseIcon from '@tabler/icons/outline/database.svg';
 import serverIcon from '@tabler/icons/outline/server.svg';
@@ -11,14 +12,18 @@ import desktopIcon from '@tabler/icons/outline/device-desktop.svg';
 import { repeat } from 'lit/directives/repeat.js';
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import xIcon from "@tabler/icons/outline/x.svg";
+import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
+import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import mobileIcon from "@tabler/icons/outline/device-mobile.svg";
 import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
+import canvasAlertStyles from "../../../shared/canvas-alert.styles";
 import styles from "./sequence-diagram-editor.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
+import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
 
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
@@ -50,10 +55,11 @@ export class SequenceEditor extends LitElementWw {
             "sl-drawer": SlDrawer, 
             "sl-input": SlInput,
             "sl-icon": SlIcon,
-            "sl-icon-button": SlIconButton,
             "sl-select": SlSelect,
             "sl-option": SlOption,
-            "zoom-controls": ZoomControls
+            "zoom-controls": ZoomControls,
+            "confirm-dialog": ConfirmDialog,
+            "sl-alert": SlAlert
         };
     }
 
@@ -109,6 +115,13 @@ export class SequenceEditor extends LitElementWw {
     /** Property to store the state of the fullscreen mode */
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
+    @state() private accessor _notice: string | null = null;
+
+    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
+    @state() private accessor _noticeCount = 0;
+
+    @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
     /** Global settings instance passed down from the main widget */
     @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 
@@ -141,7 +154,7 @@ export class SequenceEditor extends LitElementWw {
     private _blockDblClick: boolean = false;
 
     /** styles are defined in the editor.styles */
-    static styles = [styles];
+    static styles = [styles, canvasAlertStyles];
 
     // --------------------------------------------------------------------------------------------------------
     // Lifecycle and InteractJS
@@ -635,9 +648,23 @@ export class SequenceEditor extends LitElementWw {
         return !this.model?.lifelines?.length;
     }
 
+    public async showNotice(message: string) {
+        this._notice = message;
+        this._noticeCount++;
+        await this.updateComplete;
+        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+    }
+
+    public confirm(options: ConfirmOptions): Promise<boolean> {
+        return this._confirmDialog.confirm(options);
+    }
+
     /** Reset an empty canvas to its initial view before rendering */
     protected willUpdate(changedProperties: any) {
         super.willUpdate(changedProperties);
+        if (changedProperties.has('interactionMode') && this.interactionMode !== 'idle') {
+            this._notice = null;
+        }
         if (this._isEmpty) {
             this.zoom = 1;
             this.panX = 0;
@@ -847,7 +874,7 @@ export class SequenceEditor extends LitElementWw {
                 const bounds = this._getMessageBounds(id, 'external', mappedType);
                 
                 if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                    alert(msg("Message cannot be placed here (outside of logical boundaries)."));
+                    this.showNotice(msg("Message cannot be placed here (outside of logical boundaries)."));
                     this.dispatchEvent(new CustomEvent('cancel-interaction'));
                     return;
                 }
@@ -863,7 +890,7 @@ export class SequenceEditor extends LitElementWw {
             const source = this.messageSourceId === 'external' ? 'external' : this.messageSourceId!;
             
             if (mappedType === 'create' && source === id) {
-                alert(msg("An object cannot create itself (self-create is not allowed)."));
+                this.showNotice(msg("An object cannot create itself (self-create is not allowed)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -871,7 +898,7 @@ export class SequenceEditor extends LitElementWw {
             const bounds = this._getMessageBounds(source, id, mappedType);
             
             if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                alert(msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
+                this.showNotice(msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -1027,7 +1054,6 @@ export class SequenceEditor extends LitElementWw {
     /** Handles the click on the delete button in the liveline drawer menu and inform the controller */
     private _handleDeleteLifelineClick() {
         if (this.editingLifelineId) {
-            if (!confirm(msg("Do you really want to delete this element?"))) return;
             this.dispatchEvent(new CustomEvent('delete-lifeline', {
                 detail: { id: this.editingLifelineId },
                 bubbles: true,
@@ -1484,24 +1510,39 @@ export class SequenceEditor extends LitElementWw {
             : false;
 
         return html`
-            ${this.interactionMode !== 'idle' ? html`
-                <div class="interaction-banner">
-                    <span>
-                        ${this.interactionMode === 'add-message-source' 
-                            ? msg("Select sending lifeline") 
-                            : this.interactionMode === 'add-activation' 
-                            ? msg("Select a lifeline")
-                            : this.interactionMode === 'creating-fragment-start'
-                            ? msg("Select start lifeline")
-                            : this.interactionMode === 'creating-fragment-end'
-                            ? msg("Select end lifeline")
-                            : msg("Select receiving liveline")}
-                    </span>
-                    <sl-icon-button
-                        src=${xIcon}
-                        label="${msg("Cancel")}"
-                        @click=${() => this.dispatchEvent(new CustomEvent('cancel-interaction'))}
-                    ></sl-icon-button>
+            ${this._notice ? keyed(this._noticeCount, html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="danger"
+                        duration="5000"
+                        closable
+                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
+                    >
+                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
+                        <span class="canvas-alert-text">${this._notice}</span>
+                    </sl-alert>
+                </div>
+            `) : this.interactionMode !== 'idle' ? html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="primary"
+                        closable
+                        open
+                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this.dispatchEvent(new CustomEvent('cancel-interaction')); }}
+                    >
+                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
+                        <span>
+                            ${this.interactionMode === 'add-message-source' 
+                                ? msg("Select sending lifeline") 
+                                : this.interactionMode === 'add-activation' 
+                                ? msg("Select a lifeline")
+                                : this.interactionMode === 'creating-fragment-start'
+                                ? msg("Select start lifeline")
+                                : this.interactionMode === 'creating-fragment-end'
+                                ? msg("Select end lifeline")
+                                : msg("Select receiving liveline")}
+                        </span>
+                    </sl-alert>
                 </div>
             ` : ''}
 
@@ -2167,6 +2208,8 @@ export class SequenceEditor extends LitElementWw {
                     `;
                 })() : ''}
             </sl-drawer>
+
+            <confirm-dialog></confirm-dialog>
         `;
     }
 }

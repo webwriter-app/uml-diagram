@@ -1,4 +1,5 @@
 import { html } from "lit";
+import { keyed } from "lit/directives/keyed.js";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
@@ -7,13 +8,16 @@ import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
 import { RelationDialog, RelationDialogData } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
+import canvasAlertStyles from "../../../shared/canvas-alert.styles";
 import styles from "./uml-editor.styles";
-import { SlButton, SlIcon, SlIconButton } from "@shoelace-style/shoelace";
-import xIcon from "@tabler/icons/outline/x.svg";
+import { SlButton, SlIcon, SlAlert } from "@shoelace-style/shoelace";
+import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
+import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 import { arrowMarkers } from "../../../shared/arrow-markers";
+import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
 import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
 import { straightRoutes } from "./straight-routes";
 
@@ -58,15 +62,16 @@ export class UMLEditor extends LitElementWw{
         return {
             "sl-button": SlButton,
             "sl-icon": SlIcon,
-            "sl-icon-button": SlIconButton,
             "zoom-controls": ZoomControls,
             "uml-class-dialog": ClassDialog,
-            "uml-relation-dialog": RelationDialog  
+            "uml-relation-dialog": RelationDialog,
+            "confirm-dialog": ConfirmDialog,
+            "sl-alert": SlAlert
         };
     }
 
     /** Styles are set in seperate file (./uml-editor.styles.ts) */
-    static styles = [styles];
+    static styles = [styles, canvasAlertStyles];
 
     /** Reference to the main Drawflow editor DOM element used to initialize and interact with the canvas */
     @query("#drawflowEditorDiv") accessor drawflowEditorDiv!: HTMLElement;
@@ -79,6 +84,13 @@ export class UMLEditor extends LitElementWw{
 
     /** Stores state of the interaction mode */
     @property() private interactionMode:  InteractionType | 'idle' = 'idle';
+
+    @state() private accessor _notice: string | null = null;
+
+    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
+    @state() private accessor _noticeCount = 0;
+
+    @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
 
     /** Stores Id of the relation source node while creating a new relation */
     @state() private relationSourceNodeId: string | null = null;
@@ -416,7 +428,6 @@ export class UMLEditor extends LitElementWw{
 
         // check if max number of classes is reached
         if (this._getClassCount() >= this.settings.maxClasses) {
-            alert(msg("Maximal number of classes reached!"));
             return;
         }
 
@@ -593,12 +604,12 @@ export class UMLEditor extends LitElementWw{
 
         // check if max number of relation is reached
         if (this._getRelationCount() >= this.settings.maxRelations) {
-            alert(msg("Maximal number of relations reached!"));
             return;
         }
 
         // initialize states for the "relation mode"
         this._cancelAddRelation();
+        this._notice = null;
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = 'first';
@@ -666,7 +677,7 @@ export class UMLEditor extends LitElementWw{
 
     /** Helper method to display error for wrong node selection while creating a new relation */
     private handleWrongSelection(errorText: string) {
-        alert(errorText);
+        this.showNotice(errorText);
         this._cancelAddRelation();
     }
 
@@ -957,6 +968,17 @@ export class UMLEditor extends LitElementWw{
     Rendering and UI-Helper
     #################################################################################
     */
+
+    public async showNotice(message: string) {
+        this._notice = message;
+        this._noticeCount++;
+        await this.updateComplete;
+        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+    }
+
+    public confirm(options: ConfirmOptions): Promise<boolean> {
+        return this._confirmDialog.confirm(options);
+    }
 
     /** Create a new visible node on the drawflow canvas */
     private _createClassNodeHTML(data: ClassModel): string {
@@ -1530,7 +1552,7 @@ export class UMLEditor extends LitElementWw{
 
         // check for constraints
         if (this._getClassCount() >= this.settings.maxClasses) {
-            alert(msg("Maximal number of classes reached!"));
+            this.showNotice(msg("Maximal number of classes reached!"));
             return;
         }
 
@@ -1873,18 +1895,32 @@ export class UMLEditor extends LitElementWw{
                 </svg>
             </div>
 
-            ${this.interactionMode !== 'idle' ? html`
-                <div class="interaction-banner">
-                    <sl-icon name="info-circle"></sl-icon>
-                    <span>
-                        ${this.firstOrSecondClass === 'first' ? 'Select Source: ' : 'Select Target: '}
-                        <strong>${this.interactionMode}</strong>
-                    </span>
-                    <sl-icon-button
-                        src=${xIcon}
-                        label="${msg("Cancel")}"
-                        @click=${this._cancelAddRelation}
-                    ></sl-icon-button>
+            ${this._notice ? keyed(this._noticeCount, html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="danger"
+                        duration="5000"
+                        closable
+                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
+                    >
+                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
+                        <span class="canvas-alert-text">${this._notice}</span>
+                    </sl-alert>
+                </div>
+            `) : this.interactionMode !== 'idle' ? html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="primary"
+                        closable
+                        open
+                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._cancelAddRelation(); }}
+                    >
+                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
+                        <span>
+                            ${this.firstOrSecondClass === 'first' ? 'Select Source: ' : 'Select Target: '}
+                            <strong>${this.interactionMode}</strong>
+                        </span>
+                    </sl-alert>
                 </div>
             ` : ''}
 
@@ -1928,6 +1964,8 @@ export class UMLEditor extends LitElementWw{
                 @dialog-opened=${() => this.dispatchEvent(new CustomEvent('dialog-opened', { bubbles: true, composed: true }))}
                 @dialog-closed=${() => this.dispatchEvent(new CustomEvent('dialog-closed', { bubbles: true, composed: true }))}
             ></uml-relation-dialog>
+
+            <confirm-dialog></confirm-dialog>
         `;
     }
 }

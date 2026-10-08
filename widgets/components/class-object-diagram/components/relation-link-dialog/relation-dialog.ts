@@ -125,16 +125,22 @@ export class RelationDialog extends LitElementWw {
     // Handlers
     // --------------------------------------------------------------------------------------------------------
 
+    /** Show the errors at all invalid fields and scroll to the first one; returns false if there are any */
+    private async _validate(): Promise<boolean> {
+        const activeIssues = this._activeIssues;
+        if (activeIssues.length === 0) return true;
+        this._touchedFields = new Set([...this._touchedFields, ...activeIssues.map(i => i.target)]);
+        await this.updateComplete;
+        this.shadowRoot?.querySelector('.has-error')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return false;
+    }
+
     /** Dispatch save event to send modified data to the main widget and close */
-    private _save() {
+    private async _save() {
         if (!this._dialogData) return;
 
         // check for invalid input
-        const activeIssues = this._activeIssues;
-        if (activeIssues.length > 0) {
-            alert(activeIssues.map(i => i.message).join('\n'));
-            return;
-        }
+        if (!await this._validate()) return;
 
         // Dispatch event to store changes
         this.dispatchEvent(new CustomEvent('save-relation', {
@@ -157,15 +163,11 @@ export class RelationDialog extends LitElementWw {
     }
 
     /** Special handler for Associations: Save and creating an Association Class */
-    private _saveAndAddClass() {
+    private async _saveAndAddClass() {
         if (!this._dialogData) return;
 
         // check for invalid input
-        const activeIssues = this._activeIssues;
-        if (activeIssues.length > 0) {
-            alert(activeIssues.map(i => i.message).join('\n'));
-            return;
-        }
+        if (!await this._validate()) return;
 
         // Dispatch event to store changes and add association class
         this.dispatchEvent(new CustomEvent('save-and-add-class', {

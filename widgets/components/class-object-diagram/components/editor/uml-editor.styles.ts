@@ -334,26 +334,4 @@ export default css`
         outline: var(--sl-focus-ring);
         outline-offset: var(--sl-focus-ring-offset);
     }
-
-    /* Floating banner shown at the bottom of the editor during relation creation */
-    .interaction-banner {
-        position: absolute;
-        bottom: var(--sl-spacing-medium);
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: var(--sl-spacing-small);
-        padding: var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-medium);
-        background-color: var(--sl-color-neutral-0);
-        color: var(--sl-color-neutral-700);
-        border: var(--sl-input-border-width) solid var(--sl-input-border-color);
-        border-radius: var(--sl-input-border-radius-medium);
-        box-shadow: var(--sl-shadow-medium);
-        font-family: var(--sl-font-sans);
-        font-size: var(--sl-font-size-small);
-        white-space: nowrap;
-        pointer-events: auto;
-    }
 `;

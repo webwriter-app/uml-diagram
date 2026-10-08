@@ -110,28 +110,6 @@ export default css`
         cursor: pointer;
     }
 
-    /* Styles the floating instruction banner centered at the bottom of the editor to guide the user during specific interactions. */
-    .interaction-banner {
-        position: absolute;
-        bottom: var(--sl-spacing-medium);
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: var(--sl-spacing-small);
-        padding: var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-3x-small) var(--sl-spacing-medium);
-        background-color: var(--sl-color-neutral-0);
-        color: var(--sl-color-neutral-700);
-        border: var(--sl-input-border-width) solid var(--sl-input-border-color);
-        border-radius: var(--sl-input-border-radius-medium);
-        box-shadow: var(--sl-shadow-medium);
-        font-family: var(--sl-font-sans);
-        font-size: var(--sl-font-size-small);
-        white-space: nowrap;
-        pointer-events: auto;
-    }
-
     /* Defines the visual appearance of the solid line connecting lifelines for a message. */
     .message-line {
         stroke: var(--sl-color-neutral-900);

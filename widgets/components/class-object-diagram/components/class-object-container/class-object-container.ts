@@ -1,12 +1,13 @@
 import { html } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { property, query, state } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
+import { localized } from "@lit/localize";
 import { ClassToolbar } from "../toolbar/class-toolbar";
 import { UMLEditor } from "../editor/uml-editor";
 import { ClassSettings } from "../../models/class-settings-model";
 import styles from "./class-object-container.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { resetDiagramConfirmOptions } from "../../../shared/confirm-dialog";
 
 /** Container for the Class or Object Diagram (middleman to manage interaction) */
 @localized()
@@ -99,19 +100,14 @@ export class ClassObjectContainer extends LitElementWw {
     }
   
     /** Handler if the toolbar sends notification to clear the canvas */
-    private _handleClear() {
-        if(this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined) {
-            if (confirm(msg("Do you really want to return to the starting point?"))) {
-                if (this.editor) {
-                    this.editor.loadCheckpoint(this.checkpoint);
-                }
-            }
+    private async _handleClear() {
+        if (!this.editor) return;
+        const toCheckpoint = !!(this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined);
+        if (!await this.editor.confirm(resetDiagramConfirmOptions(toCheckpoint))) return;
+        if (toCheckpoint) {
+            this.editor.loadCheckpoint(this.checkpoint);
         } else {
-            if (confirm(msg("Do you really want to clear the diagram?"))) {
-                if (this.editor) {
-                    this.editor.clearCanvas();
-                }
-            }
+            this.editor.clearCanvas();
         }
     }
 

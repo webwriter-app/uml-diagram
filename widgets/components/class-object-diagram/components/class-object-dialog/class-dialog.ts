@@ -116,15 +116,13 @@ export class ClassDialog extends LitElementWw{
     }
 
     /** Checks if issues with the validation are left and stores changed data if not and closes the dialog */
-    private _save() {
+    private async _save() {
         if (!this._selectedNodeId || !this._editingNodeData) return;
         // Checks for validation errors and stop the process if there are some
-        const activeIssues = this._activeIssues;
-        if (activeIssues.length > 0) {
+        if (this._activeIssues.length > 0) {
             this._showAllErrors = true;
-            this.requestUpdate();
-            const msgList = activeIssues.map(i => `- ${i.message}`).join('\n');
-            alert(msg("Please fix the following issues before saving:") + "\n\n" + msgList);
+            await this.updateComplete;
+            this.shadowRoot?.querySelector('.has-error')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             return;
         }
 
@@ -144,9 +142,6 @@ export class ClassDialog extends LitElementWw{
 
     /** Delete the class that is currently edited */
     private _delete() {
-        // confirm message because unwanted click could delete a lot of data for big classes with many relations
-        if (!confirm(msg("Do you really want to delete this element?"))) return;
-
         if (!this._selectedNodeId || !this._editingNodeData) return;
 
         // inform the widget about the delete
