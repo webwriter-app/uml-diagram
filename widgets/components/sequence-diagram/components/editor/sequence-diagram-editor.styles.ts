@@ -63,7 +63,7 @@ export default css`
         fill: transparent;
     }
 
-    /* Grips of the resize handles, shown while hovering or dragging their element and filled while hovering the handle */
+    /* Grips of the resize handles, shown while hovering or dragging their element and filled while hovering or dragging the handle */
     .resize-grip {
         fill: var(--sl-color-neutral-0);
         stroke: var(--sl-color-primary-600);
@@ -78,7 +78,8 @@ export default css`
         opacity: 1;
     }
 
-    svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle):hover + .resize-grip {
+    svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle):hover + .resize-grip,
+    .dragged + .resize-grip {
         fill: var(--sl-color-primary-600);
     }
 

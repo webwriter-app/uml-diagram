@@ -285,7 +285,8 @@ export class SequenceEditor extends LitElementWw {
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
-                    start: () => {
+                    start: (event) => {
+                        event.target.classList.add('dragged');
                         this._startDrag(id, 'ns-resize');
                         this._dragStartValue = this.model.lifelines.find(l => l.id === id)?.length ?? 0;
                     },
@@ -330,6 +331,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        event.target.classList.remove('dragged');
                         this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         const lifeline = this.model.lifelines.find(l => l.id === id);
@@ -395,6 +397,7 @@ export class SequenceEditor extends LitElementWw {
             listeners: {
                 start: (event) => {
                     dragged = findActivation(event.target);
+                    event.target.classList.add('dragged');
                     resizingTop = event.target.getAttribute('data-edge') === 'top';
                     bottomY = dragged ? dragged.activation.y + dragged.activation.length : 0;
                     this._activeDrag = { id: dragged?.activation.id ?? null, cursor: 'ns-resize' };
@@ -412,7 +415,8 @@ export class SequenceEditor extends LitElementWw {
                     }
                     this.requestUpdate();
                 },
-                end: () => {
+                end: (event) => {
+                    event.target.classList.remove('dragged');
                     this._activeDrag = null;
                     if (!dragged) return;
                     const { lifelineId, activation } = dragged;
@@ -569,6 +573,7 @@ export class SequenceEditor extends LitElementWw {
                 lockAxis: 'y',
                 listeners: {
                     start: () => {
+                        handle.classList.add('dragged');
                         fId = handle.getAttribute('data-fragment-id');
                         oId = handle.getAttribute('data-operand-id');
                         resizingTop = handle.getAttribute('data-edge') === 'top';
@@ -596,6 +601,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        handle.classList.remove('dragged');
                         this._activeDrag = null;
                         if (!fId || this.interactionMode !== 'idle') return;
                         
