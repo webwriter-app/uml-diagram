@@ -62,9 +62,36 @@ export default css`
         pointer-events: none;
     }
 
-    /* Invisible hit areas of the resize handles */
-    :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle) {
+    /* Invisible drag and resize targets */
+    :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle, .touch-area) {
         fill: transparent;
+    }
+
+    /* Expand touch targets by a fixed screen-space stroke. */
+    @media (pointer: coarse) {
+        :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle, .touch-area) {
+            stroke: transparent;
+            stroke-width: 14px;
+            vector-effect: non-scaling-stroke;
+        }
+
+        .touch-area {
+            stroke-width: 16px;
+        }
+
+        /* Keep the parent activation's exposed strip interactive. */
+        .touch-area.nested {
+            clip-path: inset(var(--touch-outset) var(--touch-outset) var(--touch-outset) 0) fill-box;
+        }
+
+        /* Reserve the middle third for moving, even on short or zoomed-out activations. */
+        .activation-resize-handle[data-edge="top"] {
+            clip-path: inset(var(--touch-outset) var(--touch-outset) var(--activation-resize-inset) var(--activation-hitbox-left)) fill-box;
+        }
+
+        .activation-resize-handle[data-edge="bottom"] {
+            clip-path: inset(var(--activation-resize-inset) var(--touch-outset) var(--touch-outset) var(--activation-hitbox-left)) fill-box;
+        }
     }
 
     /* Grips of the resize handles, shown while hovering or dragging their element and filled while hovering or dragging the handle */
@@ -159,13 +186,13 @@ export default css`
 
     /* Colors the frame and header of a hovered fragment in the primary color (unless it is marked as overlapping) */
     .fragment-background,
-    .fragment-header-hitbox,
+    .fragment-header,
     .fragment-header-fold {
         transition: stroke 0.2s ease;
     }
 
-    svg:not(.dragging) .fragment:hover :is(.fragment-background:not(.overlapping), .fragment-header-hitbox, .fragment-header-fold),
-    .fragment.active :is(.fragment-background:not(.overlapping), .fragment-header-hitbox, .fragment-header-fold) {
+    svg:not(.dragging) .fragment:hover :is(.fragment-background:not(.overlapping), .fragment-header, .fragment-header-fold),
+    .fragment.active :is(.fragment-background:not(.overlapping), .fragment-header, .fragment-header-fold) {
         stroke: var(--sl-color-primary-600);
     }
 

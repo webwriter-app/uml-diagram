@@ -1549,7 +1549,7 @@ export class SequenceEditor extends LitElementWw {
             return [ll.id, activations.map((activation, index) => {
                 const nestingLevel = activations.slice(0, index)
                     .filter(outer => activation.y >= outer.y && activation.y < outer.y + outer.length).length;
-                return { activation, x: lifelineX - this.ACTIVATION_WIDTH / 2 + nestingLevel * this.ACTIVATION_NESTING_OFFSET };
+                return { activation, nested: nestingLevel > 0, x: lifelineX - this.ACTIVATION_WIDTH / 2 + nestingLevel * this.ACTIVATION_NESTING_OFFSET };
             })];
         }));
 
@@ -1809,21 +1809,24 @@ export class SequenceEditor extends LitElementWw {
                 })}
 
                 ${this.model.lifelines.map(ll => {
-                    return activationBars.get(ll.id)!.map(({ activation: act, x: xPos }) => {
+                    return activationBars.get(ll.id)!.map(({ activation: act, nested, x: xPos }) => {
                         const boxWidth = this.ACTIVATION_WIDTH;
                         return svg`
                             <g 
                                 class="activation ${this._activeDrag?.id === act.id ? 'active' : ''}" 
                                 data-id="${act.id}"
                                 data-lifeline-id="${ll.id}"
+                                style="
+                                    --touch-outset: ${-8 / this.zoom}px;
+                                    --activation-hitbox-left: ${nested ? 0 : -8 / this.zoom}px;
+                                    --activation-resize-inset: ${5 - act.length / 3}px;
+                                "
                                 @click=${(e: MouseEvent) => this._handleLifelineClick(e, ll.id)}
                                 @dblclick=${(e: MouseEvent) => this._handleActivationDblClick(e, ll.id, act.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleActivationDblClick(e, ll.id, act.id)}}
                             >
                                 <rect 
-                                    class="activation-box draggable-activation" 
-                                    data-id="${act.id}"
-                                    data-lifeline-id="${ll.id}"
+                                    class="activation-box"
                                     x="${xPos}" 
                                     y="${act.y}" 
                                     width="${boxWidth}" 
@@ -1831,6 +1834,16 @@ export class SequenceEditor extends LitElementWw {
                                     fill="var(--sl-color-neutral-0)"
                                     stroke="var(--sl-color-neutral-900)"
                                     stroke-width="1.5"
+                                    style="pointer-events: none;"
+                                />
+                                <rect
+                                    class="touch-area draggable-activation ${nested ? 'nested' : ''}"
+                                    data-id="${act.id}"
+                                    data-lifeline-id="${ll.id}"
+                                    x="${xPos}"
+                                    y="${act.y}"
+                                    width="${boxWidth}"
+                                    height="${act.length}"
                                 />
                                 ${[act.y, act.y + act.length].map((edgeY, index) => svg`
                                     <rect 
@@ -1911,22 +1924,19 @@ export class SequenceEditor extends LitElementWw {
                                 style="pointer-events: none;" 
                             />
 
-                            <path 
-                                class="fragment-header-hitbox"
-                                data-id="${frag.id}"
-                                d="M ${leftX} ${frag.y} 
-                                   L ${leftX + 50} ${frag.y} 
-                                   L ${leftX + 60} ${frag.y + 10} 
-                                   L ${leftX + 60} ${frag.y + 20} 
-                                   L ${leftX} ${frag.y + 20} Z" 
-                                fill="var(--sl-color-neutral-0)" 
-                                stroke="var(--sl-color-neutral-900)" 
+                            <path
+                                class="fragment-header"
+                                d="M ${leftX} ${frag.y}
+                                   L ${leftX + 50} ${frag.y}
+                                   L ${leftX + 60} ${frag.y + 10}
+                                   L ${leftX + 60} ${frag.y + 20}
+                                   L ${leftX} ${frag.y + 20} Z"
+                                fill="var(--sl-color-neutral-0)"
+                                stroke="var(--sl-color-neutral-900)"
                                 stroke-width="1.5"
-                                style="pointer-events: auto; cursor: grab;"
-                                @dblclick=${(e: MouseEvent) => this._editFragment(e, frag.id)}
-                                @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._editFragment(e, frag.id)}}
+                                style="pointer-events: none;"
                             />
-                            <polyline 
+                            <polyline
                                 class="fragment-header-fold"
                                 points="${leftX + 50},${frag.y} ${leftX + 50},${frag.y + 10} ${leftX + 60},${frag.y + 10}" 
                                 fill="none" 
@@ -1945,6 +1955,17 @@ export class SequenceEditor extends LitElementWw {
                             >
                                 ${frag.type}
                             </text>
+                            <rect
+                                class="touch-area fragment-header-hitbox"
+                                data-id="${frag.id}"
+                                x="${leftX}"
+                                y="${frag.y}"
+                                width="60"
+                                height="20"
+                                style="pointer-events: auto;"
+                                @dblclick=${(e: MouseEvent) => this._editFragment(e, frag.id)}
+                                @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._editFragment(e, frag.id)}}
+                            />
 
                             <rect 
                                 class="fragment-operand-resize-handle"
