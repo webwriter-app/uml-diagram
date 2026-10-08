@@ -42,8 +42,9 @@ export interface SequenceValidationIssue {
     settingKey: keyof SequenceSettings; 
 }
 
-/** define a minimal length of a lifeline */
-const MIN_LIFELINE_LENGTH = 50; 
+/** Leave space below object headers and above lifeline ends. */
+const LIFELINE_PADDING = 20;
+const MIN_LIFELINE_LENGTH = 80 + 2 * LIFELINE_PADDING;
 
 /** Interactive editor for the Sequence Diagram */
 @localized()
@@ -332,15 +333,16 @@ export class SequenceEditor extends LitElementWw {
                             const connectedMessages = this.model.messages.filter(m => m.sourceId === id || m.targetId === id);
                             let minLengthFromMessages = 0;
                             if (connectedMessages.length > 0) {
-                                const maxMessageY = Math.max(...connectedMessages.map(m => m.y));
-                                minLengthFromMessages = (maxMessageY - lifeline.y); 
+                                const maxMessageY = Math.max(...connectedMessages.map(m =>
+                                    m.y + (m.type === 'create' ? 40 : m.sourceId === m.targetId ? 30 : 0)));
+                                minLengthFromMessages = maxMessageY - lifeline.y + LIFELINE_PADDING;
                             }
 
                             // activity bar as boundary
                             let minLengthFromActivations = 0;
                             if (lifeline.activations && lifeline.activations.length > 0) {
                                 const maxActBottom = Math.max(...lifeline.activations.map(act => act.y + act.length));
-                                minLengthFromActivations = (maxActBottom - lifeline.y); 
+                                minLengthFromActivations = maxActBottom - lifeline.y + LIFELINE_PADDING;
                             }
 
                             // fragment as boundary
@@ -348,7 +350,7 @@ export class SequenceEditor extends LitElementWw {
                             const startedFragments = (this.model.fragments || []).filter(f => f.startLifelineId === id);
                             if (startedFragments.length > 0) {
                                 const maxFragStartY = Math.max(...startedFragments.map(f => f.y));
-                                minLengthFromFragments = (maxFragStartY + this.FRAGMENT_MIN_OVERLAP) - lifeline.y;
+                                minLengthFromFragments = maxFragStartY + this.FRAGMENT_MIN_OVERLAP - lifeline.y + LIFELINE_PADDING;
                             }
 
                             const finalMinLength = Math.max(
@@ -401,6 +403,7 @@ export class SequenceEditor extends LitElementWw {
                     if (!dragged) return;
                     const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
+                    if (activation.length > bounds.maxY - bounds.minY) return;
 
                     // stay within the lifeline
                     let newY = Math.max(bounds.minY, this._draggedValueY(event));
@@ -440,9 +443,11 @@ export class SequenceEditor extends LitElementWw {
                     const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
                     if (resizingTop) {
+                        if (bottomY - bounds.minY < 15) return;
                         activation.y = Math.max(bounds.minY, Math.min(this._draggedValueY(event), bottomY - 15));
                         activation.length = bottomY - activation.y;
                     } else {
+                        if (bounds.maxY - activation.y < 15) return;
                         activation.length = Math.max(15, Math.min(this._draggedValueY(event), bounds.maxY - activation.y));
                     }
                     this.requestUpdate();
@@ -488,9 +493,8 @@ export class SequenceEditor extends LitElementWw {
 
                             const bounds = this._getMessageBounds(message.sourceId, message.targetId, message.type, message.id);
 
-                            if (bounds.minY <= bounds.maxY) {
-                                proposedY = Math.max(bounds.minY, Math.min(proposedY, bounds.maxY));
-                            }
+                            if (bounds.minY > bounds.maxY) return;
+                            proposedY = Math.max(bounds.minY, Math.min(proposedY, bounds.maxY));
 
                             message.y = proposedY; 
 
@@ -567,7 +571,8 @@ export class SequenceEditor extends LitElementWw {
                             const bounds = this._getLifelineVerticalBounds(fragment.startLifelineId);
                             
                             const safeMinY = bounds.minY;
-                            const safeMaxY = Math.max(bounds.minY, bounds.maxY - this.FRAGMENT_MIN_OVERLAP);
+                            const safeMaxY = bounds.maxY - this.FRAGMENT_MIN_OVERLAP;
+                            if (safeMinY > safeMaxY) return;
                             
                             fragment.y = Math.max(safeMinY, Math.min(proposedY, safeMaxY));
 
@@ -624,6 +629,7 @@ export class SequenceEditor extends LitElementWw {
                         if (fragment && operand) {
                             if (resizingTop) {
                                 const minY = this._getLifelineVerticalBounds(fragment.startLifelineId).minY;
+                                if (bottomY - minY < 30) return;
                                 fragment.y = Math.max(minY, Math.min(this._draggedValueY(event), bottomY - 30));
                                 operand.height = bottomY - fragment.y;
                             } else {
@@ -914,7 +920,11 @@ export class SequenceEditor extends LitElementWw {
         if (this.interactionMode === 'creating-fragment-start') {
             const { minY, maxY } = this._getLifelineVerticalBounds(id);
             
-            const safeMaxY = Math.max(minY, maxY - this.FRAGMENT_MIN_OVERLAP);
+            const safeMaxY = maxY - this.FRAGMENT_MIN_OVERLAP;
+            if (minY > safeMaxY) {
+                this.dispatchEvent(new CustomEvent('cancel-interaction'));
+                return;
+            }
             
             const clampedY = Math.max(minY, Math.min(svgP.y, safeMaxY));
 
@@ -987,33 +997,20 @@ export class SequenceEditor extends LitElementWw {
         let minTargetY = 0;
         let maxTargetY = Infinity;
 
-        const PUFFER = 15;
-
-        // calculate init borders for the source
         if (sourceLL) {
-            minSourceY = sourceLL.y + 80; 
+            minSourceY = sourceLL.y + 80 + LIFELINE_PADDING;
             
             const sourceDestroy = this.model.messages.find(m => m.type === 'destroy' && m.targetId === sourceLL.id && m.id !== ignoreMsgId);
-            if (sourceDestroy) {
-                maxSourceY = sourceDestroy.y - PUFFER;
-            } else {
-                maxSourceY = sourceLL.y + sourceLL.length;
-            }
+            maxSourceY = (sourceDestroy?.y ?? sourceLL.y + sourceLL.length) - LIFELINE_PADDING;
         }
 
-        // calculate init borders for the target
         if (targetLL) {
-            minTargetY = targetLL.y + 80;
+            minTargetY = targetLL.y + 80 + LIFELINE_PADDING;
             
             const targetDestroy = this.model.messages.find(m => m.type === 'destroy' && m.targetId === targetLL.id && m.id !== ignoreMsgId);
-            if (targetDestroy) {
-                maxTargetY = targetDestroy.y - PUFFER;
-            } else {
-                maxTargetY = targetLL.y + targetLL.length;
-            }
+            maxTargetY = (targetDestroy?.y ?? targetLL.y + targetLL.length) - LIFELINE_PADDING;
         }
 
-        // change borders based on type of message
         let minY = 0;
         let maxY = Infinity;
 
@@ -1026,10 +1023,12 @@ export class SequenceEditor extends LitElementWw {
             if (targetLL) {
                 const targetMsgs = this.model.messages.filter(m => (m.sourceId === targetId || m.targetId === targetId) && m.id !== ignoreMsgId && m.type !== 'create');
                 if (targetMsgs.length > 0) {
-                    firstTargetMsgY = Math.min(...targetMsgs.map(m => m.y)) - 80;
+                    firstTargetMsgY = Math.min(...targetMsgs.map(m => m.y)) - 80 - LIFELINE_PADDING;
                 }
             }
-            maxY = Math.min(maxSourceY, firstTargetMsgY);
+            // Create messages store the target box's top; the arrow is 40px below it.
+            const targetBoxMaxY = targetLL ? targetLL.y + targetLL.length - MIN_LIFELINE_LENGTH : Infinity;
+            maxY = Math.min(maxSourceY - 40, firstTargetMsgY, targetBoxMaxY);
 
         } else if (type === 'destroy') {
             // upper bound: last message in target
@@ -1040,9 +1039,9 @@ export class SequenceEditor extends LitElementWw {
             if (targetLL) {
                 const targetMsgs = this.model.messages.filter(m => (m.sourceId === targetId || m.targetId === targetId) && m.id !== ignoreMsgId && m.type !== 'destroy');
                 if (targetMsgs.length > 0) {
-                    lastTargetMsgY = Math.max(...targetMsgs.map(m => m.y)) + PUFFER;
+                    lastTargetMsgY = Math.max(...targetMsgs.map(m => m.y)) + LIFELINE_PADDING;
                 } else {
-                    lastTargetMsgY = targetLL.y + 80; 
+                    lastTargetMsgY = minTargetY;
                 }
             }
             minY = Math.max(minSourceY, lastTargetMsgY);
@@ -1061,35 +1060,24 @@ export class SequenceEditor extends LitElementWw {
             maxY = Math.min(maxSourceY, maxTargetY);
         }
 
+        // Self messages return 30px below their starting point.
+        if (sourceId === targetId && type !== 'create') maxY -= 30;
+
         return { minY, maxY };
     }
 
-    /** calculates the lifeline boudarys for activation bars and fragments */
+    /** Padded bounds for activations and fragments. */
     private _getLifelineVerticalBounds(llId: string): { minY: number, maxY: number } {
         const ll = this.model.lifelines.find(l => l.id === llId);
         if (!ll) return { minY: 0, maxY: Infinity };
 
-        // upper bound
-        const minY = ll.y + 80;
-
-        // is there a destroy (important for lower bound)
+        const minY = ll.y + 80 + LIFELINE_PADDING;
         const destroyMsg = this.model.messages.find(m => m.type === 'destroy' && m.targetId === llId);
+        const maxY = destroyMsg
+            ? destroyMsg.y + (destroyMsg.sourceId === destroyMsg.targetId ? 30 : 0)
+            : ll.y + ll.length;
 
-        let maxY: number;
-
-        if (destroyMsg) {
-            if (destroyMsg.sourceId === destroyMsg.targetId) {
-                // selfdestroy need to look for the end of the message not the normal y
-                maxY = destroyMsg.y + 30;
-            } else {
-                maxY = destroyMsg.y;
-            }
-        } else {
-            // default lower bound
-            maxY = ll.y + ll.length;
-        }
-
-        return { minY, maxY };
+        return { minY, maxY: maxY - LIFELINE_PADDING };
     }
 
     // --------------------------------------------------------------------------------------------------------
