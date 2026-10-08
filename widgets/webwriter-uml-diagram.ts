@@ -160,10 +160,34 @@ export class WebwriterUmlDiagram extends LitElementWw {
         }
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.ownerDocument.addEventListener('mousedown', this._clearProseMirrorNodeSelection);
+    }
+
     disconnectedCallback() {
         this._flushSaves();
+        this.ownerDocument.removeEventListener('mousedown', this._clearProseMirrorNodeSelection);
         super.disconnectedCallback();
     }
+
+    /**
+     * WebWriter selects the widget on every press, which can turn into a DOM range around it that highlights
+     * all of its texts. Remove that range (the widget stays selected), but leave text fields alone.
+     */
+    private _clearProseMirrorNodeSelection = (e: MouseEvent) => {
+        const path = e.composedPath();
+        if (!path.includes(this) || (path[0] as Element).closest?.('input, textarea')) return;
+        const selection = this.ownerDocument.getSelection();
+        if (!selection?.rangeCount || selection.isCollapsed) return;
+        const range = selection.getRangeAt(0);
+        const hostRange = this.ownerDocument.createRange();
+        hostRange.selectNode(this);
+        if (range.compareBoundaryPoints(Range.START_TO_START, hostRange) <= 0
+            && range.compareBoundaryPoints(Range.END_TO_END, hostRange) >= 0) {
+            selection.removeAllRanges();
+        }
+    };
 
     /** Schedules a diagram change to be written once editing has paused, replacing an earlier pending one */
     private _scheduleSave(diagramType: string, save: () => void) {
