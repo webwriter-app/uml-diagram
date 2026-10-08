@@ -24,6 +24,7 @@ import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
+import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
 
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
@@ -122,6 +123,8 @@ export class SequenceEditor extends LitElementWw {
 
     @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
 
+    @query("#canvas") private accessor _canvas!: SVGSVGElement;
+
     /** Global settings instance passed down from the main widget */
     @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 
@@ -130,6 +133,12 @@ export class SequenceEditor extends LitElementWw {
     @state() accessor panX: number = 0;
     @state() accessor panY: number = 0;
     private _isPanning: boolean = false;
+
+    /** The fingers currently touching the canvas, by pointer id */
+    private _touchPointers = new Map<number, PointerEvent>();
+
+    /** The fingers, zoom and pan at the start of the current pinch; null while not pinching */
+    private _pinchStart: { pinch: Pinch, zoom: number, panX: number, panY: number } | null = null;
 
     /** Store the last position of the pointer */
     private _lastPointerX: number = 0;
@@ -171,6 +180,13 @@ export class SequenceEditor extends LitElementWw {
             }
         });
         resizeObserver.observe(this);
+
+        // Pinch to zoom, captured to keep the pinch's fingers from panning and from interact.js
+        for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) {
+            this._canvas.addEventListener(type, (e) => this._handlePinchPointer(e as PointerEvent), true);
+        }
+
+        emulateTouchClicks(this._canvas);
 
         // bound by selector, so once is enough (binding again would replace the listeners mid-drag)
         this._bindActivationDragAndResize();
@@ -703,7 +719,7 @@ export class SequenceEditor extends LitElementWw {
 
     /** if mousclick down on the background activate panning */
     private _handlePointerDown(e: PointerEvent) {
-        if (this._isEmpty) return;
+        if (this._isEmpty || this._pinchStart) return;
         const target = e.target as SVGElement;
         if (target.tagName.toLowerCase() === 'svg') {
             this._isPanning = true;
@@ -738,6 +754,60 @@ export class SequenceEditor extends LitElementWw {
             const target = e.target as SVGElement;
             target.releasePointerCapture(e.pointerId);
         }
+    }
+
+    /**
+     * Zoom and pan with two fingers. Once a second finger touches the canvas, their movements no longer pan the view
+     * or reach interact.js until all fingers are lifted, so no element is dragged at the same time.
+     */
+    private _handlePinchPointer(e: PointerEvent) {
+        if (e.pointerType !== 'touch') return;
+        const pointers = this._touchPointers;
+
+        if (e.type === 'pointerdown') {
+            // Each touch gesture starts with the primary pointer, which drops fingers whose release was missed
+            if (e.isPrimary) pointers.clear();
+            pointers.set(e.pointerId, e);
+        } else if (e.type === 'pointermove') {
+            if (!pointers.has(e.pointerId)) return;
+            pointers.set(e.pointerId, e);
+        } else {
+            // Releases still reach interact.js, so it ends the pointers it saw go down
+            pointers.delete(e.pointerId);
+        }
+        const [a, b] = pointers.values();
+
+        if (!this._pinchStart) {
+            if (e.type !== 'pointerdown' || pointers.size < 2 || this._isEmpty) return;
+            e.stopPropagation();
+            // An element already being dragged keeps being dragged, ignoring the second finger
+            if (this._activeDrag && !this._isPanning) return;
+            this._isPanning = false;
+            this._activeDrag = null;
+        } else if (e.type === 'pointerdown' || e.type === 'pointermove') {
+            e.stopPropagation();
+        }
+        // A single finger is ignored until lifted
+        if (!b) {
+            if (!a) this._pinchStart = null;
+            return;
+        }
+        if (e.type === 'pointermove') return this._applyPinch(measurePinch(a, b));
+
+        // The pinch starts, or fingers were added or lifted: continue from their current position
+        this._pinchStart = { pinch: measurePinch(a, b), zoom: this.zoom, panX: this.panX, panY: this.panY };
+    }
+
+    /** Zoom by the change of the finger distance, keeping the diagram point under the fingers' midpoint under them */
+    private _applyPinch(pinch: Pinch) {
+        const start = this._pinchStart!;
+        // Zoom Limit: 30% - 300%
+        const zoom = Math.min(Math.max(0.3, start.zoom * pinch.distance / start.pinch.distance), 3);
+
+        const rect = this._canvas.getBoundingClientRect();
+        this.panX = start.panX + (start.pinch.x - rect.left) / start.zoom - (pinch.x - rect.left) / zoom;
+        this.panY = start.panY + (start.pinch.y - rect.top) / start.zoom - (pinch.y - rect.top) / zoom;
+        this.zoom = zoom;
     }
 
     /** Zoom in or out by a given factor (to or from the middle of the current view (instead of mouse position as in zooming with the weel))*/
@@ -1547,6 +1617,7 @@ export class SequenceEditor extends LitElementWw {
             ` : ''}
 
             <svg 
+                id="canvas"
                 class="${this._isEmpty ? 'empty' : ''} ${this._activeDrag ? 'dragging' : ''}"
                 style=${this._activeDrag ? `--drag-cursor: ${this._activeDrag.cursor}` : ''}
                 viewBox="${this.panX} ${this.panY} ${this._svgWidth / this.zoom} ${this._svgHeight / this.zoom}"

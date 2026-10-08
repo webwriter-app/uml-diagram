@@ -20,6 +20,7 @@ import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
 import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
 import { straightRoutes } from "./straight-routes";
+import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -119,6 +120,9 @@ export class UMLEditor extends LitElementWw{
     /** 'any' because Drawflow's TypeScript definitions are apparently incomplete */
     private editor!: any;
 
+    /** The fingers, zoom and canvas offset at the start of the current pinch; null while not pinching */
+    private _pinchStart: { pinch: Pinch, zoom: number, x: number, y: number } | null = null;
+
     /** The diagram data last loaded or sent to the widget, to tell outside changes (e.g. undo/redo) apart from our own edits */
     private _lastEmittedData: string | null = null;
 
@@ -160,6 +164,14 @@ export class UMLEditor extends LitElementWw{
         this.editor.zoom = 1;
         this.editor.curvature = 0;
         this.editor.start();
+
+        // Drawflow's own pinch zoom only compares the horizontal finger distance and zooms in fixed steps around the
+        // canvas center; _handlePinchTouch replaces it
+        const div = this.drawflowEditorDiv;
+        div.onpointerdown = div.onpointermove = div.onpointerup = null;
+        div.onpointercancel = div.onpointerout = div.onpointerleave = null;
+
+        emulateTouchClicks(div);
 
         // Reload stored diagram
         this._loadDiagramData(this.savedDiagramData);
@@ -203,6 +215,11 @@ export class UMLEditor extends LitElementWw{
         };
         this.renderRoot.addEventListener('mousedown', blockPanWhenEmpty, true);
         this.renderRoot.addEventListener('touchstart', blockPanWhenEmpty, true);
+
+        // Pinch to zoom, also captured on the shadow root to keep the pinch's touches from Drawflow
+        for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+            this.renderRoot.addEventListener(type, (e) => this._handlePinchTouch(e as TouchEvent), true);
+        }
 
         // Listener for mouse weel to zoom in and out (disabled while the canvas is empty)
         this.drawflowEditorDiv.addEventListener('wheel', (e: WheelEvent) => {
@@ -402,6 +419,69 @@ export class UMLEditor extends LitElementWw{
             this.editor.zoom = 1;
             this.editor.zoom_refresh();
         }
+    }
+
+    /**
+     * Zoom and pan with two fingers. Once a second finger touches the canvas, Drawflow no longer sees the touches until
+     * all fingers are lifted, so it does not pan or drag a class at the same time.
+     */
+    private _handlePinchTouch(e: TouchEvent) {
+        if (this._isEmpty || !this.drawflowEditorDiv.contains(e.target as Node)) return;
+        const { touches } = e;
+        if (!this._pinchStart && (e.type !== 'touchstart' || touches.length < 2)) return;
+        e.stopPropagation();
+
+        if (!this._pinchStart) {
+            // Drawing a connection is left to Drawflow, ignoring the second finger
+            if (this.editor.connection || this.editor.drag_point) return;
+            this._endDrawflowGesture();
+        }
+        // A single finger is ignored until lifted
+        if (touches.length < 2) {
+            if (touches.length === 0) this._pinchStart = null;
+            return;
+        }
+        if (e.type === 'touchmove') return this._applyPinch(measurePinch(touches[0], touches[1]));
+
+        // The pinch starts, or fingers were added or lifted: continue from their current position
+        const { zoom, canvas_x: x, canvas_y: y } = this.editor;
+        this._pinchStart = { pinch: measurePinch(touches[0], touches[1]), zoom, x, y };
+    }
+
+    /** End Drawflow's panning or class drag of the first finger as if it was lifted, so that a pinch can take over */
+    private _endDrawflowGesture() {
+        const editor = this.editor;
+        if (editor.editor_selected) {
+            // While panning, Drawflow only stores the new canvas offset once the finger is lifted
+            editor.canvas_x += editor.mouse_x - editor.pos_x;
+            editor.canvas_y += editor.mouse_y - editor.pos_y;
+            editor.editor_selected = false;
+        }
+        if (editor.drag) {
+            editor.drag = false;
+            if (editor.pos_x !== editor.pos_x_start || editor.pos_y !== editor.pos_y_start) {
+                editor.dispatch("nodeMoved", editor.ele_selected.id.slice(5));
+            }
+        }
+    }
+
+    /** Zoom by the change of the finger distance, keeping the canvas point under the fingers' midpoint under them */
+    private _applyPinch(pinch: Pinch) {
+        const start = this._pinchStart!;
+        const editor = this.editor;
+        const zoom = Math.min(Math.max(start.zoom * pinch.distance / start.pinch.distance, editor.zoom_min), editor.zoom_max);
+        const ratio = zoom / start.zoom;
+
+        // Drawflow scales around the canvas center
+        const rect = this.drawflowEditorDiv.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        editor.canvas_x = (pinch.x - centerX) - ratio * (start.pinch.x - centerX - start.x);
+        editor.canvas_y = (pinch.y - centerY) - ratio * (start.pinch.y - centerY - start.y);
+
+        // zoom_refresh scales the offset by the zoom change, which is already included here
+        editor.zoom = editor.zoom_last_value = zoom;
+        editor.zoom_refresh();
     }
 
     /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */

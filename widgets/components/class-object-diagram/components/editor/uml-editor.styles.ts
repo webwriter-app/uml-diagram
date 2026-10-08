@@ -28,6 +28,12 @@ export default css`
         background-size: var(--grid-size, 40px) var(--grid-size, 40px);
         background-position: var(--grid-x, 0) var(--grid-y, 0);
         overflow: hidden;
+        /* Touches pan, zoom and drag the diagram instead of scrolling or zooming the page */
+        touch-action: none;
+        /* Long presses open the element's menu instead of selecting text or showing Safari's callout */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
     }
 
     /* Hides the default Drawflow delete button */

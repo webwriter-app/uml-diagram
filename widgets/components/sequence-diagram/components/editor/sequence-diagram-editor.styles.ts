@@ -20,6 +20,10 @@ export default css`
         width: 100%;
         height: 100%;
         touch-action: none;
+        /* Long presses open the element's menu instead of selecting text or showing Safari's callout */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
     }
 
     /* Change the cursor while 'moving' the whole diagram view */
