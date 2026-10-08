@@ -549,13 +549,15 @@ export class SequenceEditor extends LitElementWw {
             });
         });
 
-        // Resize in y direction (no boundarys)
+        // Resize the operands in y direction, the first one also at the top edge
         const fragmentResizeHandles = Array.from(this.shadowRoot!.querySelectorAll('.fragment-operand-resize-handle:not([data-bound])')) as SVGElement[];
         
         fragmentResizeHandles.forEach(handle => {
             handle.setAttribute('data-bound', 'true');
             const fId = handle.getAttribute('data-fragment-id');
             const oId = handle.getAttribute('data-operand-id');
+            const resizingTop = handle.getAttribute('data-edge') === 'top';
+            let bottomY = 0;
             
             interact(handle).styleCursor(false).draggable({
                 startAxis: 'y',
@@ -564,7 +566,9 @@ export class SequenceEditor extends LitElementWw {
                     start: () => {
                         this._startDrag(fId, 'ns-resize');
                         const fragment = this.model.fragments?.find(f => f.id === fId);
-                        this._dragStartValue = fragment?.operands.find(o => o.id === oId)?.height ?? 0;
+                        const height = fragment?.operands.find(o => o.id === oId)?.height ?? 0;
+                        bottomY = (fragment?.y ?? 0) + height;
+                        this._dragStartValue = resizingTop ? fragment?.y ?? 0 : height;
                     },
                     move: (event) => {
                         if (!fId || !oId || this.interactionMode !== 'idle') return;
@@ -573,7 +577,13 @@ export class SequenceEditor extends LitElementWw {
                         const operand = fragment?.operands.find(o => o.id === oId);
                         
                         if (fragment && operand) {
-                            operand.height = Math.max(30, this._draggedValueY(event));
+                            if (resizingTop) {
+                                const minY = this._getLifelineVerticalBounds(fragment.startLifelineId).minY;
+                                fragment.y = Math.max(minY, Math.min(this._draggedValueY(event), bottomY - 30));
+                                operand.height = bottomY - fragment.y;
+                            } else {
+                                operand.height = Math.max(30, this._draggedValueY(event));
+                            }
                             this.requestUpdate();
                         }
                     },
@@ -588,6 +598,7 @@ export class SequenceEditor extends LitElementWw {
                             this.dispatchEvent(new CustomEvent('update-fragment', {
                                 detail: { 
                                     id: fId, 
+                                    y: fragment.y,
                                     operands: updatedOperands 
                                 }
                             }));
@@ -1805,6 +1816,19 @@ export class SequenceEditor extends LitElementWw {
                             >
                                 ${frag.type}
                             </text>
+
+                            <rect 
+                                class="fragment-operand-resize-handle"
+                                data-fragment-id="${frag.id}"
+                                data-operand-id="${frag.operands[0]?.id}"
+                                data-edge="top"
+                                x="${leftX + 60}" 
+                                y="${frag.y - 5}" 
+                                width="${boxWidth - 60}" 
+                                height="10" 
+                                style="pointer-events: auto;"
+                            />
+                            ${this._renderResizeGrip(leftX + boxWidth / 2, frag.y)}
 
                             ${(() => {
                                 let currentY = frag.y;
