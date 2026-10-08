@@ -7,7 +7,7 @@ import trashIcon from "@tabler/icons/outline/trash.svg";
 import lifelinePlusIcon from "../../../../../assets/icons/lifeline-plus.svg";
 import activationPlusIcon from "../../../../../assets/icons/activation-plus.svg";
 import fragmentPlusIcon from "../../../../../assets/icons/fragment-plus.svg";
-import messagePlusIcon from "../../../../../assets/icons/message-plus.svg";
+import connectionPlusIcon from "../../../../../assets/icons/connection-plus.svg";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import { SequenceModel } from "../../models/sequence-model";
 import toolbarStyles from "../../../shared/toolbar.styles";
@@ -199,7 +199,7 @@ export class SequenceToolbar extends LitElementWw {
                         caret 
                         ?disabled=${(this.model?.messages?.length) >= this.settings.maxNumberOfMessages}
                     >
-                        <sl-icon slot="prefix" src=${messagePlusIcon}></sl-icon>
+                        <sl-icon slot="prefix" src=${connectionPlusIcon}></sl-icon>
                         ${msg("Message")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="width: 250px;">

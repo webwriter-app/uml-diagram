@@ -40,7 +40,7 @@ export default css`
     }
 
     .tab:hover:not(.active) {
-        color: var(--sl-color-primary-500);
+        color: var(--sl-color-primary-600);
     }
 
     .tab:focus-visible {

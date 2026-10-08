@@ -103,6 +103,9 @@ export class SequenceEditor extends LitElementWw {
     /** State to store the placement of the drawer ('start' for left, 'end' for right) */
     @state() private accessor drawerPlacement: 'start' | 'end' = 'end';
 
+    /** Whether the drawer is shown; set at the start of its show/hide animations so the zoom controls move along with it */
+    @state() private accessor _drawerShown: boolean = false;
+
     /** Property to store the state of the fullscreen mode */
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
@@ -1908,7 +1911,7 @@ export class SequenceEditor extends LitElementWw {
             ` : ''}
 
             <zoom-controls
-                style="right: ${(this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null) && this.drawerPlacement === 'end' ? 'calc(33% + var(--sl-spacing-medium))' : 'var(--sl-spacing-medium)'};"
+                style="right: ${this._drawerShown && this.drawerPlacement === 'end' ? 'calc(33% + var(--sl-spacing-x-small))' : 'var(--sl-spacing-x-small)'};"
                 .zoomLevel=${this.zoom}
                 .minZoom=${0.3}
                 .maxZoom=${3}
@@ -1923,6 +1926,8 @@ export class SequenceEditor extends LitElementWw {
                 label="${editingLifeline ? msg("Lifeline") : editingMessage ? msg("Message") : this.editingActivation ? msg("Activation") : msg("Fragment")}"
                 .placement=${this.drawerPlacement}
                 .open=${this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null}
+                @sl-show=${(e: Event) => { if (e.target === e.currentTarget) this._drawerShown = true; }}
+                @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._drawerShown = false; }}
                 @sl-after-hide=${(e: Event) => {
                     if (e.target === e.currentTarget) {
                         this.editingLifelineId = null;

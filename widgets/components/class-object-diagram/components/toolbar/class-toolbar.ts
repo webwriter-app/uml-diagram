@@ -8,7 +8,7 @@ import { closeOtherDropdowns } from "../../../shared/toolbar-dropdowns";
 import styles from "./class-toolbar.styles";
 import classPlusIcon from "../../../../../assets/icons/class-plus.svg";
 import objectPlusIcon from "../../../../../assets/icons/object-plus.svg";
-import relationPlusIcon from "../../../../../assets/icons/relation-plus.svg";
+import connectionPlusIcon from "../../../../../assets/icons/connection-plus.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import { SlButton, SlDivider, SlMenu, SlMenuItem, SlMenuLabel, SlDropdown, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 
@@ -233,7 +233,7 @@ export class ClassToolbar extends LitElementWw{
                                     caret
                                     ?disabled=${this.currentRelationCount >= this.settings.maxRelations}
                                 >
-                                    <sl-icon slot="prefix" src=${relationPlusIcon}></sl-icon>
+                                    <sl-icon slot="prefix" src=${connectionPlusIcon}></sl-icon>
                                     ${isObjectDiagram ? msg("Link") : msg("Relation")}
                                 </sl-button>
                                 

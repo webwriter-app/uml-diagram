@@ -11,7 +11,8 @@ export default css`
     #edit-dialog::part(panel) {
         width: 800px;
         max-width: 90%;
-        max-height: 100%;
+        /* leave some space above and below when the dialog fills the full height */
+        max-height: calc(100% - var(--sl-spacing-2x-large));
     }
 
     /* Binds the dialog to the widget instead of the document */

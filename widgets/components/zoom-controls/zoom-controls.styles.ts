@@ -6,14 +6,13 @@ import { css } from "lit";
  */
 export default css`
 
-    /* Floating panel in the bottom-right corner of the canvas, as tall as a small button */
     :host {
         display: flex;
         align-items: center;
         box-sizing: border-box;
         position: absolute;
-        bottom: var(--sl-spacing-medium);
-        right: var(--sl-spacing-medium);
+        bottom: var(--sl-spacing-x-small);
+        right: var(--sl-spacing-x-small);
         z-index: 10;
         height: var(--sl-input-height-small);
         padding: 0 var(--sl-spacing-3x-small);

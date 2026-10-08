@@ -208,9 +208,10 @@ export default css`
         line-height: 1.2;
     }
 
-    /* Smoothly shifts the zoom controls when the drawer opens on the right */
+    /* Smoothly shifts the zoom controls when the drawer opens on the right, with the
+       same duration and easing as Shoelace's drawer slide animation */
     zoom-controls {
-        transition: right 0.3s ease;
+        transition: right 250ms ease;
     }
 
     /* Limits the width of the Shoelace settings drawer to approximately one-third of the screen. */
