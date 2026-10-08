@@ -121,6 +121,7 @@ export class SequenceToolbar extends LitElementWw {
             <sl-tooltip
                 content=${msg("Max. number of objects reached")}
                 ?disabled=${this.model?.lifelines?.length < this.settings.maxNumberOfLifelines}
+                placement="bottom-start"
                 hoist
             >
                 <sl-button 
@@ -137,6 +138,7 @@ export class SequenceToolbar extends LitElementWw {
                 <sl-tooltip
                     content=${msg("Max. number of activations reached")}
                     ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) < this.settings.maxNumberOfActivations}
+                    placement="bottom-start"
                     hoist
                 >
                     <sl-button 
@@ -153,6 +155,7 @@ export class SequenceToolbar extends LitElementWw {
             <sl-tooltip
                 content=${msg("Max. number of fragments reached")}
                 ?disabled=${this.model?.fragments?.length < this.settings.maxNumberOfFragments}
+                placement="bottom-start"
                 hoist
             >
                 <sl-dropdown placement="bottom-start" hoist>
@@ -190,6 +193,7 @@ export class SequenceToolbar extends LitElementWw {
             <sl-tooltip
                 content=${msg("Max. number of messages reached")}
                 ?disabled=${this.model?.messages?.length < this.settings.maxNumberOfMessages}
+                placement="bottom-start"
                 hoist
             >
                 <sl-dropdown placement="bottom-start" hoist>
@@ -277,7 +281,7 @@ export class SequenceToolbar extends LitElementWw {
             </sl-tooltip>
         </div>
 
-        <sl-tooltip content=${msg("Reset diagram")} hoist>
+        <sl-tooltip content=${msg("Reset diagram")} placement="bottom-end" hoist>
             <sl-button class="clear-btn" size="small" @click=${this._handleClear}>
                 <sl-icon src=${trashIcon} label=${msg("Reset diagram")}></sl-icon>
             </sl-button>

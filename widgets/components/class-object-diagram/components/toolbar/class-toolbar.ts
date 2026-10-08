@@ -155,6 +155,7 @@ export class ClassToolbar extends LitElementWw{
                             <sl-tooltip
                                 content=${msg("Max. number of objects reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
+                                placement="bottom-start"
                                 hoist
                             >
                                 <sl-button 
@@ -171,6 +172,7 @@ export class ClassToolbar extends LitElementWw{
                             <sl-tooltip
                                 content=${msg("Max. number of classes reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
+                                placement="bottom-start"
                                 hoist
                             >
                                 <div>
@@ -223,6 +225,7 @@ export class ClassToolbar extends LitElementWw{
                     <sl-tooltip
                         content=${msg("Max. number of connections reached")}
                         ?disabled=${this.currentRelationCount < this.settings.maxRelations}
+                        placement="bottom-start"
                         hoist
                     >
                         <div>
@@ -318,7 +321,7 @@ export class ClassToolbar extends LitElementWw{
                     </sl-tooltip>
                 </div>
                 
-                <sl-tooltip content=${msg("Reset diagram")} hoist>
+                <sl-tooltip content=${msg("Reset diagram")} placement="bottom-end" hoist>
                     <sl-button 
                         class="clear-btn" 
                         size="small"

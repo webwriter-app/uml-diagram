@@ -61,7 +61,7 @@ export class ZoomControls extends LitElementWw {
                 ></sl-icon-button>
             </sl-tooltip>
             <span class="zoom-level">${Math.round(this.zoomLevel * 100)}%</span>
-            <sl-tooltip content=${msg("Zoom In")} hoist>
+            <sl-tooltip content=${msg("Zoom In")} placement="top-end" hoist>
                 <sl-icon-button
                     src=${zoomIn}
                     label="${msg("Zoom In")}"
