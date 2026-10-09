@@ -82,46 +82,46 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
             <section class="section">
                 <h3 class="section-heading">${msg("Allowed Elements")}</h3>
                 <sl-switch size="small" ?checked=${this.settings.synchronousMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'synchronousMessageExists')}>
-                    Synchronous Message
+                    ${msg("Synchronous Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.asynchronousMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'asynchronousMessageExists')}>
-                    Asynchronous Message
+                    ${msg("Asynchronous Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.replyMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'replyMessageExists')}>
-                    Reply Message
+                    ${msg("Reply Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.createMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'createMessageExists')}>
-                    Create Message
+                    ${msg("Create Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.destroyMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'destroyMessageExists')}>
-                    Destroy Message
+                    ${msg("Destroy Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.foundMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'foundMessageExists')}>
-                    Found Message
+                    ${msg("Found Message")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.lostMessageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'lostMessageExists')}>
-                    Lost Message
+                    ${msg("Lost Message")}
                 </sl-switch>
 
                 <sl-divider></sl-divider>
 
                 <sl-switch size="small" ?checked=${this.settings.activationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'activationExists')}>
-                    Activation Bar
+                    ${msg("Activation")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.iconsInObjectBoxExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'iconsInObjectBoxExists')}>
-                    Icons in Objects
+                    ${msg("Show icons in objects")}
                 </sl-switch>
 
                 <sl-divider></sl-divider>
                 
                 <sl-switch size="small" ?checked=${this.settings.optionalFragmentExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'optionalFragmentExists')}>
-                    Optional Fragment
+                    ${msg("Optional Fragment")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.loopFragmentExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'loopFragmentExists')}>
-                    Loop Fragment
+                    ${msg("Loop Fragment")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.alternativeFragmentExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'alternativeFragmentExists')}>
-                    Alternative Fragment
+                    ${msg("Alternative Fragment")}
                 </sl-switch>
             </section>
 
@@ -129,7 +129,7 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
                 <h3 class="section-heading">${msg("Constraints")}</h3>
                 <sl-input 
                     type="number" 
-                    label=${msg("Max. Objects (Lifelines)")}
+                    label=${msg("Maximum lifelines")}
                     size="small"
                     min="1"
                     .value=${this.settings.maxNumberOfLifelines.toString()}
@@ -138,7 +138,7 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
 
                 <sl-input 
                     type="number" 
-                    label=${msg("Max. Messages")}
+                    label=${msg("Maximum messages")}
                     size="small"
                     min="1"
                     .value=${this.settings.maxNumberOfMessages.toString()}
@@ -147,7 +147,7 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
 
                 <sl-input 
                     type="number" 
-                    label=${msg("Max. Fragments")}
+                    label=${msg("Maximum fragments")}
                     size="small"
                     min="1"
                     .value=${this.settings.maxNumberOfFragments.toString()}
@@ -156,7 +156,7 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
 
                 <sl-input 
                     type="number" 
-                    label=${msg("Max. Activations")}
+                    label=${msg("Maximum activations")}
                     size="small"
                     min="1"
                     .value=${this.settings.maxNumberOfActivations.toString()}
@@ -167,29 +167,29 @@ export class SequenceDiagramSettingsMenu extends LitElementWw {
             <section class="section">
                 <h3 class="section-heading">${msg("Validation")}</h3>
                 ${validationDisabled ? html`
-                    <p class="help-text">${msg("Set Validation Mode to 'Custom' to configure individual rules")}</p>
+                    <p class="help-text">${msg("Set the validation mode to “Custom” to configure individual rules.")}</p>
                 ` : ''}
 
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyGuards} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyGuards')}>
-                    Empty Guards
+                    ${msg("No empty guard conditions")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyClassNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyClassNames')}>
-                    Empty Class Names
+                    ${msg("No empty class names")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForEmptyObjectNames} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForEmptyObjectNames')}>
-                    Empty Object Names
+                    ${msg("No empty object names")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfClass} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfClass')}>
-                    Class Naming Rules
+                    ${msg("Class naming rules")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfMessages} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfMessages')}>
-                    Message Naming Rules
+                    ${msg("Message naming rules")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFirstLetterOfObject} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFirstLetterOfObject')}>
-                    Object Naming Rules
+                    ${msg("Object naming rules")}
                 </sl-switch>
                 <sl-switch size="small" ?disabled=${validationDisabled} ?checked=${this.settings.checkForFragmentOverlap} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'checkForFragmentOverlap')}>
-                    Overlapping Fragments
+                    ${msg("Prevent overlapping fragments")}
                 </sl-switch>
             </section>
         `;

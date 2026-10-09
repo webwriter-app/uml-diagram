@@ -153,7 +153,7 @@ export class ClassToolbar extends LitElementWw{
                     ${isObjectDiagram 
                         ? html`
                             <sl-tooltip
-                                content=${msg("Max. number of objects reached")}
+                                content=${msg("Maximum number of objects reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
                                 placement="bottom-start"
                                 hoist
@@ -170,7 +170,7 @@ export class ClassToolbar extends LitElementWw{
                         ` 
                         : html`
                             <sl-tooltip
-                                content=${msg("Max. number of classes reached")}
+                                content=${msg("Maximum number of classes reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
                                 placement="bottom-start"
                                 hoist
@@ -187,7 +187,7 @@ export class ClassToolbar extends LitElementWw{
                                             ${msg("Class")}
                                         </sl-button>
 
-                                        <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
+                                        <sl-menu class="toolbar-menu" style="min-width: 250px;" hoist>
                                             ${ (this.settings.standardExists || this.settings.abstractExists || this.settings.parameterizedExists) ? html`
                                                 <sl-menu-label class="toolbar-menu-label">${msg("Classes")}</sl-menu-label>
                                                 ${this.settings.standardExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("standard")}>${msg("Class")}</sl-menu-item>` : ''}
@@ -206,7 +206,7 @@ export class ClassToolbar extends LitElementWw{
                                                 <sl-divider class="toolbar-divider"></sl-divider>
                                                 <sl-menu-label class="toolbar-menu-label">${msg("Data Types")}</sl-menu-label>
                                                 ${this.settings.recordExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("record")}>${msg("Record")}</sl-menu-item>` : ''}
-                                                ${this.settings.dataTypeExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("datatype")}>${msg("DataType")}</sl-menu-item>` : ''}
+                                                ${this.settings.dataTypeExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("datatype")}>${msg("Data Type")}</sl-menu-item>` : ''}
                                                 ${this.settings.enumExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("enum")}>${msg("Enumeration")}</sl-menu-item>` : ''}
                                             ` : '' }
 
@@ -223,7 +223,7 @@ export class ClassToolbar extends LitElementWw{
                     }
 
                     <sl-tooltip
-                        content=${msg("Max. number of connections reached")}
+                        content=${msg("Maximum number of connections reached")}
                         ?disabled=${this.currentRelationCount < this.settings.maxRelations}
                         placement="bottom-start"
                         hoist
@@ -240,7 +240,7 @@ export class ClassToolbar extends LitElementWw{
                                     ${isObjectDiagram ? msg("Link") : msg("Relation")}
                                 </sl-button>
                                 
-                                <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
+                                <sl-menu class="toolbar-menu" style="min-width: 250px;" hoist>
                                     
                                     ${ (this.settings.associationExists || this.settings.associationBidirectionalExists || this.settings.associationUndirectedExists) ? html`
                                         ${!isObjectDiagram ? html`<sl-menu-label class="toolbar-menu-label">${msg("Connections")}</sl-menu-label>` : ''}
@@ -255,7 +255,7 @@ export class ClassToolbar extends LitElementWw{
                                         ${this.settings.associationBidirectionalExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("association-bidirectional")}>
                                                 <div slot="prefix" style="display: flex; align-items: center;">${this._renderRelationIcon('association-bidirectional')}</div>
-                                                ${isObjectDiagram ? msg("Link (Bi-Dir)") : msg("Association (Bi-Dir)")}
+                                                ${isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)")}
                                             </sl-menu-item>
                                         ` : ''}
 

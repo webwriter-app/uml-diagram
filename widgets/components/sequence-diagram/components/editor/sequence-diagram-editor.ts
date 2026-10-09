@@ -2,7 +2,7 @@ import { LitElementWw } from "@webwriter/lit";
 import { html, svg } from "lit";
 import { keyed } from "lit/directives/keyed.js";
 import { property, query, state } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
+import { msg, str, localized } from "@lit/localize";
 import interact from 'interactjs';
 import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption, SlAlert } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
@@ -1350,7 +1350,7 @@ export class SequenceEditor extends LitElementWw {
             if (m.name && m.type !== 'reply' && !m.name.trim().startsWith('<') && /^[A-ZÄÖÜ]/.test(m.name.trim())) {
                 issues.push({
                     target: `msg-${m.id}-name`,
-                    message: msg("Messages (excluding replys) should start with a lowercase letter."),
+                    message: msg("Message names, except replies, should start with a lowercase letter."),
                     settingKey: 'checkForFirstLetterOfMessages'
                 });
             }
@@ -1597,7 +1597,7 @@ export class SequenceEditor extends LitElementWw {
                                 ? msg("Select start lifeline")
                                 : this.interactionMode === 'creating-fragment-end'
                                 ? msg("Select end lifeline")
-                                : msg("Select receiving liveline")}
+                                : msg("Select receiving lifeline")}
                         </span>
                     </sl-alert>
                 </div>
@@ -2068,7 +2068,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Object-Name")}" 
+                                label="${msg("Object Name")}"
                                 value="${editingLifeline.name || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('name', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('name', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-name`); }}
@@ -2085,7 +2085,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Class-Name")}" 
+                                label="${msg("Class Name")}"
                                 value="${editingLifeline.className || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('className', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('className', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-classname`); }}
@@ -2176,7 +2176,10 @@ export class SequenceEditor extends LitElementWw {
                                 ` : ''}
                             </sl-select>
                         ` : html`
-                            <sl-input label="${msg("Message Type")}" value="${editingMessage.type}" disabled></sl-input>
+                            <sl-input label="${msg("Message Type")}" value=${editingMessage.type === 'create' ? msg("Create")
+                                : editingMessage.type === 'destroy' ? msg("Destroy")
+                                : editingMessage.type === 'found' ? msg("Found")
+                                : msg("Lost")} disabled></sl-input>
                         `}
 
                         <sl-button variant="danger" outline @click=${this._handleDeleteMessageClick}>
@@ -2197,7 +2200,7 @@ export class SequenceEditor extends LitElementWw {
                                 slot="prefix" 
                                 src=${trashIcon}
                             ></sl-icon>
-                            ${msg("Delete Activation Box")}
+                            ${msg("Delete Activation")}
                         </sl-button>
                     </div>
                 ` : ''}
@@ -2215,15 +2218,15 @@ export class SequenceEditor extends LitElementWw {
                                 @sl-change=${(e: any) => this._handleFragmentUpdate('type', e.target.value)}
                             >
                                 ${this.settings.optionalFragmentExists || frag.type === 'opt' ? html`
-                                    <sl-option value="opt">opt (Optional)</sl-option>
+                                    <sl-option value="opt">${msg("Optional")} (opt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.alternativeFragmentExists || frag.type === 'alt' ? html`
-                                    <sl-option value="alt">alt (Alternative / If-Else)</sl-option>
+                                    <sl-option value="alt">${msg("Alternative")} (alt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.loopFragmentExists || frag.type === 'loop' ? html`
-                                    <sl-option value="loop">loop</sl-option>
+                                    <sl-option value="loop">${msg("Loop")} (loop)</sl-option>
                                 ` : ''}
                             </sl-select>
 
@@ -2231,7 +2234,7 @@ export class SequenceEditor extends LitElementWw {
                                 <div class="operand-row">
                                     <div class="operand-input-wrapper">
                                         <sl-input 
-                                            label="${msg("Condition")} ${index + 1}" 
+                                            label=${msg(str`Condition ${index + 1}`)}
                                             value="${op.guard}"
                                             @sl-change=${(e: any) => this._handleFragmentOperandUpdate(op.id, e.target.value)}
                                             @sl-blur=${() => this._handleBlur(`frag-${frag.id}-op-${op.id}-guard`)}
@@ -2251,6 +2254,7 @@ export class SequenceEditor extends LitElementWw {
                                         ?disabled=${frag.operands.length <= 1}
                                         @click=${() => this._handleRemoveFragmentOperand(op.id)}
                                         title="${msg("Remove Region")}"
+                                        aria-label=${msg("Remove Region")}
                                     >
                                         <sl-icon src=${xIcon}></sl-icon>
                                     </sl-button>

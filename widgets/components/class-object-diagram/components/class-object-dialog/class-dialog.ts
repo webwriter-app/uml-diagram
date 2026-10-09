@@ -974,7 +974,7 @@ export class ClassDialog extends LitElementWw{
                                     ${this.settings.parameterizedExists ? html`<sl-option value="param-class">${msg("Parameterized")}</sl-option>` : ''}
                                     ${this.settings.recordExists ? html`<sl-option value="record">${msg("Record")}</sl-option>` : ''}
                                     ${this.settings.annotationExists ? html`<sl-option value="annotation">${msg("Annotation")}</sl-option>` : ''}
-                                    ${this.settings.dataTypeExists ? html`<sl-option value="datatype">${msg("DataType")}</sl-option>` : ''}
+                                    ${this.settings.dataTypeExists ? html`<sl-option value="datatype">${msg("Data Type")}</sl-option>` : ''}
                                 </sl-select>
 
                                 ${shouldShowError('classtype') ? html`
@@ -1012,7 +1012,7 @@ export class ClassDialog extends LitElementWw{
                                                         @sl-change=${(e: any) => this._updateAttribute(i, 'isStatic', e.target.checked)}
                                                     >
                                                         <span style="font-size: var(--sl-font-size-medium);">
-                                                            ${msg("static")}
+                                                            static
                                                         </span>
                                                     </sl-switch>
                                                     <sl-switch 
@@ -1021,7 +1021,7 @@ export class ClassDialog extends LitElementWw{
                                                         @sl-change=${(e: any) => this._updateAttribute(i, 'isFinal', e.target.checked)}
                                                     >
                                                         <span style="font-size: var(--sl-font-size-medium);">
-                                                            ${msg("final")}
+                                                            final
                                                         </span>
                                                     </sl-switch>
                                                     ${this._editingNodeData.type === 'param-class' ? html`
@@ -1044,6 +1044,7 @@ export class ClassDialog extends LitElementWw{
                                                 outline 
                                                 @click=${() => this._removeAttribute(i)}
                                                 title=${msg("Delete")}
+                                                aria-label=${msg("Delete")}
                                             >
                                                 <sl-icon src=${xIcon}></sl-icon>
                                             </sl-button>
@@ -1081,7 +1082,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder="name" 
+                                                placeholder=${msg("Name")}
                                                 style="flex: 1;"
                                                 .value=${live(attr.name)} 
                                                 @sl-input=${(e: any) => this._updateAttribute(i, 'name', e.target.value)}
@@ -1092,7 +1093,7 @@ export class ClassDialog extends LitElementWw{
 
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder=${isObj ? "value" : "type"} 
+                                                placeholder=${isObj ? msg("Value") : msg("Type")}
                                                 style="flex: 1;"
                                                 .value=${live(attr.type)}
                                                 @sl-input=${(e: any) => this._updateAttribute(i, 'type', e.target.value)}
@@ -1143,7 +1144,7 @@ export class ClassDialog extends LitElementWw{
                                 ${repeat(this._editingNodeData.enumValues, (val, i) => `enum-${i}`, (val, i) => html`
                                     <div style="display: flex; gap: 5px; align-items: center;">
                                         <sl-input 
-                                            placeholder="Value" 
+                                            placeholder=${msg("Value")}
                                             style="flex: 1;"
                                             .value=${live(val)} 
                                             @sl-input=${(e: any) => this._updateEnumValue(i, e.target.value)}
@@ -1152,6 +1153,7 @@ export class ClassDialog extends LitElementWw{
                                             size="small" 
                                             variant="danger" 
                                             outline @click=${() => this._removeEnumValue(i)}
+                                            aria-label=${msg("Delete Value")}
                                         >
                                             <sl-icon src=${xIcon}></sl-icon>
                                         </sl-button>
@@ -1193,7 +1195,7 @@ export class ClassDialog extends LitElementWw{
                                                         @sl-change=${(e: any) => this._updateMethod(i, 'isStatic', e.target.checked)}
                                                     >
                                                         <span style="font-size: var(--sl-font-size-medium);">
-                                                            ${msg("static")}
+                                                            static
                                                         </span>
                                                     </sl-switch>
                                                     <sl-switch 
@@ -1202,7 +1204,7 @@ export class ClassDialog extends LitElementWw{
                                                         @sl-change=${(e: any) => this._updateMethod(i, 'isFinal', e.target.checked)}
                                                     >
                                                         <span style="font-size: var(--sl-font-size-medium);">
-                                                            ${msg("final")}
+                                                            final
                                                         </span>
                                                     </sl-switch>
                                                 </div>
@@ -1214,6 +1216,7 @@ export class ClassDialog extends LitElementWw{
                                                 outline 
                                                 @click=${() => this._removeMethod(i)}
                                                 title=${msg("Delete")}
+                                                aria-label=${msg("Delete")}
                                             >
                                                 <sl-icon src=${xIcon}></sl-icon>
                                             </sl-button>
@@ -1252,7 +1255,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder="name" 
+                                                placeholder=${msg("Name")}
                                                 style="flex: 1;" 
                                                 .value=${live(meth.name)} 
                                                 @sl-input=${(e: any) => this._updateMethod(i, 'name', e.target.value)}
@@ -1263,7 +1266,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder="return type" 
+                                                placeholder=${msg("Return type")}
                                                 style="flex: 1;" 
                                                 .value=${live(meth.returnType)} 
                                                 @sl-input=${(e: any) => this._updateMethod(i, 'returnType', e.target.value)}
@@ -1305,7 +1308,7 @@ export class ClassDialog extends LitElementWw{
                                                                 
                                                                 <sl-input 
                                                                     autocomplete="off"
-                                                                    placeholder="name" 
+                                                                    placeholder=${msg("Name")}
                                                                     size="small" 
                                                                     style="flex: 1;" 
                                                                     .value=${live(p.name)} 
@@ -1317,7 +1320,7 @@ export class ClassDialog extends LitElementWw{
 
                                                                 <sl-input 
                                                                     autocomplete="off"
-                                                                    placeholder="type" 
+                                                                    placeholder=${msg("Type")}
                                                                     size="small" 
                                                                     style="flex: 1;" 
                                                                     .value=${live(p.type)} 
@@ -1333,6 +1336,7 @@ export class ClassDialog extends LitElementWw{
                                                                     outline 
                                                                     @click=${() => this._removeParameter(i, pi)}
                                                                     title=${msg("Delete Parameter")}
+                                                                    aria-label=${msg("Delete Parameter")}
                                                                 >
                                                                     <sl-icon src=${xIcon}></sl-icon>
                                                                 </sl-button>

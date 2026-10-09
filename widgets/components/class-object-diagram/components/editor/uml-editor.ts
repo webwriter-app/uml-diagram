@@ -6,7 +6,7 @@ import { msg, localized } from "@lit/localize";
 import { ClassModel } from "../../models/class-model";
 import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
-import { RelationDialog, RelationDialogData } from "../relation-link-dialog/relation-dialog";
+import { RelationDialog, RelationDialogData, relationLabel } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
 import canvasAlertStyles from "../../../shared/canvas-alert.styles";
 import styles from "./uml-editor.styles";
@@ -740,7 +740,7 @@ export class UMLEditor extends LitElementWw{
             // check max relations constraint
             const currentRelations = this._getRelationsCountBetween(this.relationSourceNodeId, nodeId);
             if (currentRelations >= this.settings.maxNumberRelationsBetweenTwoClasses) {
-                this.handleWrongSelection(msg("Maximal number of relations between these classes reached!"));
+                this.handleWrongSelection(msg("Maximum number of connections per pair reached"));
                 return;
             }
 
@@ -1639,7 +1639,7 @@ export class UMLEditor extends LitElementWw{
 
         // check for constraints
         if (this._getClassCount() >= this.settings.maxClasses) {
-            this.showNotice(msg("Maximal number of classes reached!"));
+            this.showNotice(msg("Maximum number of classes reached"));
             return;
         }
 
@@ -1658,7 +1658,7 @@ export class UMLEditor extends LitElementWw{
         // initialize new class
         const nodeData: ClassModel = {
             type: 'standard',
-            name: "New Association Class",
+            name: "NewAssociationClass",
             attributes: [],
             methods: [],
             objectName: '',
@@ -1798,7 +1798,9 @@ export class UMLEditor extends LitElementWw{
         if (sourceId === targetId) {
             if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
                 issues.push({
-                    message: msg("It is not allowed to create a " + this.interactionMode + " to the node itself!"),
+                    message: this.interactionMode === 'inheritance'
+                        ? msg("A class cannot inherit from itself.")
+                        : msg("A class cannot realize itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1809,7 +1811,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance') {
             if (sType === 'enum' || sType === 'record') {
                 issues.push({
-                    message: msg("Enums and Records cannot extend other classes."),
+                    message: msg("Enumerations and records cannot extend other classes."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1833,13 +1835,13 @@ export class UMLEditor extends LitElementWw{
             }
             if (sType === 'interface' && tType !== 'interface') {
                 issues.push({
-                    message: msg("Interfaces can only extend other Interfaces."),
+                    message: msg("Interfaces can only extend other interfaces."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType !== 'interface' && tType === 'interface') {
                 issues.push({
-                    message: msg("Classes cannot extend Interfaces. Please use 'Realization' (Implements)."),
+                    message: msg("Classes cannot extend interfaces. Use realization to implement an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1856,13 +1858,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'realization') {
             if (tType !== 'interface') {
                 issues.push({
-                    message: msg("Realization is only possible towards an Interface."),
+                    message: msg("Only interfaces can be realization targets."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'interface') {
                 issues.push({
-                    message: msg("Interfaces cannot implement. Please use 'Inheritance' (Extends)."),
+                    message: msg("Interfaces cannot realize other elements. Use inheritance to extend an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1884,7 +1886,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
             if (this._detectCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("Cycle detected! Inheritance cycles are not allowed."),
+                    message: msg("Inheritance cycles are not allowed."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1919,7 +1921,7 @@ export class UMLEditor extends LitElementWw{
             }
             if (this._detectCompositionCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("Composition cycle detected! A class cannot directly or indirectly own itself."),
+                    message: msg("A class cannot directly or indirectly own itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1929,13 +1931,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association-bidirectional') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be source of a bidirectional association."),
+                    message: msg("Data types and enumerations cannot be the source of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (tType === 'datatype' || tType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be target of a bidirectional association."),
+                    message: msg("Data types and enumerations cannot be the target of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1945,7 +1947,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be the source of an association."),
+                    message: msg("Data types and enumerations cannot be the source of an association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2004,8 +2006,9 @@ export class UMLEditor extends LitElementWw{
                     >
                         <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
                         <span>
-                            ${this.firstOrSecondClass === 'first' ? 'Select Source: ' : 'Select Target: '}
-                            <strong>${this.interactionMode}</strong>
+                            ${this.firstOrSecondClass === 'first'
+                                ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
+                                : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
                         </span>
                     </sl-alert>
                 </div>

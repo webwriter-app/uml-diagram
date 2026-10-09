@@ -119,7 +119,7 @@ export class SequenceToolbar extends LitElementWw {
       <div class="toolbar-container" @sl-show=${closeOtherDropdowns}>
         <div class="actions">
             <sl-tooltip
-                content=${msg("Max. number of objects reached")}
+                content=${msg("Maximum number of lifelines reached")}
                 ?disabled=${this.model?.lifelines?.length < this.settings.maxNumberOfLifelines}
                 placement="bottom-start"
                 hoist
@@ -136,7 +136,7 @@ export class SequenceToolbar extends LitElementWw {
 
             ${this.settings.activationExists ? html`
                 <sl-tooltip
-                    content=${msg("Max. number of activations reached")}
+                    content=${msg("Maximum number of activations reached")}
                     ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) < this.settings.maxNumberOfActivations}
                     placement="bottom-start"
                     hoist
@@ -153,7 +153,7 @@ export class SequenceToolbar extends LitElementWw {
             ` : ''}
 
             <sl-tooltip
-                content=${msg("Max. number of fragments reached")}
+                content=${msg("Maximum number of fragments reached")}
                 ?disabled=${this.model?.fragments?.length < this.settings.maxNumberOfFragments}
                 placement="bottom-start"
                 hoist
@@ -168,7 +168,7 @@ export class SequenceToolbar extends LitElementWw {
                         <sl-icon slot="prefix" src=${fragmentPlusIcon}></sl-icon>
                         ${msg("Fragment")}
                     </sl-button>
-                    <sl-menu class="toolbar-menu" style="width: 200px;">
+                    <sl-menu class="toolbar-menu" style="min-width: 200px;">
                         ${this.settings.alternativeFragmentExists ? html`
                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddFragmentMode('alt')}>
                                 ${msg("Alternative")} (alt)
@@ -191,7 +191,7 @@ export class SequenceToolbar extends LitElementWw {
             </sl-tooltip>
             
             <sl-tooltip
-                content=${msg("Max. number of messages reached")}
+                content=${msg("Maximum number of messages reached")}
                 ?disabled=${this.model?.messages?.length < this.settings.maxNumberOfMessages}
                 placement="bottom-start"
                 hoist
@@ -206,7 +206,7 @@ export class SequenceToolbar extends LitElementWw {
                         <sl-icon slot="prefix" src=${connectionPlusIcon}></sl-icon>
                         ${msg("Message")}
                     </sl-button>
-                    <sl-menu class="toolbar-menu" style="width: 250px;">
+                    <sl-menu class="toolbar-menu" style="min-width: 250px;">
                         ${(this.settings.synchronousMessageExists || this.settings.asynchronousMessageExists || this.settings.replyMessageExists) ? html`
                             <sl-menu-label>${msg("Calls & Replies")}</sl-menu-label>
 

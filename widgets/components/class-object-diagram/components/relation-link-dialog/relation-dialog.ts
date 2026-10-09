@@ -1,7 +1,7 @@
 import { html, svg } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
+import { msg, str, localized } from "@lit/localize";
 import { live } from 'lit/directives/live.js';
 import { SlButton, SlDialog, SlInput, SlIcon, SlDivider } from "@shoelace-style/shoelace";
 import styles from "./relation-dialog.styles";
@@ -10,6 +10,21 @@ import trashIcon from "@tabler/icons/outline/trash.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
+
+/** Resolve display labels at call time so they follow the active locale. */
+export function relationLabel(type: string, isObjectDiagram: boolean): string {
+    const labels: Record<string, string> = {
+        association: isObjectDiagram ? msg("Link (Directed)") : msg("Association (Directed)"),
+        "association-bidirectional": isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)"),
+        "association-undirected": isObjectDiagram ? msg("Link (Undirected)") : msg("Association (Undirected)"),
+        inheritance: msg("Inheritance"),
+        realization: msg("Realization"),
+        dependency: msg("Dependency"),
+        aggregation: msg("Aggregation"),
+        composition: msg("Composition"),
+    };
+    return labels[type] ?? (isObjectDiagram ? msg("Link") : msg("Relation"));
+}
 
 /** Interface for the structure of Validation Issues */
 interface ValidationIssue {
@@ -244,14 +259,14 @@ export class RelationDialog extends LitElementWw {
         if (!this._isValidMultiplicity(sMult)) {
             issues.push({
                 target: 'sourceMultiplicity',
-                message: msg("Invalid Source Multiplicity. Allowed formats: '1', '0..1', '*', '1..*'"),
+                message: msg("Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
         if (!this._isValidMultiplicity(tMult)) {
             issues.push({
                 target: 'targetMultiplicity',
-                message: msg("Invalid Target Multiplicity. Allowed formats: '1', '0..1', '*', '1..*'"),
+                message: msg("Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
@@ -400,12 +415,12 @@ export class RelationDialog extends LitElementWw {
 
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
-        const nameLabel = type === 'dependency' ? msg("Stereotype") : msg("Relation Name");
+        const nameLabel = type === 'dependency' ? msg("Stereotype") : (isObjectDiagram ? msg("Link Name") : msg("Relation Name"));
 
         return html`
             <sl-dialog 
                 id="relation-dialog" 
-                label="${msg('Edit')} ${type.charAt(0).toUpperCase() + type.slice(1)}"
+                label=${msg(str`Edit ${relationLabel(type, isObjectDiagram)}`)}
                 @sl-request-close=${(e: CustomEvent) => {
                     if (e.detail.source === 'overlay') e.preventDefault();
                 }}
@@ -499,7 +514,7 @@ export class RelationDialog extends LitElementWw {
 
                     ${(!showName && !showProperties) ? html`
                         <p style="color: var(--sl-color-neutral-500); font-style: italic; text-align: center;">
-                            ${msg("This relation type has no editable properties")}
+                            ${msg("This relation type has no editable properties.")}
                         </p>
                     ` : ''}
 
@@ -516,7 +531,7 @@ export class RelationDialog extends LitElementWw {
                         ${((type === 'association' || type === 'association-bidirectional' || type === 'association-undirected') && !isObjectDiagram) ? html`
                             <sl-button @click=${this._saveAndAddClass}>
                                 <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
-                                ${msg("Assoc. Class & Save")}
+                                ${msg("Save & Add Association Class")}
                             </sl-button>
                         ` : ''}
                         
