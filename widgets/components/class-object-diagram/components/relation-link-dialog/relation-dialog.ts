@@ -277,7 +277,7 @@ export class RelationDialog extends LitElementWw {
             if (!stereotypeRegex.test(name.trim())) {
                 issues.push({
                     target: 'name',
-                    message: msg("Dependency stereotypes must be wrapped in << >> or « »."),
+                    message: msg(str`Dependency stereotypes must be wrapped in ${"<< >>"} or ${"« »"}.`),
                     settingKey: 'checkDependencyStereotypeSyntax'
                 });
             }
@@ -420,7 +420,9 @@ export class RelationDialog extends LitElementWw {
         return html`
             <sl-dialog 
                 id="relation-dialog" 
-                label=${msg(str`Edit ${relationLabel(type, isObjectDiagram)}`)}
+                label=${isObjectDiagram
+                    ? msg(str`Edit link: ${relationLabel(type, isObjectDiagram)}`)
+                    : msg(str`Edit relation: ${relationLabel(type, isObjectDiagram)}`)}
                 @sl-request-close=${(e: CustomEvent) => {
                     if (e.detail.source === 'overlay') e.preventDefault();
                 }}

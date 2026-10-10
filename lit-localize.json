@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/lit/lit-localize/main/custom-elements-manifest.json",
   "sourceLocale": "en",
-  "targetLocales": ["en"],
+  "targetLocales": ["de", "fr", "es", "it", "nl", "pl", "pt-BR"],
   "interchange": {
     "format": "xliff",
     "xliffDir": "localization/xliff"

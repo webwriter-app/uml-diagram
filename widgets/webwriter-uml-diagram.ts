@@ -12,6 +12,7 @@ import { SequenceModel } from "./components/sequence-diagram/models/sequence-mod
 import { DiagramTabs, visibleDiagramTypes } from "./components/diagram-tabs/diagram-tabs";
 import styles from "./webwriter-uml-diagram.styles";
 import { localized } from "@lit/localize";
+import LOCALIZE from "../localization/generated";
 
 /**
  * Main Widget for Object-Oriented Modelling
@@ -24,6 +25,9 @@ import { localized } from "@lit/localize";
 @localized()
 @customElement("webwriter-uml-diagram")
 export class WebwriterUmlDiagram extends LitElementWw {
+
+    /** Localization config; WebWriter uses it to set the locale of the widget */
+    public localize = LOCALIZE;
 
     /** Register used Elements */
     static get scopedElements() {

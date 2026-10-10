@@ -1,0 +1,1055 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="nl" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="sf752b696087fa3c6">
+  <source>Object name is required.</source>
+  <target>Objectnaam is verplicht.</target>
+</trans-unit>
+<trans-unit id="s2b295702e7140ab7">
+  <source>Class name is required.</source>
+  <target>Klassenaam is verplicht.</target>
+</trans-unit>
+<trans-unit id="s2c0642d152a1c8d5">
+  <source>This name is already used by another class.</source>
+  <target>Deze naam wordt al door een andere klasse gebruikt.</target>
+</trans-unit>
+<trans-unit id="s0f6e9f991bc2b1ab">
+  <source>Object names should start with a lowercase letter.</source>
+  <target>Objectnamen moeten met een kleine letter beginnen.</target>
+</trans-unit>
+<trans-unit id="s76287c15efb9cd71">
+  <source>Object names must not contain spaces.</source>
+  <target>Objectnamen mogen geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="s18d1d88ab70cc0b7">
+  <source>Class names should start with an uppercase letter.</source>
+  <target>Klassenamen moeten met een hoofdletter beginnen.</target>
+</trans-unit>
+<trans-unit id="s40bbce04a4584df2">
+  <source>Class names must not contain spaces.</source>
+  <target>Klassenamen mogen geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="s633876602eda63e7">
+  <source>Attribute name is required.</source>
+  <target>Attribuutnaam is verplicht.</target>
+</trans-unit>
+<trans-unit id="sf6a5af468fd4beae">
+  <source>Attribute type is required.</source>
+  <target>Attribuuttype is verplicht.</target>
+</trans-unit>
+<trans-unit id="sba94b3870567f66d">
+  <source>Duplicate attribute name.</source>
+  <target>Dubbele attribuutnaam.</target>
+</trans-unit>
+<trans-unit id="s5005524c536ceb9e">
+  <source>Attribute names should start with a lowercase letter.</source>
+  <target>Attribuutnamen moeten met een kleine letter beginnen.</target>
+</trans-unit>
+<trans-unit id="sc355d95b8c69a202">
+  <source>Attribute names must not contain spaces.</source>
+  <target>Attribuutnamen mogen geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="s6b5201fbbb39df11">
+  <source>Attributes in interfaces and annotations must be public.</source>
+  <target>Attributen in interfaces en annotaties moeten public zijn.</target>
+</trans-unit>
+<trans-unit id="s545c6277188dd420">
+  <source>Interface attributes must be static and final.</source>
+  <target>Interface-attributen moeten static en final zijn.</target>
+</trans-unit>
+<trans-unit id="sdbe713363a6a8a71">
+  <source>Parameter attributes are only valid in parameterized classes.</source>
+  <target>Parameterattributen zijn alleen geldig in geparametriseerde klassen.</target>
+</trans-unit>
+<trans-unit id="sd0acc3432e22e6a8">
+  <source>Method name is required.</source>
+  <target>Methodenaam is verplicht.</target>
+</trans-unit>
+<trans-unit id="seadb073a3ae9a65e">
+  <source>Return type is required.</source>
+  <target>Returntype is verplicht.</target>
+</trans-unit>
+<trans-unit id="s1a98e915a81ae0a7">
+  <source>Constructors must not have a return type.</source>
+  <target>Constructors mogen geen returntype hebben.</target>
+</trans-unit>
+<trans-unit id="s55de04ebf752aad4">
+  <source>Objects do not have constructors.</source>
+  <target>Objecten hebben geen constructors.</target>
+</trans-unit>
+<trans-unit id="s89fcc8ddcf63ed27">
+  <source>This looks like a constructor but does not match the class name capitalization.</source>
+  <target>Dit lijkt op een constructor, maar het hoofdlettergebruik komt niet overeen met de klassenaam.</target>
+</trans-unit>
+<trans-unit id="s48c68d7f3d47f509">
+  <source>Method names should start with a lowercase letter.</source>
+  <target>Methodenamen moeten met een kleine letter beginnen.</target>
+</trans-unit>
+<trans-unit id="s674b9c60a0dd3817">
+  <source>Method names must not contain spaces.</source>
+  <target>Methodenamen mogen geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="s5635fe9ec580c654">
+  <source>Methods in interfaces and annotations must be public.</source>
+  <target>Methoden in interfaces en annotaties moeten public zijn.</target>
+</trans-unit>
+<trans-unit id="s9d8f15fcd9bb2231">
+  <source>Abstract methods cannot be final.</source>
+  <target>Abstracte methoden kunnen niet final zijn.</target>
+</trans-unit>
+<trans-unit id="s3b14c24a8b1969a1">
+  <source>Abstract methods cannot be static.</source>
+  <target>Abstracte methoden kunnen niet static zijn.</target>
+</trans-unit>
+<trans-unit id="s1c4e9efe8e8d2d47">
+  <source>Constructors cannot be static or final.</source>
+  <target>Constructors kunnen niet static of final zijn.</target>
+</trans-unit>
+<trans-unit id="s4944d9a50ed82b68">
+  <source>Parameter name is required.</source>
+  <target>Parameternaam is verplicht.</target>
+</trans-unit>
+<trans-unit id="s77002f685d02ee65">
+  <source>Parameter type is required.</source>
+  <target>Parametertype is verplicht.</target>
+</trans-unit>
+<trans-unit id="sb2f13f84f2055646">
+  <source>Duplicate parameter name.</source>
+  <target>Dubbele parameternaam.</target>
+</trans-unit>
+<trans-unit id="sb49efe53843f28c9">
+  <source>Parameter names should start with a lowercase letter.</source>
+  <target>Parameternamen moeten met een kleine letter beginnen.</target>
+</trans-unit>
+<trans-unit id="s7d02f7fdf88760d7">
+  <source>Parameter names must not contain spaces.</source>
+  <target>Parameternamen mogen geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="s815e4e6869b373c7">
+  <source>Selected class type cannot extend other classes.</source>
+  <target>Het geselecteerde klassetype kan geen andere klassen uitbreiden.</target>
+</trans-unit>
+<trans-unit id="se205a5d6339202a0">
+  <source>Selected class type can only extend other interfaces.</source>
+  <target>Het geselecteerde klassetype kan alleen andere interfaces uitbreiden.</target>
+</trans-unit>
+<trans-unit id="s7fbbfcdbad53e530">
+  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
+  <target>Het geselecteerde klassetype kan geen interface uitbreiden. Gebruik in plaats daarvan realisatie.</target>
+</trans-unit>
+<trans-unit id="s3d81f99c8bbe7c1e">
+  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
+  <target>Het geselecteerde klassetype kan niet door een klasse worden uitgebreid. Gebruik in plaats daarvan realisatie.</target>
+</trans-unit>
+<trans-unit id="s5ab48567a7b89fef">
+  <source>Selected class type can only be extended by other interfaces.</source>
+  <target>Het geselecteerde klassetype kan alleen door andere interfaces worden uitgebreid.</target>
+</trans-unit>
+<trans-unit id="sf868ffaf4e63faf5">
+  <source>Selected class type cannot be a parent class.</source>
+  <target>Het geselecteerde klassetype kan geen superklasse zijn.</target>
+</trans-unit>
+<trans-unit id="se0a11ec9a3548c89">
+  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
+  <target>Het geselecteerde klassetype kan geen interfaces implementeren. Gebruik in plaats daarvan overerving.</target>
+</trans-unit>
+<trans-unit id="s79c23de608bf327c">
+  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
+  <target>Het geselecteerde klassetype kan geen doel van een realisatie zijn. Alleen interfaces zijn geldige doelen.</target>
+</trans-unit>
+<trans-unit id="scde2458b59249c80">
+  <source>Selected class type cannot own compositions or aggregations.</source>
+  <target>Het geselecteerde klassetype kan geen composities of aggregaties bezitten.</target>
+</trans-unit>
+<trans-unit id="s99014a4992baa534">
+  <source>Selected class type cannot be part of a composition or aggregation.</source>
+  <target>Het geselecteerde klassetype kan geen deel uitmaken van een compositie of aggregatie.</target>
+</trans-unit>
+<trans-unit id="s36b2d9d82a7a6ccf">
+  <source>Selected class type cannot participate in bidirectional associations.</source>
+  <target>Het geselecteerde klassetype kan niet deelnemen aan bidirectionele associaties.</target>
+</trans-unit>
+<trans-unit id="sd1ec21ab6f95c1db">
+  <source>Selected class type cannot be the source of an association.</source>
+  <target>Het geselecteerde klassetype kan geen bron van een associatie zijn.</target>
+</trans-unit>
+<trans-unit id="sf57c6078d6d78598">
+  <source>Objects cannot be the source of inheritance or realization relations.</source>
+  <target>Objecten kunnen geen bron van overervings- of realisatierelaties zijn.</target>
+</trans-unit>
+<trans-unit id="s7f139035aaa81544">
+  <source>Objects cannot be the target of inheritance or realization relations.</source>
+  <target>Objecten kunnen geen doel van overervings- of realisatierelaties zijn.</target>
+</trans-unit>
+<trans-unit id="s8355ec0cae86058f">
+  <source>Object Editor</source>
+  <target>Objecteditor</target>
+</trans-unit>
+<trans-unit id="s983013687f0e8f20">
+  <source>Class Editor</source>
+  <target>Klasse-editor</target>
+</trans-unit>
+<trans-unit id="sfbcefc193ef97dd5">
+  <source>Instance Name</source>
+  <target>Instantienaam</target>
+</trans-unit>
+<trans-unit id="s5bdb5af84455fc0e">
+  <source>Class Name</source>
+  <target>Klassenaam</target>
+</trans-unit>
+<trans-unit id="sef49aec68fd1dc66">
+  <source>Name</source>
+  <target>Naam</target>
+</trans-unit>
+<trans-unit id="sd2223afb7d6b100d">
+  <source>Type</source>
+  <target>Type</target>
+</trans-unit>
+<trans-unit id="s53a526d5c80c3e28">
+  <source>Standard</source>
+  <target>Standaard</target>
+</trans-unit>
+<trans-unit id="s220a5d7255e5ddd3">
+  <source>Abstract</source>
+  <target>Abstract</target>
+</trans-unit>
+<trans-unit id="s9b6d60939d3afd52">
+  <source>Parameterized</source>
+  <target>Geparametriseerd</target>
+</trans-unit>
+<trans-unit id="s16b9446e3a70e1f4">
+  <source>Attributes</source>
+  <target>Attributen</target>
+</trans-unit>
+<trans-unit id="sf5fa7230e8c645f2">
+  <source>parameterized</source>
+  <target>geparametriseerd</target>
+</trans-unit>
+<trans-unit id="sdc673e73b5c13aea">
+  <source>Delete</source>
+  <target>Verwijderen</target>
+</trans-unit>
+<trans-unit id="s41f7dca46d3f1b4a">
+  <source>Value</source>
+  <target>Waarde</target>
+</trans-unit>
+<trans-unit id="s77553b151737aa7c">
+  <source>Add Attribute</source>
+  <target>Attribuut toevoegen</target>
+</trans-unit>
+<trans-unit id="sc15aaef74ecdbd3a">
+  <source>Enumeration Values</source>
+  <target>Enumeratiewaarden</target>
+</trans-unit>
+<trans-unit id="s8263352c7a634e7f">
+  <source>Delete Value</source>
+  <target>Waarde verwijderen</target>
+</trans-unit>
+<trans-unit id="sfc49bac6b16bbe35">
+  <source>Add Value</source>
+  <target>Waarde toevoegen</target>
+</trans-unit>
+<trans-unit id="sbc7a8b2f2555ebb9">
+  <source>Methods</source>
+  <target>Methoden</target>
+</trans-unit>
+<trans-unit id="s8381bad674d45e25">
+  <source>Return type</source>
+  <target>Returntype</target>
+</trans-unit>
+<trans-unit id="s1a21c094652f7bd9">
+  <source>Parameters:</source>
+  <target>Parameters:</target>
+</trans-unit>
+<trans-unit id="s35402401cbe1e019">
+  <source>Delete Parameter</source>
+  <target>Parameter verwijderen</target>
+</trans-unit>
+<trans-unit id="s79d527d97ba1c163">
+  <source>Add Parameter</source>
+  <target>Parameter toevoegen</target>
+</trans-unit>
+<trans-unit id="sf42ae7595d232ff5">
+  <source>Add Method</source>
+  <target>Methode toevoegen</target>
+</trans-unit>
+<trans-unit id="s33f85f24c0f5f008">
+  <source>Save</source>
+  <target>Opslaan</target>
+</trans-unit>
+<trans-unit id="s1de38819c1d0c545">
+  <source>Maximum number of connections per pair reached</source>
+  <target>Maximumaantal verbindingen per paar bereikt</target>
+</trans-unit>
+<trans-unit id="s991302c34d4ab3bf">
+  <source>A class cannot inherit from itself.</source>
+  <target>Een klasse kan niet van zichzelf overerven.</target>
+</trans-unit>
+<trans-unit id="sf285ba473f20505a">
+  <source>A class cannot realize itself.</source>
+  <target>Een klasse kan zichzelf niet realiseren.</target>
+</trans-unit>
+<trans-unit id="s25f8ef11d9d27e69">
+  <source>Enumerations and records cannot extend other classes.</source>
+  <target>Enumeraties en records kunnen geen andere klassen uitbreiden.</target>
+</trans-unit>
+<trans-unit id="s2232c3d843d945c8">
+  <source>Annotations cannot extend other classes.</source>
+  <target>Annotaties kunnen geen andere klassen uitbreiden.</target>
+</trans-unit>
+<trans-unit id="sca622529f55548ec">
+  <source>Annotations cannot be extended.</source>
+  <target>Annotaties kunnen niet worden uitgebreid.</target>
+</trans-unit>
+<trans-unit id="s03536c9db8ed23de">
+  <source>Objects cannot participate in inheritance relations.</source>
+  <target>Objecten kunnen niet deelnemen aan overervingsrelaties.</target>
+</trans-unit>
+<trans-unit id="s979178cfb4d8a3dd">
+  <source>Interfaces can only extend other interfaces.</source>
+  <target>Interfaces kunnen alleen andere interfaces uitbreiden.</target>
+</trans-unit>
+<trans-unit id="s4b43ba347d4af4c7">
+  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
+  <target>Klassen kunnen geen interfaces uitbreiden. Gebruik realisatie om een interface te implementeren.</target>
+</trans-unit>
+<trans-unit id="s683b5495fe491317">
+  <source>This class already inherits from the selected class.</source>
+  <target>Deze klasse erft al van de geselecteerde klasse.</target>
+</trans-unit>
+<trans-unit id="sd4b44f1897d9691c">
+  <source>Only interfaces can be realization targets.</source>
+  <target>Alleen interfaces kunnen het doel van een realisatie zijn.</target>
+</trans-unit>
+<trans-unit id="s99007178f766a0d3">
+  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
+  <target>Interfaces kunnen geen andere elementen realiseren. Gebruik overerving om een interface uit te breiden.</target>
+</trans-unit>
+<trans-unit id="se2e072d9e76d78e7">
+  <source>Annotations cannot implement interfaces.</source>
+  <target>Annotaties kunnen geen interfaces implementeren.</target>
+</trans-unit>
+<trans-unit id="s6873f37f88d68bee">
+  <source>Objects cannot participate in realization relations.</source>
+  <target>Objecten kunnen niet deelnemen aan realisatierelaties.</target>
+</trans-unit>
+<trans-unit id="sdd1a3d0051483ab1">
+  <source>Inheritance cycles are not allowed.</source>
+  <target>Overervingscycli zijn niet toegestaan.</target>
+</trans-unit>
+<trans-unit id="s9fb6d60ce907b45a">
+  <source>This class is already part of a composition. A class can only have one owner.</source>
+  <target>Deze klasse maakt al deel uit van een compositie. Een klasse kan maar één eigenaar hebben.</target>
+</trans-unit>
+<trans-unit id="s66260080e372437e">
+  <source>A class cannot directly or indirectly own itself.</source>
+  <target>Een klasse kan zichzelf niet direct of indirect bezitten.</target>
+</trans-unit>
+<trans-unit id="sfb4181c4306745a9">
+  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
+  <target>Datatypes en enumeraties kunnen geen bron van een bidirectionele associatie zijn.</target>
+</trans-unit>
+<trans-unit id="sc774f0def0051c0d">
+  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
+  <target>Datatypes en enumeraties kunnen geen doel van een bidirectionele associatie zijn.</target>
+</trans-unit>
+<trans-unit id="s2a9fd53c400e3ce4">
+  <source>Data types and enumerations cannot be the source of an association.</source>
+  <target>Datatypes en enumeraties kunnen geen bron van een associatie zijn.</target>
+</trans-unit>
+<trans-unit id="s8eb8977c0da31ca1">
+  <source>Add objects via the toolbar above.</source>
+  <target>Voeg objecten toe via de werkbalk hierboven.</target>
+</trans-unit>
+<trans-unit id="s04e8dd2408bb5679">
+  <source>Add classes via the toolbar above.</source>
+  <target>Voeg klassen toe via de werkbalk hierboven.</target>
+</trans-unit>
+<trans-unit id="s0e36638021c00417">
+  <source>Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
+  <target>Ongeldige bronmultipliciteit. Voorbeeldformaten: 1, 0..1, *, 1..*.</target>
+</trans-unit>
+<trans-unit id="seada92a73854c87b">
+  <source>Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
+  <target>Ongeldige doelmultipliciteit. Voorbeeldformaten: 1, 0..1, *, 1..*.</target>
+</trans-unit>
+<trans-unit id="s16ce96d62ac3e2a5">
+  <source>Stereotype</source>
+  <target>Stereotype</target>
+</trans-unit>
+<trans-unit id="s046ab0452168e910">
+  <source>Link Name</source>
+  <target>Linknaam</target>
+</trans-unit>
+<trans-unit id="s6f96e109d71909b8">
+  <source>Relation Name</source>
+  <target>Relatienaam</target>
+</trans-unit>
+<trans-unit id="s5f43af3669b1e098">
+  <source>Source</source>
+  <target>Bron</target>
+</trans-unit>
+<trans-unit id="sca7fed2bef53cb99">
+  <source>Role</source>
+  <target>Rol</target>
+</trans-unit>
+<trans-unit id="s128cd465defa66f2">
+  <source>Multiplicity</source>
+  <target>Multipliciteit</target>
+</trans-unit>
+<trans-unit id="sff5bb7742c2896c8">
+  <source>Target</source>
+  <target>Doel</target>
+</trans-unit>
+<trans-unit id="s9044cc8b4505dd4d">
+  <source>This relation type has no editable properties.</source>
+  <target>Dit relatietype heeft geen bewerkbare eigenschappen.</target>
+</trans-unit>
+<trans-unit id="s48945e52e58f4526">
+  <source>Save &amp; Add Association Class</source>
+  <target>Opslaan en associatieklasse toevoegen</target>
+</trans-unit>
+<trans-unit id="sc4377c6be91efd93">
+  <source>No empty class names</source>
+  <target>Geen lege klassenamen</target>
+</trans-unit>
+<trans-unit id="s105b492e57e1f18e">
+  <source>No empty object names</source>
+  <target>Geen lege objectnamen</target>
+</trans-unit>
+<trans-unit id="sd9db8a3ed02bfbd5">
+  <source>No empty attribute, method, or parameter fields</source>
+  <target>Geen lege attribuut-, methode- of parametervelden</target>
+</trans-unit>
+<trans-unit id="s7ef8dbd64456f3ff">
+  <source>Constructors have no return type</source>
+  <target>Constructors zonder returntype</target>
+</trans-unit>
+<trans-unit id="sa2c2941b56d35ffe">
+  <source>Unique names</source>
+  <target>Unieke namen</target>
+</trans-unit>
+<trans-unit id="saf72524d673c045d">
+  <source>Naming conventions</source>
+  <target>Naamgevingsconventies</target>
+</trans-unit>
+<trans-unit id="s13d990bbf5651da3">
+  <source>Valid modifiers</source>
+  <target>Geldige modifiers</target>
+</trans-unit>
+<trans-unit id="sae878a97c2e9baff">
+  <source>Validate type change</source>
+  <target>Typewijziging valideren</target>
+</trans-unit>
+<trans-unit id="sd0af364021e619c6">
+  <source>No constructors in objects</source>
+  <target>Geen constructors in objecten</target>
+</trans-unit>
+<trans-unit id="s56fe4ff93b13f46b">
+  <source>Dependency stereotype syntax</source>
+  <target>Syntaxis van afhankelijkheidsstereotypes</target>
+</trans-unit>
+<trans-unit id="s5579d56cd475b051">
+  <source>Multiplicity syntax</source>
+  <target>Syntaxis van multipliciteit</target>
+</trans-unit>
+<trans-unit id="scd9639bc6e6ee663">
+  <source>Protected visibility</source>
+  <target>Zichtbaarheid protected</target>
+</trans-unit>
+<trans-unit id="sa639e7c7649d2a09">
+  <source>Package visibility</source>
+  <target>Zichtbaarheid package</target>
+</trans-unit>
+<trans-unit id="s4362b5d32c0022aa">
+  <source>Prevent illegal connections</source>
+  <target>Ongeldige verbindingen voorkomen</target>
+</trans-unit>
+<trans-unit id="sf9a0ad3fceaa8e38">
+  <source>Allowed Elements</source>
+  <target>Toegestane elementen</target>
+</trans-unit>
+<trans-unit id="sd0f00ca73c16d7ea">
+  <source>Object Display Options</source>
+  <target>Weergaveopties voor objecten</target>
+</trans-unit>
+<trans-unit id="s0e46d9116fdf0f8a">
+  <source>Show methods</source>
+  <target>Methoden weergeven</target>
+</trans-unit>
+<trans-unit id="s03174dbfd7cb1738">
+  <source>Show parameters</source>
+  <target>Parameters weergeven</target>
+</trans-unit>
+<trans-unit id="s74f26e29f71cb2a1">
+  <source>Show modifiers (static, final, …)</source>
+  <target>Modifiers weergeven (static, final, …)</target>
+</trans-unit>
+<trans-unit id="s21440422897eb31d">
+  <source>Show visibility (+, -, …)</source>
+  <target>Zichtbaarheid weergeven (+, -, …)</target>
+</trans-unit>
+<trans-unit id="s35bf8bb435438a0b">
+  <source>Constraints</source>
+  <target>Beperkingen</target>
+</trans-unit>
+<trans-unit id="safdfa4cbb8885a78">
+  <source>Maximum entities</source>
+  <target>Maximumaantal elementen</target>
+</trans-unit>
+<trans-unit id="s9bf52283be694441">
+  <source>Maximum connections (total)</source>
+  <target>Maximumaantal verbindingen (totaal)</target>
+</trans-unit>
+<trans-unit id="sb1f8ad3d3f633361">
+  <source>Maximum connections per pair</source>
+  <target>Maximumaantal verbindingen per paar</target>
+</trans-unit>
+<trans-unit id="sd61653ebe961b17a">
+  <source>Validation</source>
+  <target>Validatie</target>
+</trans-unit>
+<trans-unit id="s47b8541d98a5a8fe">
+  <source>Set the validation mode to “Custom” to configure individual rules.</source>
+  <target>Zet de validatiemodus op ‘Aangepast’ om afzonderlijke regels te configureren.</target>
+</trans-unit>
+<trans-unit id="se2ceb920e821db95">
+  <source>Maximum number of objects reached</source>
+  <target>Maximumaantal objecten bereikt</target>
+</trans-unit>
+<trans-unit id="s730182ad28374cda">
+  <source>Object</source>
+  <target>Object</target>
+</trans-unit>
+<trans-unit id="s5824efbb2f8e83f9">
+  <source>Maximum number of classes reached</source>
+  <target>Maximumaantal klassen bereikt</target>
+</trans-unit>
+<trans-unit id="s90d53cfba1df4aff">
+  <source>Class</source>
+  <target>Klasse</target>
+</trans-unit>
+<trans-unit id="s98b8b394811dd087">
+  <source>Classes</source>
+  <target>Klassen</target>
+</trans-unit>
+<trans-unit id="s08c7255559a5d113">
+  <source>Abstract Class</source>
+  <target>Abstracte klasse</target>
+</trans-unit>
+<trans-unit id="s5875d3ecedbc3e76">
+  <source>Parameterized Class</source>
+  <target>Geparametriseerde klasse</target>
+</trans-unit>
+<trans-unit id="s317e9a3094f39880">
+  <source>Interfaces &amp; Metadata</source>
+  <target>Interfaces en metadata</target>
+</trans-unit>
+<trans-unit id="sf866305516492af0">
+  <source>Interface</source>
+  <target>Interface</target>
+</trans-unit>
+<trans-unit id="sdfcdb6b18b929388">
+  <source>Annotation</source>
+  <target>Annotatie</target>
+</trans-unit>
+<trans-unit id="s1fe1cdb946325ffc">
+  <source>Data Types</source>
+  <target>Datatypes</target>
+</trans-unit>
+<trans-unit id="s8a4ff2bd9c13498c">
+  <source>Record</source>
+  <target>Record</target>
+</trans-unit>
+<trans-unit id="sb405f0898c39ca67">
+  <source>Data Type</source>
+  <target>Datatype</target>
+</trans-unit>
+<trans-unit id="sbee3c98fc74ae7dc">
+  <source>Enumeration</source>
+  <target>Enumeratie</target>
+</trans-unit>
+<trans-unit id="s9acdd54854c741cb">
+  <source>Runtime</source>
+  <target>Runtime</target>
+</trans-unit>
+<trans-unit id="sfb48487d2e92dfc8">
+  <source>Maximum number of connections reached</source>
+  <target>Maximumaantal verbindingen bereikt</target>
+</trans-unit>
+<trans-unit id="s3cf89cb47fdde7e9">
+  <source>Link</source>
+  <target>Link</target>
+</trans-unit>
+<trans-unit id="s784e3f6a79e77b01">
+  <source>Relation</source>
+  <target>Relatie</target>
+</trans-unit>
+<trans-unit id="s5c18f85cda6e89be">
+  <source>Connections</source>
+  <target>Verbindingen</target>
+</trans-unit>
+<trans-unit id="s0ba44cbe325c8db0">
+  <source>Link (Directed)</source>
+  <target>Link (gericht)</target>
+</trans-unit>
+<trans-unit id="sf25da1ebf655fba7">
+  <source>Association (Directed)</source>
+  <target>Associatie (gericht)</target>
+</trans-unit>
+<trans-unit id="s1bf887e001d4618f">
+  <source>Link (Bidirectional)</source>
+  <target>Link (bidirectioneel)</target>
+</trans-unit>
+<trans-unit id="s9c3cefcc2e07e926">
+  <source>Association (Bidirectional)</source>
+  <target>Associatie (bidirectioneel)</target>
+</trans-unit>
+<trans-unit id="sbd894819736f82fd">
+  <source>Link (Undirected)</source>
+  <target>Link (ongericht)</target>
+</trans-unit>
+<trans-unit id="s0106c15e1468a3d2">
+  <source>Association (Undirected)</source>
+  <target>Associatie (ongericht)</target>
+</trans-unit>
+<trans-unit id="s807a8ed2c65d9481">
+  <source>Generalization</source>
+  <target>Generalisatie</target>
+</trans-unit>
+<trans-unit id="sf85b2371fb1e044b">
+  <source>Inheritance</source>
+  <target>Overerving</target>
+</trans-unit>
+<trans-unit id="s9f235f0e05c0cfc3">
+  <source>Realization</source>
+  <target>Realisatie</target>
+</trans-unit>
+<trans-unit id="scbd13dc939a8ace0">
+  <source>Dependencies</source>
+  <target>Afhankelijkheden</target>
+</trans-unit>
+<trans-unit id="s9fc5ff74e500a434">
+  <source>Dependency</source>
+  <target>Afhankelijkheid</target>
+</trans-unit>
+<trans-unit id="s2e630cd70eb3d696">
+  <source>Part / Whole</source>
+  <target>Deel / geheel</target>
+</trans-unit>
+<trans-unit id="s496c60f73bdf5725">
+  <source>Aggregation</source>
+  <target>Aggregatie</target>
+</trans-unit>
+<trans-unit id="s089fbb3bfa19c279">
+  <source>Composition</source>
+  <target>Compositie</target>
+</trans-unit>
+<trans-unit id="s441f3e13eef87f85">
+  <source>Reset diagram</source>
+  <target>Diagram resetten</target>
+</trans-unit>
+<trans-unit id="s965c503c3e42fdfe">
+  <source>Enabled</source>
+  <target>Ingeschakeld</target>
+</trans-unit>
+<trans-unit id="s946647ed387dbb55">
+  <source>Validation Mode</source>
+  <target>Validatiemodus</target>
+</trans-unit>
+<trans-unit id="s302cbb19bf9a174a">
+  <source>Off</source>
+  <target>Uit</target>
+</trans-unit>
+<trans-unit id="sf0cab2483f66aa2e">
+  <source>Custom</source>
+  <target>Aangepast</target>
+</trans-unit>
+<trans-unit id="sf993bb199fefbe04">
+  <source>All</source>
+  <target>Alle</target>
+</trans-unit>
+<trans-unit id="s13d50e0d6a934e4a">
+  <source>Use Checkpoint</source>
+  <target>Beginstand gebruiken</target>
+</trans-unit>
+<trans-unit id="s4e9f04b77775b01e">
+  <source>Class Diagram</source>
+  <target>Klassendiagram</target>
+</trans-unit>
+<trans-unit id="sa7cf250200ddd54f">
+  <source>Object Diagram</source>
+  <target>Objectdiagram</target>
+</trans-unit>
+<trans-unit id="sb04eb02d0ee5be2d">
+  <source>Sequence Diagram</source>
+  <target>Sequentiediagram</target>
+</trans-unit>
+<trans-unit id="s90e1d270ee762bac">
+  <source>This object is already destroyed by another message. A lifeline can only be destroyed once.</source>
+  <target>Dit object wordt al door een ander bericht vernietigd. Een levenslijn kan maar één keer worden vernietigd.</target>
+</trans-unit>
+<trans-unit id="s1b2f861950998af3">
+  <source>Message cannot be placed here (outside of logical boundaries).</source>
+  <target>Bericht kan hier niet worden geplaatst (buiten de logische grenzen).</target>
+</trans-unit>
+<trans-unit id="sa4ae1c14318937aa">
+  <source>An object cannot create itself (self-create is not allowed).</source>
+  <target>Een object kan zichzelf niet aanmaken.</target>
+</trans-unit>
+<trans-unit id="sf7051646ef016d11">
+  <source>Message cannot be placed here (outside of logical boundaries or inside the name box).</source>
+  <target>Bericht kan hier niet worden geplaatst (buiten de logische grenzen of in het naamvak).</target>
+</trans-unit>
+<trans-unit id="s4b5705c599e644d1">
+  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
+  <target>Objectnamen moeten met een kleine letter beginnen (bijv. mijnObject).</target>
+</trans-unit>
+<trans-unit id="sf2a73ce47a27b168">
+  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
+  <target>Klassenamen moeten met een hoofdletter beginnen (bijv. Klant).</target>
+</trans-unit>
+<trans-unit id="s98629add8883a056">
+  <source>Message names, except replies, should start with a lowercase letter.</source>
+  <target>Berichtnamen, behalve antwoorden, moeten met een kleine letter beginnen.</target>
+</trans-unit>
+<trans-unit id="se7c522560dd345a7">
+  <source>Assignment must not contain spaces.</source>
+  <target>Toewijzing mag geen spaties bevatten.</target>
+</trans-unit>
+<trans-unit id="sc25e9b3bfaaf255f">
+  <source>Guard condition must not be empty.</source>
+  <target>Voorwaarde mag niet leeg zijn.</target>
+</trans-unit>
+<trans-unit id="s01605966c0d9e035">
+  <source>Select sending lifeline</source>
+  <target>Selecteer de verzendende levenslijn</target>
+</trans-unit>
+<trans-unit id="s59fea9ff06fb1af6">
+  <source>Select a lifeline</source>
+  <target>Selecteer een levenslijn</target>
+</trans-unit>
+<trans-unit id="s3f0d7bdbff20310f">
+  <source>Select start lifeline</source>
+  <target>Selecteer de startlevenslijn</target>
+</trans-unit>
+<trans-unit id="s01b56a4c39989dbc">
+  <source>Select end lifeline</source>
+  <target>Selecteer de eindlevenslijn</target>
+</trans-unit>
+<trans-unit id="sf464c12f0ea34fb5">
+  <source>Select receiving lifeline</source>
+  <target>Selecteer de ontvangende levenslijn</target>
+</trans-unit>
+<trans-unit id="s3ab2bf3f56a8489e">
+  <source>Add lifelines via the toolbar above.</source>
+  <target>Voeg levenslijnen toe via de werkbalk hierboven.</target>
+</trans-unit>
+<trans-unit id="s2f93abbfddb3830d">
+  <source>Object Name</source>
+  <target>Objectnaam</target>
+</trans-unit>
+<trans-unit id="s068d4dd16d9106d0">
+  <source>Icon</source>
+  <target>Pictogram</target>
+</trans-unit>
+<trans-unit id="s0cd33c3bf29ed47e">
+  <source>Default (Box)</source>
+  <target>Standaard (rechthoek)</target>
+</trans-unit>
+<trans-unit id="sf20e1f53f0003414">
+  <source>Actor (User)</source>
+  <target>Actor (gebruiker)</target>
+</trans-unit>
+<trans-unit id="scc72649256137438">
+  <source>Database</source>
+  <target>Database</target>
+</trans-unit>
+<trans-unit id="s5afcaa918bbb91b2">
+  <source>Server</source>
+  <target>Server</target>
+</trans-unit>
+<trans-unit id="s5c6da123c4aedcfb">
+  <source>Client / Desktop</source>
+  <target>Client / desktop</target>
+</trans-unit>
+<trans-unit id="s68ba8fa9809d4c1b">
+  <source>Client / Mobile Device</source>
+  <target>Client / mobiel apparaat</target>
+</trans-unit>
+<trans-unit id="sca9faebc773bf95d">
+  <source>Delete Object</source>
+  <target>Object verwijderen</target>
+</trans-unit>
+<trans-unit id="s87dbafb8df0a1593">
+  <source>Assignment (variable)</source>
+  <target>Toewijzing (variabele)</target>
+</trans-unit>
+<trans-unit id="s2a217b6575bc8407">
+  <source>Message Name</source>
+  <target>Berichtnaam</target>
+</trans-unit>
+<trans-unit id="sad7b4819559667c4">
+  <source>Message Type</source>
+  <target>Berichttype</target>
+</trans-unit>
+<trans-unit id="s382a2aa3984474dd">
+  <source>Create</source>
+  <target>Aanmaken</target>
+</trans-unit>
+<trans-unit id="s3b5e583d8df3f09d">
+  <source>Delete Message</source>
+  <target>Bericht verwijderen</target>
+</trans-unit>
+<trans-unit id="sf853fb0eaca414b6">
+  <source>Delete Activation</source>
+  <target>Activatie verwijderen</target>
+</trans-unit>
+<trans-unit id="s07a98665df0cc39f">
+  <source>Fragment Type</source>
+  <target>Fragmenttype</target>
+</trans-unit>
+<trans-unit id="s80c3f125e401ffec">
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+  <target>Voorwaarde <x id="0" equiv-text="${index + 1}"/></target>
+</trans-unit>
+<trans-unit id="s46b57a8cb6af086f">
+  <source>Remove Region</source>
+  <target>Gebied verwijderen</target>
+</trans-unit>
+<trans-unit id="s9606bae8d6ad3fb0">
+  <source>Add Region</source>
+  <target>Gebied toevoegen</target>
+</trans-unit>
+<trans-unit id="scedee0a898de752e">
+  <source>Delete Fragment</source>
+  <target>Fragment verwijderen</target>
+</trans-unit>
+<trans-unit id="s1a20f258d79b2769">
+  <source>Synchronous Message</source>
+  <target>Synchroon bericht</target>
+</trans-unit>
+<trans-unit id="sc706a6afc18dca4a">
+  <source>Asynchronous Message</source>
+  <target>Asynchroon bericht</target>
+</trans-unit>
+<trans-unit id="s5ada301922609784">
+  <source>Reply Message</source>
+  <target>Antwoordbericht</target>
+</trans-unit>
+<trans-unit id="s444b35613afc2346">
+  <source>Create Message</source>
+  <target>Aanmaakbericht</target>
+</trans-unit>
+<trans-unit id="s218ad755220e323e">
+  <source>Destroy Message</source>
+  <target>Vernietigingsbericht</target>
+</trans-unit>
+<trans-unit id="sdfaec05519af790c">
+  <source>Found Message</source>
+  <target>Gevonden bericht</target>
+</trans-unit>
+<trans-unit id="s18ae3772e6d1fe38">
+  <source>Lost Message</source>
+  <target>Verloren bericht</target>
+</trans-unit>
+<trans-unit id="se3d3341953f2ae19">
+  <source>Show icons in objects</source>
+  <target>Pictogrammen in objecten weergeven</target>
+</trans-unit>
+<trans-unit id="s582210166dd46a5b">
+  <source>Optional Fragment</source>
+  <target>Optioneel fragment</target>
+</trans-unit>
+<trans-unit id="scead267752fe5b19">
+  <source>Loop Fragment</source>
+  <target>Lusfragment</target>
+</trans-unit>
+<trans-unit id="sd747465f5798baf8">
+  <source>Alternative Fragment</source>
+  <target>Alternatief fragment</target>
+</trans-unit>
+<trans-unit id="sb7897d97506d0f78">
+  <source>Maximum lifelines</source>
+  <target>Maximumaantal levenslijnen</target>
+</trans-unit>
+<trans-unit id="sb3777509f9ccf30b">
+  <source>Maximum messages</source>
+  <target>Maximumaantal berichten</target>
+</trans-unit>
+<trans-unit id="s06efc5a06fc561c0">
+  <source>Maximum fragments</source>
+  <target>Maximumaantal fragmenten</target>
+</trans-unit>
+<trans-unit id="scfe09b3cd2dd3178">
+  <source>Maximum activations</source>
+  <target>Maximumaantal activaties</target>
+</trans-unit>
+<trans-unit id="s013da3bd28572090">
+  <source>No empty guard conditions</source>
+  <target>Geen lege voorwaarden</target>
+</trans-unit>
+<trans-unit id="s36d4a0f80d4bd422">
+  <source>Class naming rules</source>
+  <target>Naamgevingsregels voor klassen</target>
+</trans-unit>
+<trans-unit id="s72b45470be099ea7">
+  <source>Message naming rules</source>
+  <target>Naamgevingsregels voor berichten</target>
+</trans-unit>
+<trans-unit id="saf78d26b435b58a5">
+  <source>Object naming rules</source>
+  <target>Naamgevingsregels voor objecten</target>
+</trans-unit>
+<trans-unit id="s08cc26889cb0f85f">
+  <source>Prevent overlapping fragments</source>
+  <target>Overlappende fragmenten voorkomen</target>
+</trans-unit>
+<trans-unit id="s0392daf954f9b42c">
+  <source>Maximum number of lifelines reached</source>
+  <target>Maximumaantal levenslijnen bereikt</target>
+</trans-unit>
+<trans-unit id="s03d65710697fd97d">
+  <source>Lifeline</source>
+  <target>Levenslijn</target>
+</trans-unit>
+<trans-unit id="sb588f776d513560c">
+  <source>Maximum number of activations reached</source>
+  <target>Maximumaantal activaties bereikt</target>
+</trans-unit>
+<trans-unit id="sf1674aeb3dc2d55d">
+  <source>Activation</source>
+  <target>Activatie</target>
+</trans-unit>
+<trans-unit id="sd44a4da5b63ebc0c">
+  <source>Maximum number of fragments reached</source>
+  <target>Maximumaantal fragmenten bereikt</target>
+</trans-unit>
+<trans-unit id="s83acaa586e8aa35d">
+  <source>Fragment</source>
+  <target>Fragment</target>
+</trans-unit>
+<trans-unit id="s09baab5c9c3e25c8">
+  <source>Alternative</source>
+  <target>Alternatief</target>
+</trans-unit>
+<trans-unit id="scc7a3682dd25ae19">
+  <source>Optional</source>
+  <target>Optioneel</target>
+</trans-unit>
+<trans-unit id="s4efee5b48a4593cb">
+  <source>Loop</source>
+  <target>Lus</target>
+</trans-unit>
+<trans-unit id="sf409280583f3858f">
+  <source>Maximum number of messages reached</source>
+  <target>Maximumaantal berichten bereikt</target>
+</trans-unit>
+<trans-unit id="s79e8cc71a5975b04">
+  <source>Message</source>
+  <target>Bericht</target>
+</trans-unit>
+<trans-unit id="s1dd9f63bc66e96ac">
+  <source>Calls &amp; Replies</source>
+  <target>Aanroepen en antwoorden</target>
+</trans-unit>
+<trans-unit id="sf8e6b469e32f28b6">
+  <source>Synchronous</source>
+  <target>Synchroon</target>
+</trans-unit>
+<trans-unit id="s5f999ce323167f71">
+  <source>Asynchronous</source>
+  <target>Asynchroon</target>
+</trans-unit>
+<trans-unit id="s25643db2f7ef8544">
+  <source>Reply (Return)</source>
+  <target>Antwoord (return)</target>
+</trans-unit>
+<trans-unit id="s40fd76587adaf072">
+  <source>Object Lifecycle</source>
+  <target>Levenscyclus van objecten</target>
+</trans-unit>
+<trans-unit id="s6b2b1010e1e6b106">
+  <source>Create (Existing Object)</source>
+  <target>Aanmaken (bestaand object)</target>
+</trans-unit>
+<trans-unit id="s6c0ec6a82424170b">
+  <source>Create (New Object)</source>
+  <target>Aanmaken (nieuw object)</target>
+</trans-unit>
+<trans-unit id="sa870fb82764782e5">
+  <source>Destroy</source>
+  <target>Vernietigen</target>
+</trans-unit>
+<trans-unit id="s4b2e141387a48891">
+  <source>Found &amp; Lost</source>
+  <target>Gevonden en verloren</target>
+</trans-unit>
+<trans-unit id="se13ad016463a815f">
+  <source>Found</source>
+  <target>Gevonden</target>
+</trans-unit>
+<trans-unit id="s4f5ee9b48a97e21b">
+  <source>Lost</source>
+  <target>Verloren</target>
+</trans-unit>
+<trans-unit id="s977bbdf8b6b4ae9a">
+  <source>Do you really want to return to the starting point?</source>
+  <target>Wil je echt terug naar de beginstand?</target>
+</trans-unit>
+<trans-unit id="s255857544a9d5ec0">
+  <source>Reset</source>
+  <target>Resetten</target>
+</trans-unit>
+<trans-unit id="s1aac8d6b7ec53917">
+  <source>Clear diagram</source>
+  <target>Diagram leegmaken</target>
+</trans-unit>
+<trans-unit id="sc29fe67fc77e875b">
+  <source>Do you really want to clear the diagram?</source>
+  <target>Wil je het diagram echt leegmaken?</target>
+</trans-unit>
+<trans-unit id="sb4f1dffbb6be6302">
+  <source>Clear</source>
+  <target>Leegmaken</target>
+</trans-unit>
+<trans-unit id="s2ceb11be2290bb1b">
+  <source>Cancel</source>
+  <target>Annuleren</target>
+</trans-unit>
+<trans-unit id="sca4a807887ea03c6">
+  <source>Toggle Fullscreen</source>
+  <target>Volledig scherm aan/uit</target>
+</trans-unit>
+<trans-unit id="sb05582ce916894da">
+  <source>Zoom Out</source>
+  <target>Uitzoomen</target>
+</trans-unit>
+<trans-unit id="s22fde937cb709859">
+  <source>Zoom In</source>
+  <target>Inzoomen</target>
+</trans-unit>
+<trans-unit id="s94877a0b7d473d81">
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
+  <target>Link bewerken: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+</trans-unit>
+<trans-unit id="sce14ecd1e1169145">
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
+  <target>Relatie bewerken: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+</trans-unit>
+<trans-unit id="hceb6b469c6b23074">
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
+  <target>Selecteer de bron voor <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</target>
+</trans-unit>
+<trans-unit id="h57ece0fa758616cc">
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
+  <target>Selecteer het doel voor <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</target>
+</trans-unit>
+<trans-unit id="s7013794e8f3fcbb8">
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+  <target>Stereotypes van afhankelijkheden moeten tussen <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> of <x id="1" equiv-text="${&quot;« »&quot;}"/> staan.</target>
+</trans-unit>
+</body>
+</file>
+</xliff>
