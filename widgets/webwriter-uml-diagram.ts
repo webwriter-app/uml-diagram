@@ -15,21 +15,18 @@ import { localized } from "@lit/localize";
 import LOCALIZE from "../localization/generated";
 
 /**
- * Main Widget for Object-Oriented Modelling
- * * **Responsibility:**
- * Top Level Manager for the application
- * Instantiates different diagram containers
- * Manages Visibility of the current diagram type
- * Holds and distributes settings
+ * Interactive editor for UML class, object and sequence diagrams.
+ * Authors configure the available diagram types, elements, limits and validation rules and can provide a
+ * starting diagram that learners can reset to. Learners model their solution directly in the widget.
  */
 @localized()
 @customElement("webwriter-uml-diagram")
 export class WebwriterUmlDiagram extends LitElementWw {
 
-    /** Localization config; WebWriter uses it to set the locale of the widget */
+    /** @internal Localization config; WebWriter uses it to set the locale of the widget */
     public localize = LOCALIZE;
 
-    /** Register used Elements */
+    /** @internal Register used Elements */
     static get scopedElements() {
         return {
             "class-object-container": ClassObjectContainer,
@@ -45,12 +42,12 @@ export class WebwriterUmlDiagram extends LitElementWw {
         this.addEventListener("fullscreenchange", () => this.requestUpdate());
     }
   
-    /** Set Styles for this Element */
+    /** @internal Set Styles for this Element */
     static styles = [styles];
 
     /** Create References & States */
 
-    /** property for the settings for the class diagram */
+    /** Class diagram settings as JSON: available class and relation types, limits and validation rules */
     @property({
         attribute: 'class-settings',
         reflect: true,
@@ -65,7 +62,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
     })
     accessor classSettings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
 
-    /** property for the settings for the object diagram */
+    /** Object diagram settings as JSON: available elements, displayed details, limits and validation rules */
     @property({
         attribute: 'object-settings',
         reflect: true,
@@ -80,7 +77,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
     })
     accessor objectSettings: ClassSettings = ClassSettings.getInitialObjectDiagramSettings();
 
-    /** property for the settings for the sequence diagram */
+    /** Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules */
     @property({
         attribute: 'sequence-settings',
         reflect: true,
@@ -98,7 +95,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
     })
     accessor sequenceSettings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
 
-    /** property for the global settings */
+    /** Global settings as JSON: enabled diagram types, checkpoint reset and validation mode */
     @property({
         attribute: 'global-settings',
         reflect: true,
@@ -113,10 +110,10 @@ export class WebwriterUmlDiagram extends LitElementWw {
     })
     accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 
-    /** property to store the current diagram type */
+    /** Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram` */
     @property({ attribute: 'diagram-type', reflect: true }) accessor diagramType: string = "class-diagram";
 
-    /** property to the current sequence diagram */
+    /** Sequence diagram content as JSON (lifelines, messages and fragments) */
     @property({
         attribute: 'sequence-model-data',
         reflect: true,
@@ -131,10 +128,10 @@ export class WebwriterUmlDiagram extends LitElementWw {
     })
     accessor sequenceModelData: SequenceModel = SequenceModel.getInitialModel();
 
-    /** Property to store the state of the class diagram */
+    /** Class diagram content as JSON */
     @property({ attribute: 'class-diagram-data', reflect: true }) accessor classDiagramData: string = '';
 
-    /** Property to store the state of the object diagram */
+    /** Object diagram content as JSON */
     @property({ attribute: 'object-diagram-data', reflect: true }) accessor objectDiagramData: string = '';
 
     /**
@@ -207,7 +204,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
         this._pendingSaves.clear();
     }
 
-    /** getter for state of fullscreen */
+    /** @internal Whether the widget is shown in fullscreen */
     get isFullscreen() {
         return this.ownerDocument.fullscreenElement === this;
     }

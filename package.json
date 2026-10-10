@@ -1,11 +1,33 @@
 {
     "name": "@webwriter/uml-diagram",
     "version": "0.0.1",
+    "description": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
     "keywords": [
-        "webwriter-widget"
+        "webwriter-widget",
+        "widget-conceptual",
+        "widget-practical",
+        "widget-lang-en",
+        "widget-lang-de",
+        "widget-lang-es",
+        "widget-lang-fr",
+        "widget-lang-it",
+        "widget-lang-nl",
+        "widget-lang-pl",
+        "widget-lang-pt-BR",
+        "iscedf2013-06",
+        "isced2011-3",
+        "isced2011-6",
+        "isced2011-7",
+        "uml",
+        "class-diagram",
+        "object-diagram",
+        "sequence-diagram",
+        "modeling",
+        "object-oriented programming"
     ],
     "license": "MIT",
     "author": "moritz.sander@rwth-aachen.de",
+    "repository": "https://github.com/webwriter-app/uml-diagram",
     "scripts": {
         "prepublishOnly": "npx @webwriter/build",
         "dev": "npx @webwriter/build dev",
@@ -31,6 +53,8 @@
         "./icon": "./icon.svg",
         "./editing-config.json": "./editing-config.json",
         "./snippets/library-loan.html": "./snippets/library-loan.html",
-        "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html"
-    }
+        "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
+        "./custom-elements.json": "./custom-elements.json"
+    },
+    "customElements": "custom-elements.json"
 }
