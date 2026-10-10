@@ -28,6 +28,8 @@
             "default": "./dist/widgets/webwriter-uml-diagram.*"
         },
         "./icon": "./icon.svg",
-        "./editing-config.json": "./editing-config.json"
+        "./editing-config.json": "./editing-config.json",
+        "./snippets/library-loan.html": "./snippets/library-loan.html",
+        "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html"
     }
 }

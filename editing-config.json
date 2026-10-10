@@ -3,5 +3,29 @@
         "label": {
             "_": "UML Diagram"
         }
+    },
+    "./snippets/library-loan": {
+        "label": {
+            "_": "Library Loan",
+            "de": "Buchausleihe",
+            "fr": "Prêt de livre",
+            "es": "Préstamo de libros",
+            "it": "Prestito di libri",
+            "nl": "Boek lenen",
+            "pl": "Wypożyczenie książki",
+            "pt-BR": "Empréstimo de livros"
+        }
+    },
+    "./snippets/online-shop-checkout": {
+        "label": {
+            "_": "Online Shop",
+            "de": "Onlineshop",
+            "fr": "Boutique en ligne",
+            "es": "Tienda en línea",
+            "it": "Negozio online",
+            "nl": "Webwinkel",
+            "pl": "Sklep internetowy",
+            "pt-BR": "Loja online"
+        }
     }
 }
