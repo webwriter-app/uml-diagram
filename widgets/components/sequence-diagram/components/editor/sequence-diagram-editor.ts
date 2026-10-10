@@ -16,6 +16,17 @@ import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
 import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import mobileIcon from "@tabler/icons/outline/device-mobile.svg";
+import noIcon from "@tabler/icons/outline/ban.svg";
+import usersIcon from "@tabler/icons/outline/users.svg";
+import worldIcon from "@tabler/icons/outline/world.svg";
+import cloudIcon from "@tabler/icons/outline/cloud.svg";
+import apiIcon from "@tabler/icons/outline/api.svg";
+import settingsIcon from "@tabler/icons/outline/settings.svg";
+import lockIcon from "@tabler/icons/outline/lock.svg";
+import mailIcon from "@tabler/icons/outline/mail.svg";
+import fileIcon from "@tabler/icons/outline/file.svg";
+import clockIcon from "@tabler/icons/outline/clock.svg";
+import creditCardIcon from "@tabler/icons/outline/credit-card.svg";
 import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import canvasAlertStyles from "../../../shared/canvas-alert.styles";
@@ -29,10 +40,20 @@ import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-g
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
     'user': userIcon,
-    'database': databaseIcon,
-    'server': serverIcon,
+    'users': usersIcon,
     'device-desktop': desktopIcon,
-    'device-mobile': mobileIcon
+    'device-mobile': mobileIcon,
+    'world': worldIcon,
+    'server': serverIcon,
+    'cloud': cloudIcon,
+    'database': databaseIcon,
+    'api': apiIcon,
+    'settings': settingsIcon,
+    'lock': lockIcon,
+    'mail': mailIcon,
+    'file': fileIcon,
+    'clock': clockIcon,
+    'credit-card': creditCardIcon
 };
 
 /** Interface definition for single validation issues in the sequence diagram */
@@ -1108,6 +1129,28 @@ export class SequenceEditor extends LitElementWw {
         }));
     }
 
+    /** built per call so the labels follow the current locale */
+    private _lifelineIconOptions() {
+        return [
+            { value: 'none', label: msg("No icon"), src: noIcon },
+            { value: 'user', label: msg("User"), src: iconMap['user'] },
+            { value: 'users', label: msg("Users"), src: iconMap['users'] },
+            { value: 'device-desktop', label: msg("Desktop"), src: iconMap['device-desktop'] },
+            { value: 'device-mobile', label: msg("Mobile"), src: iconMap['device-mobile'] },
+            { value: 'world', label: msg("Globe"), src: iconMap['world'] },
+            { value: 'server', label: msg("Server"), src: iconMap['server'] },
+            { value: 'cloud', label: msg("Cloud"), src: iconMap['cloud'] },
+            { value: 'database', label: msg("Database"), src: iconMap['database'] },
+            { value: 'api', label: msg("API"), src: iconMap['api'] },
+            { value: 'settings', label: msg("Gear"), src: iconMap['settings'] },
+            { value: 'lock', label: msg("Lock"), src: iconMap['lock'] },
+            { value: 'mail', label: msg("Mail"), src: iconMap['mail'] },
+            { value: 'file', label: msg("File"), src: iconMap['file'] },
+            { value: 'clock', label: msg("Clock"), src: iconMap['clock'] },
+            { value: 'credit-card', label: msg("Credit Card"), src: iconMap['credit-card'] },
+        ];
+    }
+
     /** Handles the click on the delete button in the liveline drawer menu and inform the controller */
     private _handleDeleteLifelineClick() {
         if (this.editingLifelineId) {
@@ -2101,18 +2144,21 @@ export class SequenceEditor extends LitElementWw {
                         </div>
 
                         ${this.settings.iconsInObjectBoxExists ? html`
-                            <sl-select 
-                                label="${msg("Icon")}" 
-                                value="${editingLifeline.icon || 'none'}"
-                                @sl-change=${(e: any) => this._handleLifelineUpdate('icon', e.target.value)}
-                            >
-                                <sl-option value="none">${msg("Default (Box)")}</sl-option>
-                                <sl-option value="user">${msg("Actor (User)")}</sl-option>
-                                <sl-option value="database">${msg("Database")}</sl-option>
-                                <sl-option value="server">${msg("Server")}</sl-option>
-                                <sl-option value="device-desktop">${msg("Client / Desktop")}</sl-option>
-                                <sl-option value="device-mobile">${msg("Client / Mobile Device")}</sl-option>
-                            </sl-select>
+                            <div class="icon-picker">
+                                <div class="icon-picker-label" id="icon-picker-label">${msg("Icon")}</div>
+                                <div class="icon-picker-grid" role="group" aria-labelledby="icon-picker-label">
+                                    ${this._lifelineIconOptions().map(option => html`
+                                        <sl-button
+                                            class="icon-picker-option"
+                                            variant=${(editingLifeline.icon || 'none') === option.value ? 'primary' : 'default'}
+                                            title=${option.label}
+                                            @click=${() => this._handleLifelineUpdate('icon', option.value)}
+                                        >
+                                            <sl-icon src=${option.src} label=${option.label}></sl-icon>
+                                        </sl-button>
+                                    `)}
+                                </div>
+                            </div>
                         ` : ''}
 
                         <sl-button variant="danger" outline @click=${this._handleDeleteLifelineClick}>

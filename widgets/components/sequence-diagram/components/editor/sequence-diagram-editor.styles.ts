@@ -246,6 +246,33 @@ export default css`
         //overflow-x: hidden;
     }
 
+    .icon-picker-label {
+        font-size: var(--sl-input-label-font-size-medium);
+        color: var(--sl-input-label-color);
+        margin-bottom: var(--sl-spacing-3x-small);
+    }
+
+    /* span the full width like the inputs above */
+    .icon-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--sl-spacing-x-small);
+    }
+
+    .icon-picker-option::part(base) {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .icon-picker-option::part(label) {
+        display: flex;
+        padding: 0;
+        font-size: var(--sl-font-size-medium);
+    }
+
     /* Styles the main container for the lifeline header, using flexbox to center the icon and text with a fixed gap, while hiding any overflow. */
     .lifeline-box {
         display: flex;

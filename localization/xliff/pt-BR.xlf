@@ -754,14 +754,6 @@
   <source>Icon</source>
   <target>Ícone</target>
 </trans-unit>
-<trans-unit id="s0cd33c3bf29ed47e">
-  <source>Default (Box)</source>
-  <target>Padrão (caixa)</target>
-</trans-unit>
-<trans-unit id="sf20e1f53f0003414">
-  <source>Actor (User)</source>
-  <target>Ator (usuário)</target>
-</trans-unit>
 <trans-unit id="scc72649256137438">
   <source>Database</source>
   <target>Banco de dados</target>
@@ -769,14 +761,6 @@
 <trans-unit id="s5afcaa918bbb91b2">
   <source>Server</source>
   <target>Servidor</target>
-</trans-unit>
-<trans-unit id="s5c6da123c4aedcfb">
-  <source>Client / Desktop</source>
-  <target>Cliente / desktop</target>
-</trans-unit>
-<trans-unit id="s68ba8fa9809d4c1b">
-  <source>Client / Mobile Device</source>
-  <target>Cliente / dispositivo móvel</target>
 </trans-unit>
 <trans-unit id="sca9faebc773bf95d">
   <source>Delete Object</source>
@@ -1049,6 +1033,62 @@
 <trans-unit id="s7013794e8f3fcbb8">
   <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
   <target>Estereótipos de dependência devem estar entre <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> ou <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target>
+</trans-unit>
+<trans-unit id="s388101295e5b6a4b">
+  <source>No icon</source>
+  <target>Sem ícone</target>
+</trans-unit>
+<trans-unit id="sa48f81f001b893d2">
+  <source>User</source>
+  <target>Usuário</target>
+</trans-unit>
+<trans-unit id="s586d6bd2eca2da93">
+  <source>Users</source>
+  <target>Usuários</target>
+</trans-unit>
+<trans-unit id="s5a1b300572f81f73">
+  <source>Desktop</source>
+  <target>Computador</target>
+</trans-unit>
+<trans-unit id="s5b764977ceaeb317">
+  <source>Mobile</source>
+  <target>Celular</target>
+</trans-unit>
+<trans-unit id="s3885dc3c465cb4c2">
+  <source>Globe</source>
+  <target>Globo</target>
+</trans-unit>
+<trans-unit id="s5e7b43fb85d0175e">
+  <source>Cloud</source>
+  <target>Nuvem</target>
+</trans-unit>
+<trans-unit id="sfa5f0019a09be6a7">
+  <source>API</source>
+  <target>API</target>
+</trans-unit>
+<trans-unit id="s91dbef7df13dca4e">
+  <source>Gear</source>
+  <target>Engrenagem</target>
+</trans-unit>
+<trans-unit id="s4f27f6b48a68b5c2">
+  <source>Lock</source>
+  <target>Cadeado</target>
+</trans-unit>
+<trans-unit id="s49e765aed0087b0e">
+  <source>Mail</source>
+  <target>E-mail</target>
+</trans-unit>
+<trans-unit id="sd1f81284eeb7b503">
+  <source>File</source>
+  <target>Arquivo</target>
+</trans-unit>
+<trans-unit id="s5e4c3efb85a89e1d">
+  <source>Clock</source>
+  <target>Relógio</target>
+</trans-unit>
+<trans-unit id="s49d9f0805e17f262">
+  <source>Credit Card</source>
+  <target>Cartão de crédito</target>
 </trans-unit>
 </body>
 </file>
