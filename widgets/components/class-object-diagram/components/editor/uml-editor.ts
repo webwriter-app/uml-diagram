@@ -1173,7 +1173,7 @@ export class UMLEditor extends LitElementWw{
                         const style = m.isStatic ? 'style="text-decoration: underline;"' : '';
                         const final = m.isFinal ? ' {final}' : ''; 
                         const paramsString = m.parameters && m.parameters.length > 0
-                            ? m.parameters.map(p => `${p.name} ${p.type}`).join(", ")
+                            ? m.parameters.map(p => `${p.name}: ${p.type}`).join(", ")
                             : "";
                         
                         return `<div>${renderVis(m.visibility)}<span ${style}>${m.name}</span>(${paramsString}): ${m.returnType}${final}</div>`;
