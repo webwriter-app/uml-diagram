@@ -217,6 +217,15 @@ export class UMLEditor extends LitElementWw{
         this.renderRoot.addEventListener('mousedown', blockGestures, true);
         this.renderRoot.addEventListener('touchstart', blockGestures, true);
 
+        // Drawflow only listens for mouseup on its container, so a drag released outside the widget would continue
+        // once the cursor returns; end it before Drawflow handles the move
+        this.renderRoot.addEventListener('mousemove', (e) => {
+            const { editor } = this;
+            if ((e as MouseEvent).buttons === 0 && (editor.drag || editor.drag_point || editor.editor_selected)) {
+                editor.dragEnd(e);
+            }
+        }, true);
+
         // Pinch to zoom, also captured on the shadow root to keep the pinch's touches from Drawflow
         for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
             this.renderRoot.addEventListener(type, (e) => this._handlePinchTouch(e as TouchEvent), true);
