@@ -1,5 +1,5 @@
-# UML Diagram (`@webwriter/uml-diagram@0.0.1`)
-[License: MIT](LICENSE) | Version: 0.0.1
+# UML Diagram (`@webwriter/uml-diagram@1.0.0`)
+[License: MIT](LICENSE) | Version: 1.0.0
 
 Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.
 

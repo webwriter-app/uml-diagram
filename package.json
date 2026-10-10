@@ -1,6 +1,6 @@
 {
     "name": "@webwriter/uml-diagram",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "description": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
     "keywords": [
         "webwriter-widget",
