@@ -2,14 +2,15 @@ import { css } from "lit";
 
 /** Styles for the Sequence Diagram Container. */
 export default css`
-    /** Defines the main editor area, applying a full-size layout with a dotted grid background and enabling scrolling. */
+    /** Defines the main editor area, applying a full-size layout with a dotted grid background that follows panning and zooming (grid variables are set by the editor). */
     :host {
         display: block;
         width: 100%;
         height: 100%;
-        background-color: var(--sl-color-neutral-50);
+        background-color: var(--uml-canvas-background, var(--sl-color-neutral-0));
         background-image: radial-gradient(circle, var(--sl-color-neutral-300) 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+        background-position: var(--grid-x, 0) var(--grid-y, 0);
         overflow: hidden;
         position: relative;
     }
@@ -19,11 +20,38 @@ export default css`
         width: 100%;
         height: 100%;
         touch-action: none;
+        /* Long presses open the element's menu instead of selecting text or showing Safari's callout */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
     }
 
     /* Change the cursor while 'moving' the whole diagram view */
     svg:active {
         cursor: move;
+    }
+
+    /* The empty canvas cannot be panned */
+    svg.empty:active {
+        cursor: default;
+    }
+
+    /* Hint in the center of an empty canvas, pointing to the toolbar */
+    .empty-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sl-spacing-large);
+        box-sizing: border-box;
+        text-align: center;
+        font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-small);
+        color: var(--sl-color-neutral-500);
+        -webkit-user-select: none;
+        user-select: none;
+        pointer-events: none;
     }
 
     /* Styles the visual representation of the lifeline as a dashed line and disables pointer events so clicks pass through to the hitbox. */
@@ -34,70 +62,83 @@ export default css`
         pointer-events: none;
     }
 
-    /* Styles the resize handle at the bottom of the lifeline, keeping it hidden by default with a smooth fade-in transition. */
-    .lifeline-handle {
-        fill: var(--sl-color-neutral-500);
+    /* Invisible drag and resize targets */
+    :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle, .touch-area) {
+        fill: transparent;
+    }
+
+    /* Expand touch targets by a fixed screen-space stroke. */
+    @media (pointer: coarse) {
+        :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle, .touch-area) {
+            stroke: transparent;
+            stroke-width: 14px;
+            vector-effect: non-scaling-stroke;
+        }
+
+        .touch-area {
+            stroke-width: 16px;
+        }
+
+        /* Keep the parent activation's exposed strip interactive. */
+        .touch-area.nested {
+            clip-path: inset(var(--touch-outset) var(--touch-outset) var(--touch-outset) 0) fill-box;
+        }
+
+        /* Reserve the middle third for moving, even on short or zoomed-out activations. */
+        .activation-resize-handle[data-edge="top"] {
+            clip-path: inset(var(--touch-outset) var(--touch-outset) var(--activation-resize-inset) var(--activation-hitbox-left)) fill-box;
+        }
+
+        .activation-resize-handle[data-edge="bottom"] {
+            clip-path: inset(var(--activation-resize-inset) var(--touch-outset) var(--touch-outset) var(--activation-hitbox-left)) fill-box;
+        }
+    }
+
+    /* Grips of the resize handles, shown while hovering or dragging their element and filled while hovering or dragging the handle */
+    .resize-grip {
+        fill: var(--sl-color-neutral-0);
+        stroke: var(--sl-color-primary-600);
+        stroke-width: 1.5px;
         opacity: 0;
-        transition: opacity 0.2s ease;
+        pointer-events: none;
+        transition: opacity var(--sl-transition-fast) ease, fill var(--sl-transition-fast) ease;
     }
 
-    /* Reveals the resize handle by making it semi-transparent when hovering over the lifeline. */
-    .lifeline:hover .lifeline-handle {
-        opacity: 0.5;
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline, .activation, .fragment):hover .resize-grip,
+    :host([interactionMode="idle"]) :is(.lifeline, .activation, .fragment).active .resize-grip {
+        opacity: 1;
     }
 
-    /* Creates an invisible, interactive area over the lifeline with a smooth transition for background color changes. */
+    svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle):hover + .resize-grip,
+    .dragged + .resize-grip {
+        fill: var(--sl-color-primary-600);
+    }
+
+    /* Creates an invisible, interactive area over the lifeline */
     .lifeline-click-area {
         fill: transparent;
-        transition: fill 0.2s ease;
     }
 
-    /* Highlights the lifeline's clickable area with a subtle gray fill when hovered. */
-    /*.lifeline-click-area:hover {
-        fill: var(--sl-color-neutral-200); 
-    }*/ 
-    
-    .lifeline:hover .lifeline-click-area {
-        fill: var(--sl-color-neutral-200); 
+    /* Colors a hovered or dragged lifeline (header box and dashed line) in the primary color, like hovered classes.
+       While something is dragged (svg.dragging), only the dragged element is highlighted and hover states are off. */
+    .lifeline-line {
+        transition: stroke 0.2s ease;
     }
 
-    /* Applies a light blue highlight and pointer cursor to lifelines only when actively selecting a message source or target. */
-    /*:host([interactionMode="add-message-source"]) .lifeline-click-area:hover,
-    :host([interactionMode="add-message-target"]) .lifeline-click-area:hover {
-        fill: var(--sl-color-primary-100); 
+    svg:not(.dragging) .lifeline:hover .lifeline-line,
+    .lifeline.active .lifeline-line {
+        stroke: var(--sl-color-primary-600);
+    }
+
+    /* While selecting lifelines (adding messages, activations or fragments), only the lifelines' line areas can be
+       interacted with (the click position is used, e.g. for the message height): clicks on other elements fall through */
+    :host(:not([interactionMode="idle"])) :is(.message, .activation, .fragment, .fragment *, .lifeline-handle, .lifeline foreignObject) {
+        pointer-events: none !important;
+    }
+
+    /* Applies a pointer cursor to lifelines while selecting them (e.g. as message source or target). */
+    :host(:not([interactionMode="idle"])) .lifeline:hover .lifeline-click-area {
         cursor: pointer;
-    }*/ 
-    
-    :host([interactionMode="add-message-source"]) .lifeline:hover .lifeline-click-area,
-    :host([interactionMode="add-message-target"]) .lifeline:hover .lifeline-click-area {
-        fill: var(--sl-color-primary-100); 
-        cursor: pointer;
-    }
-
-    /* Visually emphasizes the lifeline that has been selected as the starting point for a new message. */
-    .lifeline-click-area.selected-source {
-        fill: var(--sl-color-primary-100);
-    }
-
-    /* Styles the floating instruction banner centered at the top of the editor to guide the user during specific interactions. */
-    .interaction-banner {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 20px;
-        background-color: var(--sl-color-primary-700);
-        color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-pill);
-        box-shadow: var(--sl-shadow-large);
-        font-size: var(--sl-font-size-small);
-        font-family: var(--sl-font-sans);
-        pointer-events: auto;
-        border: 1px solid var(--sl-color-primary-900);
     }
 
     /* Defines the visual appearance of the solid line connecting lifelines for a message. */
@@ -123,27 +164,36 @@ export default css`
         transition: stroke 0.2s ease;
     }
 
-    /* Highlights the message's invisible hitbox with a subtle gray bar when hovered, indicating it can be interacted with. */
-    .message:hover .message-hitbox {
-        stroke: var(--sl-color-neutral-200);
+    /* Colors a hovered message in the primary color (the arrow heads follow the line color via context-stroke) */
+    .message-line {
+        transition: stroke 0.2s ease;
     }
 
-    /* Adds a smooth transition and a solid light gray hover effect to the activation box, providing interactive feedback without letting the dashed lifeline show through. */
+    svg:not(.dragging) .message:hover .message-line,
+    .message.active .message-line {
+        stroke: var(--sl-color-primary-600);
+    }
+
+    /* Colors the outline of a hovered activation box in the primary color */
     .activation-box {
-        transition: fill 0.2s ease;
+        transition: stroke 0.2s ease;
     }
 
-    .activation:hover .activation-box {
-        fill: var(--sl-color-neutral-200);
+    svg:not(.dragging) .activation:hover .activation-box,
+    .activation.active .activation-box {
+        stroke: var(--sl-color-primary-600);
     }
 
-    /* Adds a smooth transition and a light gray hover effect to the fragment's header hitbox, clearly indicating the draggable area. */
-    .fragment-header-hitbox {
-        transition: fill 0.2s ease;
+    /* Colors the frame and header of a hovered fragment in the primary color (unless it is marked as overlapping) */
+    .fragment-background,
+    .fragment-header,
+    .fragment-header-fold {
+        transition: stroke 0.2s ease;
     }
 
-    .fragment:hover .fragment-header-hitbox {
-        fill: var(--sl-color-neutral-200);
+    svg:not(.dragging) .fragment:hover :is(.fragment-background:not(.overlapping), .fragment-header, .fragment-header-fold),
+    .fragment.active :is(.fragment-background:not(.overlapping), .fragment-header, .fragment-header-fold) {
+        stroke: var(--sl-color-primary-600);
     }
 
     /* Styles the lifeline's header box, using flexbox to center the content and ensuring long names wrap properly without overflowing the borders. */
@@ -167,32 +217,10 @@ export default css`
         line-height: 1.2;
     }
 
-    /* Styles the floating zoom control panel in the bottom right corner, including a smooth transition to shift its position when the drawer opens on the right. */
-    .zoomControls {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        position: absolute;
-        bottom: 20px; 
-        right: 20px;
-        z-index: 10;
-        padding: 4px;
-        background-color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-medium);
-        border: 1px solid var(--sl-color-neutral-200);
-        box-shadow: var(--sl-shadow-small);
-        transition: right 0.3s ease;
-    }
-
-    /* Sets the default padding and color for the zoom icons, and applies a primary color highlight when hovered. */
-    .zoomControls sl-icon-button::part(base) {
-        padding: 4px;
-        color: var(--sl-color-neutral-700);
-        font-size: var(--sl-font-size-x-large);
-    }
-
-    .zoomControls sl-icon-button:hover::part(base) {
-        color: var(--sl-color-primary-600);
+    /* Smoothly shifts the zoom controls when the drawer opens on the right, with the
+       same duration and easing as Shoelace's drawer slide animation */
+    zoom-controls {
+        transition: right 250ms ease;
     }
 
     /* Limits the width of the Shoelace settings drawer to approximately one-third of the screen. */
@@ -200,40 +228,12 @@ export default css`
         --size: 33%;
     }
 
-    /* defines a border for the drawer sensitive to the side it is open */
-    sl-drawer::part(panel) {
-        border-left: 2px solid var(--sl-color-neutral-900);
-        border-right: 2px solid var(--sl-color-neutral-900);
-        border-top: 1px solid var(--sl-color-neutral-900);
-        overflow: visible;
-    }
-
+    /* the drawer body scrolls vertically, but lets popups of its inputs overflow sideways */
     sl-drawer::part(body) {
         box-sizing: border-box;
         width: 100%;
         overflow-x: visible;
         overflow-y: auto;
-    }
-
-    sl-drawer.drawer-left::part(panel) {
-        border-left: none;
-    }
-
-    sl-drawer.drawer-right::part(panel) {
-        border-right: none;
-    }
-
-    /* similar style for delete button to be consistent to other diagrams */
-    .delete-btn::part(base) {
-        background-color: transparent;
-        border-color: var(--sl-color-danger-600);
-        color: var(--sl-color-danger-600);
-    }
-
-    .delete-btn::part(base):hover {
-        background-color: var(--sl-color-danger-50);
-        border-color: var(--sl-color-danger-700);
-        color: var(--sl-color-danger-700);
     }
 
     /* Standardlayout für Drawer-Inhalte */
@@ -246,11 +246,31 @@ export default css`
         //overflow-x: hidden;
     }
 
-    /* change styles of the drawer close button */
-    sl-drawer::part(close-button) {
-        font-size: var(--sl-font-size-x-large);
-        display: flex;
+    .icon-picker-label {
+        font-size: var(--sl-input-label-font-size-medium);
+        color: var(--sl-input-label-color);
+        margin-bottom: var(--sl-spacing-3x-small);
+    }
+
+    /* span the full width like the inputs above */
+    .icon-picker-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--sl-spacing-x-small);
+    }
+
+    .icon-picker-option::part(base) {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 1;
         align-items: center;
+        justify-content: center;
+    }
+
+    .icon-picker-option::part(label) {
+        display: flex;
+        padding: 0;
+        font-size: var(--sl-font-size-medium);
     }
 
     /* Styles the main container for the lifeline header, using flexbox to center the icon and text with a fixed gap, while hiding any overflow. */
@@ -269,11 +289,12 @@ export default css`
         touch-action: none;
         user-select: none;
         cursor: grab;
-        transition: background-color 0.2s ease;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
-    .lifeline:hover .lifeline-box {
-        background: var(--sl-color-neutral-200);
+    svg:not(.dragging) .lifeline:hover .lifeline-box,
+    .lifeline.active .lifeline-box {
+        border-color: var(--sl-color-primary-600);
     }
 
     /* Sets a fixed size for the lifeline icon and prevents it from shrinking when the container gets narrow. */
@@ -338,32 +359,24 @@ export default css`
         gap: 4px;
     }
 
-    /* Applies a 'grab' cursor to elements that can be moved, switching to a 'grabbing' cursor while the user is actively clicking and dragging them. */
-    :host([interactionMode="idle"]) .lifeline-click-area,
-    .message-hitbox,
-    .draggable-activation,
-    .fragment-header-hitbox {
+    /* Applies a 'grab' cursor to elements that can be moved, switching to a 'grabbing' cursor while the user is pressing them. */
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-click-area, .message, .draggable-activation, .fragment-header-hitbox) {
         cursor: grab !important;
     }
 
-    :host([interactionMode="idle"]) .lifeline-click-area:active,
-    .message-hitbox:active,
-    .draggable-activation:active,
-    .fragment-header-hitbox:active {
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-click-area, .message, .draggable-activation, .fragment-header-hitbox):active {
         cursor: grabbing !important;
     }
 
-    /* Applies a vertical resize cursor to the handles of lifelines, activations, and fragment regions, ensuring the cursor persists during the drag interaction. */
-    .lifeline-handle,
-    .activation-resize-handle,
-    .fragment-operand-resize-handle {
+    /* Applies a vertical resize cursor to the handles of lifelines, activations, and fragment regions. */
+    :host([interactionMode="idle"]) svg:not(.dragging) :is(.lifeline-handle, .activation-resize-handle, .fragment-operand-resize-handle) {
         cursor: ns-resize !important;
     }
 
-    .lifeline-handle:active,
-    .activation-resize-handle:active,
-    .fragment-operand-resize-handle:active {
-        cursor: ns-resize !important;
+    /* While dragging, keep the drag cursor everywhere instead of switching to the cursors of the elements passed over */
+    svg.dragging,
+    svg.dragging * {
+        cursor: var(--drag-cursor) !important;
     }
 
     /* Row: input stretches, button stays fixed-width, nothing overflows */

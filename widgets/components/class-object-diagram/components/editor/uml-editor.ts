@@ -1,19 +1,26 @@
 import { html } from "lit";
+import { keyed } from "lit/directives/keyed.js";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { ClassModel } from "../../models/class-model";
 import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
-import { RelationDialog, RelationDialogData } from "../relation-link-dialog/relation-dialog";
-import zoomIn from "@tabler/icons/outline/zoom-in.svg";
-import zoomOut from "@tabler/icons/outline/zoom-out.svg";
-import maximizeIcon from "@tabler/icons/outline/arrows-maximize.svg";
-import minimizeIcon from "@tabler/icons/outline/arrows-minimize.svg";
+import { RelationDialog, RelationDialogData, relationLabel } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
+import canvasAlertStyles from "../../../shared/canvas-alert.styles";
 import styles from "./uml-editor.styles";
-import { SlButton, SlDivider, SlIcon, SlIconButton } from "@shoelace-style/shoelace";
+import { SlButton, SlIcon, SlAlert } from "@shoelace-style/shoelace";
+import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
+import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
+import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
+import { arrowMarkers } from "../../../shared/arrow-markers";
+import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
+import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
+import { straightRoutes } from "./straight-routes";
+import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -27,6 +34,19 @@ type InteractionType =
     'dependency'   |
     'realization'
 ;
+
+/** Position of a relation label; y is the text baseline and anchor its SVG text-anchor */
+interface LabelPosition {
+    x: number;
+    y: number;
+    anchor: 'start' | 'middle' | 'end';
+}
+
+/** Positions of the multiplicity and role label at one end of a relation */
+interface EndLabelPositions {
+    multiplicity: LabelPosition;
+    role: LabelPosition;
+}
 
 /** Interface for relation validation issues */
 interface RelationValidationIssue {
@@ -42,16 +62,17 @@ export class UMLEditor extends LitElementWw{
     static get scopedElements() {
         return {
             "sl-button": SlButton,
-            "sl-divider": SlDivider,
             "sl-icon": SlIcon,
-            "sl-icon-button": SlIconButton,
+            "zoom-controls": ZoomControls,
             "uml-class-dialog": ClassDialog,
-            "uml-relation-dialog": RelationDialog  
+            "uml-relation-dialog": RelationDialog,
+            "confirm-dialog": ConfirmDialog,
+            "sl-alert": SlAlert
         };
     }
 
     /** Styles are set in seperate file (./uml-editor.styles.ts) */
-    static styles = [styles];
+    static styles = [styles, canvasAlertStyles];
 
     /** Reference to the main Drawflow editor DOM element used to initialize and interact with the canvas */
     @query("#drawflowEditorDiv") accessor drawflowEditorDiv!: HTMLElement;
@@ -65,11 +86,21 @@ export class UMLEditor extends LitElementWw{
     /** Stores state of the interaction mode */
     @property() private interactionMode:  InteractionType | 'idle' = 'idle';
 
+    @state() private accessor _notice: string | null = null;
+
+    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
+    @state() private accessor _noticeCount = 0;
+
+    @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
     /** Stores Id of the relation source node while creating a new relation */
     @state() private relationSourceNodeId: string | null = null;
 
     /** Tracks the current step of the relation creation process ('first' = select source, 'second' = select target) */
     @state() private firstOrSecondClass: 'first' | 'second' | null = null;
+
+    /** Whether the diagram has no classes/objects; the canvas then shows a hint and cannot be panned or zoomed */
+    @state() private accessor _isEmpty: boolean = true;
 
     /** Property to store the passed down diagram type */
     @property({ type: String }) accessor diagramType: string = 'class-diagram';
@@ -89,14 +120,41 @@ export class UMLEditor extends LitElementWw{
     /** 'any' because Drawflow's TypeScript definitions are apparently incomplete */
     private editor!: any;
 
+    /** The fingers, zoom and canvas offset at the start of the current pinch; null while not pinching */
+    private _pinchStart: { pinch: Pinch, zoom: number, x: number, y: number } | null = null;
+
+    /** The diagram data last loaded or sent to the widget, to tell outside changes (e.g. undo/redo) apart from our own edits */
+    private _lastEmittedData: string | null = null;
+
+    /** Aborting it removes the listeners that cancel the relation mode */
+    private _cancelListeners?: AbortController;
+
     /** variable to block the doubleclick while adding self-relations */
     private _blockDblClick: boolean = false;
+
+    /** The last calculated route of every relation, by connection id */
+    private _routes = new Map<string, Point[]>();
+
+    /** Pending animation frame of _scheduleRouting */
+    private _routingFrame = 0;
 
     /* 
     #################################################################################
     Lifecycle and Init
     #################################################################################
     */
+
+    disconnectedCallback() {
+        this._cancelAddRelation();
+        super.disconnectedCallback();
+    }
+
+    /** Reload the diagram if the stored data was changed from outside, e.g. by undo/redo in WebWriter */
+    protected updated(changed: Map<string, unknown>) {
+        if (changed.has('savedDiagramData') && this.editor && this.savedDiagramData !== this._lastEmittedData) {
+            this._loadDiagramData(this.savedDiagramData);
+        }
+    }
 
     /** Init the whole editor, set important variables, initial state and listeners */
     protected firstUpdated() {
@@ -107,70 +165,16 @@ export class UMLEditor extends LitElementWw{
         this.editor.curvature = 0;
         this.editor.start();
 
-        // Reload stored diagram or else create initial data
-        if (this.savedDiagramData) {
-            this.editor.import(JSON.parse(this.savedDiagramData));
-            
-            // Regenerate HTML for all nodes using our template
-            const exportedData = JSON.parse(this.savedDiagramData);
-            const nodes = exportedData?.drawflow?.Home?.data;
-            if (nodes) {
-                Object.keys(nodes).forEach(nodeId => {
-                    const nodeData = nodes[nodeId].data;
-                    const newHTML = this._createClassNodeHTML(nodeData);
-                    const nodeContent = this.shadowRoot?.querySelector(`#node-${nodeId} .drawflow_content_node`);
-                    if (nodeContent) {
-                        nodeContent.innerHTML = newHTML;
-                    }
-                });
+        // Drawflow's own pinch zoom only compares the horizontal finger distance and zooms in fixed steps around the
+        // canvas center; _handlePinchTouch replaces it
+        const div = this.drawflowEditorDiv;
+        div.onpointerdown = div.onpointermove = div.onpointerup = null;
+        div.onpointercancel = div.onpointerout = div.onpointerleave = null;
 
-                // restore diagram correctly
-                setTimeout(() => {
-                    // restore css classes
-                    Object.keys(nodes).forEach(sourceId => {
-                        const sourceNode = nodes[sourceId];
-                        if (sourceNode.outputs) {
-                            Object.keys(sourceNode.outputs).forEach(outputKey => {
-                                const connections = sourceNode.outputs[outputKey].connections;
-                                connections.forEach((conn: any) => {
-                                    const targetId = conn.node.toString();
-                                    const inPort = conn.output;
-                                    const connectionType = conn.data?.connectionType;
-                                    if (connectionType) {
-                                        const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outputKey}.${inPort}`;
-                                        const connectionSvg = this.shadowRoot?.querySelector(selector);
-                                        if (connectionSvg) {
-                                            connectionSvg.classList.add(connectionType);
-                                        }
-                                    }
-                                });
-                            });
-                        }
-                    });
+        emulateTouchClicks(div);
 
-                    // render labels
-                    Object.keys(nodes).forEach(sourceId => {
-                        const sourceNode = nodes[sourceId];
-                        if (sourceNode.outputs) {
-                            Object.keys(sourceNode.outputs).forEach(outputKey => {
-                                const connections = sourceNode.outputs[outputKey].connections;
-                                connections.forEach((conn: any) => {
-                                    const targetId = conn.node.toString();
-                                    const inPort = conn.output;
-                                    const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outputKey}_${inPort}`;
-                                    this.renderRelationLabels(connectionId);
-                                });
-                            });
-                        }
-                    });
-
-                    //update node visuals
-                    Object.keys(nodes).forEach(nodeId => {
-                        this.updateNodeVisuals(nodeId);
-                    });
-                }, 300);
-            }
-        }
+        // Reload stored diagram
+        this._loadDiagramData(this.savedDiagramData);
 
         // Realtime updates of the diagram while node is moving
         this.drawflowEditorDiv.addEventListener('mousemove', (e) => {
@@ -186,8 +190,50 @@ export class UMLEditor extends LitElementWw{
             this._serializeAndEmit();
         });
 
-        // Listener for mouse weel to zoom in and out
+        // Re-render on zoom changes to update the zoom level display and move the background grid
+        // (Drawflow updates canvas_x/canvas_y only after dispatching "zoom", so defer reading them)
+        this.editor.on("zoom", () => {
+            this.requestUpdate();
+            queueMicrotask(() => this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y));
+        });
+
+        // While panning, Drawflow only reports the new offset through the "translate" event
+        this.editor.on("translate", ({ x, y }: { x: number, y: number }) => this._updateGridBackground(x, y));
+
+        // Resize also fires when a hidden editor becomes visible.
+        new ResizeObserver(() => {
+            this._updateGridBackground(this.editor.canvas_x, this.editor.canvas_y);
+            this._scheduleRouting();
+        }).observe(this.drawflowEditorDiv);
+
+        // Keep selection clicks and canvas panning, but block element gestures in relation mode.
+        const blockGestures = (e: Event) => {
+            const target = e.target as Element;
+            if (!this.drawflowEditorDiv.contains(target)) return;
+            if (this._isEmpty || (this.interactionMode !== 'idle' && target.closest('.drawflow-node, .connection'))) {
+                e.stopPropagation();
+            }
+        };
+        this.renderRoot.addEventListener('mousedown', blockGestures, true);
+        this.renderRoot.addEventListener('touchstart', blockGestures, true);
+
+        // Drawflow only listens for mouseup on its container, so a drag released outside the widget would continue
+        // once the cursor returns; end it before Drawflow handles the move
+        this.renderRoot.addEventListener('mousemove', (e) => {
+            const { editor } = this;
+            if ((e as MouseEvent).buttons === 0 && (editor.drag || editor.drag_point || editor.editor_selected)) {
+                editor.dragEnd(e);
+            }
+        }, true);
+
+        // Pinch to zoom, also captured on the shadow root to keep the pinch's touches from Drawflow
+        for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+            this.renderRoot.addEventListener(type, (e) => this._handlePinchTouch(e as TouchEvent), true);
+        }
+
+        // Listener for mouse weel to zoom in and out (disabled while the canvas is empty)
         this.drawflowEditorDiv.addEventListener('wheel', (e: WheelEvent) => {
+            if (this._isEmpty) return;
             e.preventDefault();
             if (e.deltaY < 0) {
                 this.editor.zoom_in();
@@ -210,6 +256,11 @@ export class UMLEditor extends LitElementWw{
 
         // Inform the widget about a deleted connection
         this.editor.on("connectionRemoved", () => this._serializeAndEmit());
+
+        // Classes and relations that are added or removed change the routes of the other relations
+        for (const event of ["nodeCreated", "nodeRemoved", "connectionCreated", "connectionRemoved"]) {
+            this.editor.on(event, () => this._scheduleRouting());
+        }
 
         // on doubleclick handle any entity interaction
         this.drawflowEditorDiv.addEventListener('dblclick', (e: MouseEvent) => {
@@ -269,8 +320,7 @@ export class UMLEditor extends LitElementWw{
                     'composition', 
                     'aggregation', 
                     'dependency', 
-                    'realization', 
-                    'self-relation'
+                    'realization'
                 ];
 
                 const connectionId = Array.from(svgElement.classList)
@@ -286,18 +336,31 @@ export class UMLEditor extends LitElementWw{
     private _handleLiveMove() {
         if (this.editor.drag && this.editor.node_selected) {
             const selectedId = this.editor.node_selected.id.replace('node-', '');
-            
-            requestAnimationFrame(() => {
-                this.updateNodeVisuals(selectedId);
-            });
+
+            // Overwrite Drawflow's paths before the next paint.
+            this.updateNodeVisuals(selectedId);
         }
     }
 
     /** Load a checkpoint state into the editor */
     public loadCheckpoint(data: string) {
         if (!this.editor || !data) return;
+        this._loadDiagramData(data, () => this._serializeAndEmit());
+    }
+
+    /**
+     * Replaces the diagram with the given serialized Drawflow data (or clears it if there is none).
+     * Relation styles, labels and node visuals are restored after Drawflow has rendered, then onRestored is called.
+     */
+    private _loadDiagramData(data: string | null, onRestored?: () => void) {
+        this._lastEmittedData = data;
         this.editor.clear();
+        if (!data) {
+            this._updateEmptyState();
+            return;
+        }
         this.editor.import(JSON.parse(data));
+        this._updateEmptyState();
         
         const exportedData = JSON.parse(data);
         const nodes = exportedData?.drawflow?.Home?.data;
@@ -333,37 +396,22 @@ export class UMLEditor extends LitElementWw{
                     }
                 });
 
-                Object.keys(nodes).forEach(sourceId => {
-                    const sourceNode = nodes[sourceId];
-                    if (sourceNode.outputs) {
-                        Object.keys(sourceNode.outputs).forEach(outputKey => {
-                            const connections = sourceNode.outputs[outputKey].connections;
-                            connections.forEach((conn: any) => {
-                                const targetId = conn.node.toString();
-                                const inPort = conn.output;
-                                const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outputKey}_${inPort}`;
-                                this.renderRelationLabels(connectionId);
-                            });
-                        });
-                    }
-                });
+                this._routeRelations();
 
-                Object.keys(nodes).forEach(nodeId => {
-                    this.updateNodeVisuals(nodeId);
-                });
-
-                this._serializeAndEmit();
+                onRestored?.();
             }, 300);
         }
     }
 
     /** Serializes the current Drawflow state and send it to the parent to update widget state */
     private _serializeAndEmit() {
-        const data = this.editor.export();
+        this._updateEmptyState();
+        const data = JSON.stringify(this.editor.export());
+        this._lastEmittedData = data;
         this.dispatchEvent(new CustomEvent('diagram-data-changed', {
             detail: { 
                 diagramType: this.diagramType, 
-                data: JSON.stringify(data),
+                data,
                 classCount: this._getClassCount(),
                 relationCount: this._getRelationCount() 
             },
@@ -372,12 +420,90 @@ export class UMLEditor extends LitElementWw{
         }));
     }
 
-    /** Send event to main widget to Toggle Fullscreen */
-    private _toggleFullscreen() {
-        this.dispatchEvent(new CustomEvent('toggle-fullscreen', {
-            bubbles: true,
-            composed: true
-        }));
+    /** Track whether the diagram is empty; an empty canvas is reset to its initial view */
+    private _updateEmptyState() {
+        this._isEmpty = this._getClassCount() === 0;
+        if (this._isEmpty && (this.editor.canvas_x !== 0 || this.editor.canvas_y !== 0 || this.editor.zoom !== 1)) {
+            this.editor.canvas_x = 0;
+            this.editor.canvas_y = 0;
+            this.editor.zoom = 1;
+            this.editor.zoom_refresh();
+        }
+    }
+
+    /**
+     * Zoom and pan with two fingers. Once a second finger touches the canvas, Drawflow no longer sees the touches until
+     * all fingers are lifted, so it does not pan or drag a class at the same time.
+     */
+    private _handlePinchTouch(e: TouchEvent) {
+        if (this._isEmpty || !this.drawflowEditorDiv.contains(e.target as Node)) return;
+        const { touches } = e;
+        if (!this._pinchStart && (e.type !== 'touchstart' || touches.length < 2)) return;
+        e.stopPropagation();
+
+        if (!this._pinchStart) {
+            // Drawing a connection is left to Drawflow, ignoring the second finger
+            if (this.editor.connection || this.editor.drag_point) return;
+            this._endDrawflowGesture();
+        }
+        // A single finger is ignored until lifted
+        if (touches.length < 2) {
+            if (touches.length === 0) this._pinchStart = null;
+            return;
+        }
+        if (e.type === 'touchmove') return this._applyPinch(measurePinch(touches[0], touches[1]));
+
+        // The pinch starts, or fingers were added or lifted: continue from their current position
+        const { zoom, canvas_x: x, canvas_y: y } = this.editor;
+        this._pinchStart = { pinch: measurePinch(touches[0], touches[1]), zoom, x, y };
+    }
+
+    /** End Drawflow's panning or class drag of the first finger as if it was lifted, so that a pinch can take over */
+    private _endDrawflowGesture() {
+        const editor = this.editor;
+        if (editor.editor_selected) {
+            // While panning, Drawflow only stores the new canvas offset once the finger is lifted
+            editor.canvas_x += editor.mouse_x - editor.pos_x;
+            editor.canvas_y += editor.mouse_y - editor.pos_y;
+            editor.editor_selected = false;
+        }
+        if (editor.drag) {
+            editor.drag = false;
+            if (editor.pos_x !== editor.pos_x_start || editor.pos_y !== editor.pos_y_start) {
+                editor.dispatch("nodeMoved", editor.ele_selected.id.slice(5));
+            }
+        }
+    }
+
+    /** Zoom by the change of the finger distance, keeping the canvas point under the fingers' midpoint under them */
+    private _applyPinch(pinch: Pinch) {
+        const start = this._pinchStart!;
+        const editor = this.editor;
+        const zoom = Math.min(Math.max(start.zoom * pinch.distance / start.pinch.distance, editor.zoom_min), editor.zoom_max);
+        const ratio = zoom / start.zoom;
+
+        // Drawflow scales around the canvas center
+        const rect = this.drawflowEditorDiv.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        editor.canvas_x = (pinch.x - centerX) - ratio * (start.pinch.x - centerX - start.x);
+        editor.canvas_y = (pinch.y - centerY) - ratio * (start.pinch.y - centerY - start.y);
+
+        // zoom_refresh scales the offset by the zoom change, which is already included here
+        editor.zoom = editor.zoom_last_value = zoom;
+        editor.zoom_refresh();
+    }
+
+    /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */
+    private _updateGridBackground(canvasX: number, canvasY: number) {
+        const zoom = this.editor.zoom;
+        const { clientWidth, clientHeight } = this.drawflowEditorDiv;
+        // Drawflow scales around the canvas center, so shift the grid origin accordingly
+        const originX = canvasX + (clientWidth / 2) * (1 - zoom);
+        const originY = canvasY + (clientHeight / 2) * (1 - zoom);
+        this.drawflowEditorDiv.style.setProperty('--grid-size', `${40 * zoom}px`);
+        this.drawflowEditorDiv.style.setProperty('--grid-x', `${originX}px`);
+        this.drawflowEditorDiv.style.setProperty('--grid-y', `${originY}px`);
     }
 
     /* 
@@ -392,7 +518,6 @@ export class UMLEditor extends LitElementWw{
 
         // check if max number of classes is reached
         if (this._getClassCount() >= this.settings.maxClasses) {
-            alert(msg("Maximal number of classes reached!"));
             return;
         }
 
@@ -484,6 +609,8 @@ export class UMLEditor extends LitElementWw{
         if (nodeContent) {
             nodeContent.innerHTML = newNodeHTML;
         }
+        // the class size may have changed
+        this.updateNodeVisuals(id);
         this._serializeAndEmit();
     }
 
@@ -567,14 +694,24 @@ export class UMLEditor extends LitElementWw{
 
         // check if max number of relation is reached
         if (this._getRelationCount() >= this.settings.maxRelations) {
-            alert(msg("Maximal number of relations reached!"));
             return;
         }
 
         // initialize states for the "relation mode"
+        this._cancelAddRelation();
+        this._endDrawflowGesture();
+        // Clicks no longer reach Drawflow in relation mode, so its selection would stay deletable with the Delete key
+        this.editor.node_selected?.classList.remove('selected');
+        this.editor.node_selected = null;
+        this.editor.connection_selected?.classList.remove('selected');
+        this.editor.connection_selected = null;
+        this._notice = null;
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = 'first';
+
+        // cancel on Escape, on presses or focus outside of the editor (e.g. on the toolbar) and when the window loses focus
+        this._cancelListeners = cancelOnOutsideInteraction(this, () => this._cancelAddRelation());
 
         this.requestUpdate();
     }
@@ -612,7 +749,7 @@ export class UMLEditor extends LitElementWw{
             // check max relations constraint
             const currentRelations = this._getRelationsCountBetween(this.relationSourceNodeId, nodeId);
             if (currentRelations >= this.settings.maxNumberRelationsBetweenTwoClasses) {
-                this.handleWrongSelection(msg("Maximal number of relations between these classes reached!"));
+                this.handleWrongSelection(msg("Maximum number of connections per pair reached"));
                 return;
             }
 
@@ -636,7 +773,7 @@ export class UMLEditor extends LitElementWw{
 
     /** Helper method to display error for wrong node selection while creating a new relation */
     private handleWrongSelection(errorText: string) {
-        alert(errorText);
+        this.showNotice(errorText);
         this._cancelAddRelation();
     }
 
@@ -667,132 +804,35 @@ export class UMLEditor extends LitElementWw{
         const currentConnectionType = this.interactionMode;
         this._cancelAddRelation();
 
-        // Wait for the DOM to be ready before adding a new connection
-        requestAnimationFrame(() => {
-            this.editor.addConnection(nodeId, proxyId, outPort, inPort);
-
-            // Wait for the new conncection to be created before processing visual updates
-            requestAnimationFrame(() => {
-                // retry up to 5 frames to ensure DOM elements are ready for visual updates
-                let attempts = 0;
-                const maxAttempts = 5;
-
-                const tryUpdate = () => {
-                    attempts++;
-                    
-                    try {
-                        this.updateNodeVisuals(nodeId);
-                        const success = this.updatePortPositions(nodeId, proxyId.toString(), outPort, inPort);
-                        if (success) {
-                            const selector = `svg.connection.node_out_node-${nodeId}.node_in_node-${proxyId}.${outPort}.${inPort}`;
-                            const connectionSvg = this.shadowRoot?.querySelector(selector);
-                            
-                            if (connectionSvg) {
-                                connectionSvg.classList.add(currentConnectionType);
-                                connectionSvg.classList.add('self-relation');
-                                this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
-                                const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
-                                this.renderRelationLabels(connectionId);
-                                this._serializeAndEmit(); 
-                            } else {
-                                const allPossible = this.shadowRoot?.querySelectorAll(`svg.connection.node_out_node-${nodeId}.node_in_node-${proxyId}`);
-                                allPossible?.forEach(svg => {
-                                    if (svg.classList.contains(outPort) && svg.classList.contains(inPort)) {
-                                        svg.classList.add(currentConnectionType);
-                                        svg.classList.add('self-relation');
-                                        this._saveConnectionType(nodeId, proxyId.toString(), inPort, currentConnectionType);
-                                        const connectionId = `node_in_node-${proxyId}_node_out_node-${nodeId}_${outPort}_${inPort}`;
-                                        this.renderRelationLabels(connectionId); 
-                                        this._serializeAndEmit(); 
-                                    }
-                                });
-                            }
-                        }
-                        // correct self relation paths
-                        this._forceSelfRelationPaths();
-                    } catch (e) {
-                        // ignore temporary errors during DOM rendering, next frame will retry
-                    }
-                    if (attempts < maxAttempts) {
-                        requestAnimationFrame(tryUpdate);
-                    }
-                };
-                tryUpdate();
-            });
-        });
+        this._createRelationConnection(nodeId, proxyId.toString(), outPort, inPort, currentConnectionType);
     }
 
-    /** Finaly add the new relaiton at the end of the creation and placing process */
+    /** Add a relation between two different nodes. */
     private _finalizeRelation(sourceId: string, targetId: string) {
-        
-        // create ports
         const outPort = this._addPort(sourceId, 'output');
         const inPort = this._addPort(targetId, 'input');
-
-        // Save the connection type before canceling the relation mode (which resets interactionMode to 'idle')
-        const currentConnectionType = this.interactionMode;
+        const connectionType = this.interactionMode;
         this._cancelAddRelation();
+        this._createRelationConnection(sourceId, targetId, outPort, inPort, connectionType);
+    }
 
-        // create connection at the next frame when the DOM is ready
+    private _createRelationConnection(sourceId: string, targetId: string, outPort: string, inPort: string, connectionType: string) {
         requestAnimationFrame(() => {
+            // Drawflow creates the SVG synchronously.
             this.editor.addConnection(sourceId, targetId, outPort, inPort);
-
-            // start visual update of the editor (but wait for the new connection to be created before)
-            requestAnimationFrame(() => {
-                // retry up to 5 frames to ensure DOM elements are ready for visual updates
-                let attempts = 0;
-                const maxAttempts = 5;
-
-                const tryUpdate = () => {
-                    attempts++;
-                    
-                    try {
-                        // update for all nodes to trigger port correction
-                        this.updateNodeVisuals(sourceId);
-                        this.updateNodeVisuals(targetId);
-                        const success = this.updatePortPositions(sourceId, targetId, outPort, inPort);
-
-                        if (success) {
-                            const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outPort}.${inPort}`;
-                            const connectionSvg = this.shadowRoot?.querySelector(selector);
-                            
-                            if (connectionSvg) {
-                                connectionSvg.classList.add(currentConnectionType);
-                                this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
-                                this._serializeAndEmit();
-                            } else {
-                                // Fallback
-                                const allPossible = this.shadowRoot?.querySelectorAll(`svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}`);
-                                allPossible?.forEach(svg => {
-                                    if (svg.classList.contains(outPort) && svg.classList.contains(inPort)) {
-                                        svg.classList.add(currentConnectionType);
-                                        this._saveConnectionType(sourceId, targetId, inPort, currentConnectionType);
-                                        this._serializeAndEmit();
-                                    }
-                                });
-                            }
-
-                            // render labels and self relations corrctly
-                            const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
-                            this.renderRelationLabels(connectionId);
-                            this._forceSelfRelationPaths();
-                        }
-                    } catch (e) {
-                        // Just do nothing, the next frame will fix it
-                    }
-
-                    if (attempts < maxAttempts) {
-                        requestAnimationFrame(tryUpdate);
-                    }
-                };
-                tryUpdate();
-            });
+            const connectionId = `node_in_node-${targetId}_node_out_node-${sourceId}_${outPort}_${inPort}`;
+            this._getConnectionSvg(connectionId)?.classList.add(connectionType);
+            this._saveConnectionType(sourceId, targetId, inPort, connectionType);
+            this._routeRelations();
+            this._serializeAndEmit();
         });
     }
 
     /** End the "relation mode" adding relations process due to canceling or just to reset environment after adding relation */
     private _cancelAddRelation() {
         // Resetting the mode and associated variables
+        this._cancelListeners?.abort();
+        this._cancelListeners = undefined;
         this.interactionMode = 'idle';
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = null;
@@ -963,7 +1003,9 @@ export class UMLEditor extends LitElementWw{
                 );
                 
                 if (connection) {
+                    // keep the other data, e.g. the connection type
                     connection.data = {
+                        ...connection.data,
                         sourceMultiplicity: relationData.sourceMultiplicity,
                         targetMultiplicity: relationData.targetMultiplicity,
                         relationName: relationData.relationName,
@@ -1022,6 +1064,17 @@ export class UMLEditor extends LitElementWw{
     Rendering and UI-Helper
     #################################################################################
     */
+
+    public async showNotice(message: string) {
+        this._notice = message;
+        this._noticeCount++;
+        await this.updateComplete;
+        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+    }
+
+    public confirm(options: ConfirmOptions): Promise<boolean> {
+        return this._confirmDialog.confirm(options);
+    }
 
     /** Create a new visible node on the drawflow canvas */
     private _createClassNodeHTML(data: ClassModel): string {
@@ -1120,7 +1173,7 @@ export class UMLEditor extends LitElementWw{
                         const style = m.isStatic ? 'style="text-decoration: underline;"' : '';
                         const final = m.isFinal ? ' {final}' : ''; 
                         const paramsString = m.parameters && m.parameters.length > 0
-                            ? m.parameters.map(p => `${p.name} ${p.type}`).join(", ")
+                            ? m.parameters.map(p => `${p.name}: ${p.type}`).join(", ")
                             : "";
                         
                         return `<div>${renderVis(m.visibility)}<span ${style}>${m.name}</span>(${paramsString}): ${m.returnType}${final}</div>`;
@@ -1134,347 +1187,71 @@ export class UMLEditor extends LitElementWw{
         return container.outerHTML;
     }
 
-    /** Update the positions of the ports when node is moved or the relation is created */
-    private updatePortPositions(outputNodeId: string, inputNodeId: string, outputPort: string, inputPort: string): boolean {
-        // Check if still existent
-        if (!this.editor.getNodeFromId(outputNodeId) || !this.editor.getNodeFromId(inputNodeId)) {
-            return false;
-        }
-
-        // Calculate the best port positions
-        const positions = this._calculateOptimalPortPositionsWithIds(outputNodeId, inputNodeId, outputPort, inputPort);
-        if (!positions) return false;
-
-        // Get HTML Elements
-        const selectorIn = `#node-${outputNodeId} .${outputPort}`;
-        const selectorOut = `#node-${inputNodeId} .${inputPort}`;
-        const inNode = this.shadowRoot?.querySelector(selectorIn) as HTMLElement;
-        const outNode = this.shadowRoot?.querySelector(selectorOut) as HTMLElement;
-
-        // Return false if no element is found (happens if DOM is not ready yet)
-        if (!inNode || !outNode) return false;
-
-        if (inNode) {
-            inNode.style.left = `${positions.portOut.x}px`;
-            inNode.style.top = `${positions.portOut.y}px`;
-        }
-
-        if (outNode) {
-            outNode.style.left = `${positions.portIn.x}px`;
-            outNode.style.top = `${positions.portIn.y}px`;
-            outNode.style.transform = 'none';
-        }
-
-        // update relations (visible lines)
-        try {
-            this.editor.updateConnectionNodes(`node-${outputNodeId}`);
-            this.editor.updateConnectionNodes(`node-${inputNodeId}`);
-        } catch (e) {
-            // ignore errors in drawflow because the next loop will fix it
-            return false;
-        }
-
-        const connectionSelector = `svg.connection.node_out_node-${outputNodeId}.node_in_node-${inputNodeId}.${outputPort}.${inputPort}`;
-        const connectionSvg = this.shadowRoot?.querySelector(connectionSelector) as SVGElement;
-        
-        if (connectionSvg) {
-            // Ensure that the hitbox (backpath) exist
-            this._ensureBackPath(connectionSvg);
-
-            const mainPath = connectionSvg.querySelector('.main-path') as SVGPathElement;
-            const backPath = connectionSvg.querySelector('.back-path') as SVGPathElement;
-
-            // synchronize path and hitbox (backpath)
-            if (mainPath && backPath) {
-                // Different logic for self-relations
-                if (connectionSvg.classList.contains('self-relation')) {
-                    const outNodeData = this.editor.getNodeFromId(outputNodeId);
-                    const inNodeData = this.editor.getNodeFromId(inputNodeId);
-
-                    // calculate position
-                    const startX = outNodeData.pos_x + positions.portOut.x + 3;
-                    const startY = outNodeData.pos_y + positions.portOut.y + 3;
-                    const endX = inNodeData.pos_x + positions.portIn.x + 3;
-                    const endY = inNodeData.pos_y + positions.portIn.y + 3;
-
-                    const curveX = startX - 40; 
-                    const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
-
-                    // set both paths manually (overwrite default)
-                    mainPath.setAttribute('d', pathData);
-                    backPath.setAttribute('d', pathData);
-                
-                } else {
-                    // apply standard for non selfconnections
-                    const d = mainPath.getAttribute('d');
-                    if (d) backPath.setAttribute('d', d);
-                }
-            }
-        }
-        return true;
+    /** Drawflow represents a self-relation with a proxy target. */
+    private _isSelfRelation(sourceId: string, targetId: string): boolean {
+        const targetNode = this.editor.getNodeFromId(targetId);
+        return !!targetNode?.data?.isProxy && targetNode.data.parentNodeId === sourceId;
     }
 
-    /** forces right path for self-relations (apply after each creation and node move events to overwrite standard) */
-    private _forceSelfRelationPaths() {
-        const selfRelationSvgs = this.shadowRoot?.querySelectorAll('svg.connection.self-relation') as NodeListOf<SVGElement>;
+    /** Calculates the routes of all relations and redraws their paths, labels and association class lines */
+    private _routeRelations() {
+        if (!this.editor) return;
+        cancelAnimationFrame(this._routingFrame);
+        this._routingFrame = 0;
 
-        selfRelationSvgs?.forEach(svg => {
-            const mainPath = svg.querySelector('.main-path') as SVGPathElement;
-            const backPath = svg.querySelector('.back-path') as SVGPathElement;
-            const classList = Array.from(svg.classList);
-            const nodeOutClass = classList.find(c => c.startsWith('node_out_node-'));
-            const nodeInClass = classList.find(c => c.startsWith('node_in_node-'));
-            const outPortId = classList.find(c => c.startsWith('output_'));
-            const inPortId = classList.find(c => c.startsWith('input_'));
+        const allNodes = this.editor.drawflow.drawflow.Home.data;
+        const boxes = new Map<string, Box>();
+        const relations = new Map<string, RelationEnds>();
+        Object.entries<any>(allNodes).forEach(([id, node]) => {
+            if (node.data?.isProxy) return;
+            const nodeHTML = this.shadowRoot?.querySelector(`#node-${id}`) as HTMLElement;
+            if (!nodeHTML || nodeHTML.offsetWidth <= 0) return;
+            boxes.set(id, { x: node.pos_x, y: node.pos_y, width: nodeHTML.offsetWidth, height: nodeHTML.offsetHeight });
 
-            if (nodeOutClass && nodeInClass && outPortId && inPortId) {
-                const outNodeId = nodeOutClass.replace('node_out_node-', '');
-                const inNodeId = nodeInClass.replace('node_in_node-', '');
+            Object.entries<any>(node.outputs).forEach(([outPort, output]) => {
+                output.connections.forEach((conn: any) => {
+                    const targetId = conn.node.toString();
+                    // self-relations loop back to their class, the proxy node is only their target in Drawflow
+                    relations.set(`node_in_node-${targetId}_node_out_node-${id}_${outPort}_${conn.output}`, {
+                        source: id,
+                        target: this._isSelfRelation(id, targetId) ? id : targetId
+                    });
+                });
+            });
+        });
 
-                const outNodeData = this.editor.getNodeFromId(outNodeId);
-                const inNodeData = this.editor.getNodeFromId(inNodeId);
-
-                if (outNodeData && inNodeData) {
-                    const positions = this._calculateOptimalPortPositionsWithIds(outNodeId, inNodeId, outPortId, inPortId);
-                    
-                    if (positions) {
-                        const startX = outNodeData.pos_x + positions.portOut.x + 3;
-                        const startY = outNodeData.pos_y + positions.portOut.y + 3;
-                        const endX = inNodeData.pos_x + positions.portIn.x + 3;
-                        const endY = inNodeData.pos_y + positions.portIn.y + 3;
-                        const curveX = startX - 40; 
-                        const pathData = `M ${startX} ${startY} L ${curveX} ${startY} L ${curveX} ${endY} L ${endX} ${endY}`;
-
-                        // fix arrowhead after reload
-                        const types = ['association', 'inheritance', 'composition', 'aggregation', 'dependency', 'realization'];
-                        const relType = classList.find(c => types.includes(c)) || 'association';
-                        const markerMap: Record<string, string> = {
-                            'association': 'url(#arrow-association)',
-                            'inheritance': 'url(#arrow-inheritance)',
-                            'realization': 'url(#arrow-realization)',
-                            'dependency': 'url(#arrow-dependency)',
-                            'aggregation': 'url(#arrow-aggregation)',
-                            'composition': 'url(#arrow-composition)',
-                        };
-                        if (mainPath) {
-                            mainPath.setAttribute('d', pathData);
-                            mainPath.setAttribute('marker-end', markerMap[relType] || 'url(#arrow-association)');
-                        }
-
-                        if (backPath) backPath.setAttribute('d', pathData);
-                    }
-                }
-            }
+        this._routes = straightRoutes(boxes, relations);
+        this._drawRoutes();
+        this._routes.forEach((_, connectionId) => {
+            this.renderRelationLabels(connectionId);
+            this._updateRelatedAssociationClass(connectionId);
         });
     }
 
-    /** calculate optimal portpositions */
-    private _calculateOptimalPortPositionsWithIds(outNodeId: string, inNodeId: string, outputPortId: string, inputPortId: string) {
-        const outputNode = this.editor.getNodeFromId(outNodeId);
-        const inputNode = this.editor.getNodeFromId(inNodeId);
-        
-        if (!outputNode || !inputNode) {
-            return null;
-        }
+    /** Draw the last calculated routes, replacing Drawflow's straight lines (also for the hitboxes) */
+    private _drawRoutes() {
+        this._routes.forEach((route, connectionId) => {
+            const connectionSvg = this._getConnectionSvg(connectionId);
+            if (!connectionSvg || route.length < 2) return;
 
-        const outNodeHTML = this.shadowRoot?.querySelector(`#node-${outNodeId}`) as HTMLElement;
-        const inNodeHTML = this.shadowRoot?.querySelector(`#node-${inNodeId}`) as HTMLElement;
-        
-        if (!inNodeHTML || !outNodeHTML) {
-            return null;
-        }
-
-        if (outNodeHTML.offsetWidth <= 0 || inNodeHTML.offsetWidth <= 0) {
-            return null;
-        }
-
-        const widthInNode = inNodeHTML.offsetWidth;
-        const heightInNode = inNodeHTML.offsetHeight;
-        const widthOutNode = outNodeHTML.offsetWidth;
-        const heightOutNode = outNodeHTML.offsetHeight;
-
-        const allConnections = this._getAllConnectionsBetween(outNodeId, inNodeId);
-        const currentConnId = `node_in_node-${inNodeId}_node_out_node-${outNodeId}_${outputPortId}_${inputPortId}`;
-        
-        let connectionIndex = allConnections.indexOf(currentConnId);
-        if (connectionIndex === -1) {
-            connectionIndex = 0;
-        }
-        
-        const totalConnections = allConnections.length;
-
-        // different logic for self relations and their proxys
-        const isSelfRelation = inputNode.data && inputNode.data.isProxy && inputNode.data.parentNodeId === outNodeId;
-        if (isSelfRelation) {
-            const allNodes = this.editor.drawflow.drawflow.Home.data;
-            const myProxies = Object.values(allNodes).filter((n: any) => 
-                n.data.isProxy && n.data.parentNodeId === outNodeId
-            ).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
-
-            const proxyIndex = myProxies.findIndex((n: any) => n.id.toString() === inNodeId.toString());
-            const totalProxies = myProxies.length;
-            const factor = (proxyIndex + 1) / (totalProxies + 1);
-            const centerY = heightOutNode * factor;
-            const spread = 40; 
-            const pOutY = Math.max(0, centerY - (spread / 2));
-            
-            return {
-                portOut: { x: -3, y: pOutY - 3 },
-                portIn:  { x: 50 - 3, y: spread - 3 }
-            };
-        }
-
-        const outX = outputNode.pos_x;
-        const outY = outputNode.pos_y;
-        const inX = inputNode.pos_x;
-        const inY = inputNode.pos_y;
-
-        const outRight = outX + widthOutNode;
-        const outBottom = outY + heightOutNode;
-        const inRight = inX + widthInNode;
-        const inBottom = inY + heightInNode;
-
-        const xOverlap = Math.max(0, Math.min(outRight, inRight) - Math.max(outX, inX));
-        const yOverlap = Math.max(0, Math.min(outBottom, inBottom) - Math.max(outY, inY));
-
-        const outCenter = { x: outX + widthOutNode / 2, y: outY + heightOutNode / 2 };
-        const inCenter = { x: inX + widthInNode / 2, y: inY + heightInNode / 2 };
-
-        let portOut = { x: 0, y: 0 };
-        let portIn = { x: 0, y: 0 };
-
-        const calculateAlignedPosition = (sourceLen: number, sourcePos: number, targetLen: number, targetPos: number) => {
-            const gap = sourceLen / (totalConnections + 1);
-            const startOverlap = Math.max(sourcePos, targetPos);
-            const endOverlap = Math.min(sourcePos + sourceLen, targetPos + targetLen);
-
-            let idealAbsoluteCenter: number;
-
-            if (startOverlap < endOverlap) {
-                idealAbsoluteCenter = (startOverlap + endOverlap) / 2;
-            } else {
-                if (targetPos >= sourcePos + sourceLen) {
-                    idealAbsoluteCenter = sourcePos + sourceLen;
-                } else {
-                    idealAbsoluteCenter = sourcePos;
-                }
-            }
-
-            const idealLocalCenter = idealAbsoluteCenter - sourcePos;
-            const centerOffsetIndex = connectionIndex - (totalConnections - 1) / 2;
-            const posFromCenter = centerOffsetIndex * gap;
-            
-            const halfGroupWidth = ((totalConnections - 1) * gap) / 2;
-            const margin = 10; 
-            const minCenter = halfGroupWidth + margin;
-            const maxCenter = sourceLen - halfGroupWidth - margin;
-            
-            const clampedCenter = Math.max(minCenter, Math.min(maxCenter, idealLocalCenter));
-
-            return clampedCenter + posFromCenter;
-        };
-        
-        const dx = Math.abs(outCenter.x - inCenter.x);
-        const dy = Math.abs(outCenter.y - inCenter.y);
-
-        if (xOverlap > 0 && xOverlap > yOverlap) {
-            portOut.x = calculateAlignedPosition(widthOutNode, outX, widthInNode, inX);
-            portIn.x = calculateAlignedPosition(widthInNode, inX, widthOutNode, outX);
-
-            if (outCenter.y < inCenter.y) {
-                portOut.y = heightOutNode; 
-                portIn.y = 0;              
-            } else {
-                portOut.y = 0;             
-                portIn.y = heightInNode;   
-            }
-
-        } else if (yOverlap > 0 && yOverlap > xOverlap) {
-            portOut.y = calculateAlignedPosition(heightOutNode, outY, heightInNode, inY);
-            portIn.y = calculateAlignedPosition(heightInNode, inY, heightOutNode, outY);
-
-            if (outCenter.x < inCenter.x) {
-                portOut.x = widthOutNode; 
-                portIn.x = 0;             
-            } else {
-                portOut.x = 0;            
-                portIn.x = widthInNode;   
-            }
-
-        } else {
-            if (dx > dy) {
-                portOut.y = calculateAlignedPosition(heightOutNode, outY, heightInNode, inY);
-                portIn.y = calculateAlignedPosition(heightInNode, inY, heightOutNode, outY);
-
-                if (outCenter.x < inCenter.x) {
-                    portOut.x = widthOutNode;
-                    portIn.x = 0;
-                } else {
-                    portOut.x = 0;
-                    portIn.x = widthInNode;
-                }
-            } else {
-                portOut.x = calculateAlignedPosition(widthOutNode, outX, widthInNode, inX);
-                portIn.x = calculateAlignedPosition(widthInNode, inX, widthOutNode, outX);
-
-                if (outCenter.y < inCenter.y) {
-                    portOut.y = heightOutNode;
-                    portIn.y = 0;
-                } else {
-                    portOut.y = 0;
-                    portIn.y = heightInNode;
-                }
-            }
-        }
-
-        portOut.x = Math.max(0, Math.min(widthOutNode, portOut.x));
-        portOut.y = Math.max(0, Math.min(heightOutNode, portOut.y));
-        portIn.x = Math.max(0, Math.min(widthInNode, portIn.x));
-        portIn.y = Math.max(0, Math.min(heightInNode, portIn.y));
-
-        portOut.x -= 3;
-        portOut.y -= 3;
-        portIn.x -= 3;
-        portIn.y -= 3;
-
-        return { portOut, portIn };
+            this._ensureBackPath(connectionSvg);
+            const pathData = routeToPath(route);
+            connectionSvg.querySelector('.main-path')?.setAttribute('d', pathData);
+            connectionSvg.querySelector('.back-path')?.setAttribute('d', pathData);
+        });
     }
 
-    /** Helper function to get all relations between two nodes */
-    private _getAllConnectionsBetween(nodeId1: string, nodeId2: string): string[] {
-        const allNodes = this.editor.drawflow.drawflow.Home.data;
-        const connections: string[] = [];
+    /** Route the relations in the next frame, e.g. after Drawflow added or removed a class or relation */
+    private _scheduleRouting() {
+        cancelAnimationFrame(this._routingFrame);
+        this._routingFrame = requestAnimationFrame(() => this._routeRelations());
+    }
 
-        // search for one direction
-        const node1 = allNodes[nodeId1];
-        if (node1 && node1.outputs) {
-             Object.keys(node1.outputs).forEach(outKey => {
-                 node1.outputs[outKey].connections.forEach((conn: any) => {
-                     if (conn.node.toString() === nodeId2.toString()) {
-                         const connId = `node_in_node-${nodeId2}_node_out_node-${nodeId1}_${outKey}_${conn.output}`;
-                         connections.push(connId);
-                     }
-                 });
-             });
-        }
-
-        // search for the opposite direction
-        if (nodeId1 !== nodeId2) {
-            const node2 = allNodes[nodeId2];
-            if (node2 && node2.outputs) {
-                Object.keys(node2.outputs).forEach(outKey => {
-                    node2.outputs[outKey].connections.forEach((conn: any) => {
-                        if (conn.node.toString() === nodeId1.toString()) {
-                            const connId = `node_in_node-${nodeId1}_node_out_node-${nodeId2}_${outKey}_${conn.output}`;
-                            connections.push(connId);
-                        }
-                    });
-                });
-            }
-        }
-
-        // sort, so that the order remains the same for each new calculation
-        return connections.sort();
+    /** Get the SVG element of a relation by its connection id */
+    private _getConnectionSvg(connectionId: string): SVGElement | null {
+        const parts = connectionId.split('_');
+        const selector = `svg.connection.node_out_${parts[5]}.node_in_${parts[2]}.${parts[6]}_${parts[7]}.${parts[8]}_${parts[9]}`;
+        return this.shadowRoot?.querySelector(selector) as SVGElement | null;
     }
 
     /** calculate the optimal port positions for association classes */
@@ -1535,121 +1312,19 @@ export class UMLEditor extends LitElementWw{
         const partsForSelector = connectionId.split('_');
         const sourceNodeId = partsForSelector[5].replace('node-', '');
         const targetNodeId = partsForSelector[2].replace('node-', '');
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        if (!sourceNode || !targetNode) return;
-
         const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
         const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
 
-        // get the port positions
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        
-        if (!portPositions) return;
+        const route = this._routes.get(connectionId);
+        if (!route || route.length < 2) return;
 
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        let sourceMultiX, sourceMultiY, targetMultiX, targetMultiY, nameLabelX, nameLabelY;
-        
-        let sourceAnchor: 'start' | 'end' = 'start';
-        let targetAnchor: 'start' | 'end' = 'end';
-
-        let nameOffset = { x: 0, y: 5 };
-
-        const isSelfRelation = targetNode.data && targetNode.data.isProxy && targetNode.data.parentNodeId === sourceNodeId;
-        if (isSelfRelation) {
-            // calculate label positions for selfrelations
-            sourceAnchor = 'end';
-            targetAnchor = 'end';
-
-            const curveOffset = 40;
-            const verticalBarX = xOutputNode - curveOffset; 
-            const verticalCenterY = (yOutputNode + yInputNode) / 2;
-
-            sourceMultiX = xOutputNode - 15; 
-            sourceMultiY = yOutputNode - 10; 
-            
-            targetMultiX = xInputNode - 15; 
-            targetMultiY = yInputNode + 20; 
-
-            nameLabelX = verticalBarX;
-            nameLabelY = verticalCenterY;
-            nameOffset = { x: -30, y: 5 };
-
+        let source: EndLabelPositions, target: EndLabelPositions, name: LabelPosition;
+        if (this._isSelfRelation(sourceNodeId, targetNodeId)) {
+            ({ source, target, name } = this._getLoopLabelPositions(route));
         } else {
-            // calculate label positions for the regular case
-            const dx = xInputNode - xOutputNode;
-            const dy = yInputNode - yOutputNode;
-            const length = Math.sqrt(dx * dx + dy * dy);
-            
-            if(length == 0) return;
-
-            const normalX = -(dy / length);
-            const normalY = dx / length;
-
-            let angle = Math.atan2(-dy, dx) * 180 / Math.PI;
-            if (angle < 0) angle += 360;
-            const side = (angle >= 90 && angle < 270) ? 1 : -1;
-
-            const baseOffsetX = normalX * 30 * side;
-            const baseOffsetY = normalY * 30 * side;
-
-            // decides the direction of the label 'growing'
-            const nodeDx = targetNode.pos_x - sourceNode.pos_x;
-            const nodeDy = targetNode.pos_y - sourceNode.pos_y;
-            
-            if (Math.abs(nodeDx) >= Math.abs(nodeDy)) {
-                // fix to prevent the label von crossing the connection line
-                if (baseOffsetX < -1) {
-                    sourceAnchor = 'end';
-                    targetAnchor = 'end';
-                } else if (baseOffsetX > 1) {
-                    sourceAnchor = 'start';
-                    targetAnchor = 'start';
-                } else {
-                    if (xOutputNode < xInputNode) {
-                        sourceAnchor = 'start';
-                        targetAnchor = 'end';
-                    } else {
-                        sourceAnchor = 'end';
-                        targetAnchor = 'start';
-                    }
-                }
-            } else {
-                const isPushedLeft = (normalX * side) < 0;
-
-                if (isPushedLeft) {
-                    sourceAnchor = 'end';
-                    targetAnchor = 'end';
-                } else {
-                    sourceAnchor = 'start';
-                    targetAnchor = 'start';
-                }
-            }
-
-            const distance = Math.max(Math.min(length * 0.1, 30), 20);
-
-            const midX = (xOutputNode + xInputNode) / 2;
-            const midY = (yOutputNode + yInputNode) / 2;
-
-            sourceMultiX = xOutputNode + ((dx / length) * distance) + baseOffsetX;
-            sourceMultiY = yOutputNode + ((dy / length) * distance) + baseOffsetY;
-
-            targetMultiX = xInputNode - ((dx / length) * distance) + baseOffsetX;
-            targetMultiY = yInputNode - ((dy / length) * distance) + baseOffsetY;
-            
-            nameLabelX = midX + baseOffsetX;
-            nameLabelY = midY + baseOffsetY;
-
-            if (yOutputNode > yInputNode) {
-                sourceMultiY -= 15;
-            } else if (yInputNode > yOutputNode) {
-                targetMultiY -= 15;
-            }
+            const positions = this._getStraightLabelPositions(route[0], route[route.length - 1], sourceNodeId, targetNodeId);
+            if (!positions) return;
+            ({ source, target, name } = positions);
         }
 
         // get the data for the connection
@@ -1660,146 +1335,84 @@ export class UMLEditor extends LitElementWw{
 
         if (!connectionData) return;
 
-        let sourceMultiplicity = connectionData.sourceMultiplicity || '';
-        let targetMultiplicity = connectionData.targetMultiplicity || '';
-        let sourceRole = connectionData.sourceRole || '';
-        let targetRole = connectionData.targetRole || '';
-        let relationName = connectionData.relationName || '';
-
         // get the svg element of the connection
-        const selector = `svg.connection.node_out_node-${sourceNodeId}.node_in_node-${targetNodeId}.${outputPortId}.${inputPortId}`;
-        const svgElement = this.shadowRoot?.querySelector(selector) as SVGElement;
-        
+        const svgElement = this._getConnectionSvg(connectionId);
         if (!svgElement) return;
         
         // Add the labels
-        const multiOffset = { x: 0, y: 5 };
-        const roleOffset = { x: 0, y: 20 };
-        // source multiplicity
-        this.updateText('label-source',
-                        sourceMultiplicity,
-                        sourceMultiX,
-                        sourceMultiY,
-                        svgElement,
-                        multiOffset,
-                        sourceAnchor);
-        // target multiplicity
-        this.updateText('label-target',
-                        targetMultiplicity,
-                        targetMultiX,
-                        targetMultiY,
-                        svgElement,
-                        multiOffset,
-                        targetAnchor);
-        // source role
-        this.updateText('label-source-role',
-                        sourceRole,
-                        sourceMultiX,
-                        sourceMultiY,
-                        svgElement,
-                        roleOffset,
-                        sourceAnchor);
-        // target role
-        this.updateText('label-target-role',
-                        targetRole,
-                        targetMultiX,
-                        targetMultiY,
-                        svgElement,
-                        roleOffset,
-                        targetAnchor);
-        // relation name
-        this.updateText('label-name',
-                        relationName,
-                        nameLabelX,
-                        nameLabelY,
-                        svgElement,
-                        nameOffset,
-                        'middle');
+        this.updateText('label-source', connectionData.sourceMultiplicity || '', source.multiplicity, svgElement);
+        this.updateText('label-target', connectionData.targetMultiplicity || '', target.multiplicity, svgElement);
+        this.updateText('label-source-role', connectionData.sourceRole || '', source.role, svgElement);
+        this.updateText('label-target-role', connectionData.targetRole || '', target.role, svgElement);
+        this.updateText('label-name', connectionData.relationName || '', name, svgElement);
     }
 
-    /** 
-     * Central update method called after every node move or diagram load
-     * Updates association class lines, repositions proxy nodes for self-relations,
-     * recalculates all port positions and connection lines, and corrects self-relation paths
-     */
+    /** Place labels beside the line, with roles and multiplicities near each end. */
+    private _getStraightLabelPositions(start: Point, end: Point, sourceNodeId: string, targetNodeId: string) {
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
+        const length = Math.hypot(dx, dy);
+        if (length === 0) return null;
+
+        const offset = { x: dx === 0 ? 30 : 30 * dy * Math.sign(dx) / length, y: -30 * Math.abs(dx) / length };
+
+        // labels grow away from the line, or towards each other if they are right above a mostly horizontal relation
+        const nodes = this.editor.drawflow.drawflow.Home.data;
+        const mostlyHorizontal = Math.abs(nodes[targetNodeId].pos_x - nodes[sourceNodeId].pos_x) >= Math.abs(nodes[targetNodeId].pos_y - nodes[sourceNodeId].pos_y);
+        const [sourceAnchor, targetAnchor]: LabelPosition['anchor'][] = mostlyHorizontal && Math.abs(offset.x) <= 1
+            ? (start.x < end.x ? ['start', 'end'] : ['end', 'start'])
+            : (offset.x < 0 ? ['end', 'end'] : ['start', 'start']);
+
+        const distance = Math.max(Math.min(length * 0.1, 30), 20);
+        const along = { x: dx / length * distance, y: dy / length * distance };
+        // the labels at the upper end move up a line further
+        const endLabels = (x: number, y: number, anchor: LabelPosition['anchor']): EndLabelPositions => ({
+            multiplicity: { x, y: y + 5, anchor },
+            role: { x, y: y + 20, anchor }
+        });
+        return {
+            source: endLabels(start.x + along.x + offset.x, start.y + along.y + offset.y - (start.y > end.y ? 15 : 0), sourceAnchor),
+            target: endLabels(end.x - along.x + offset.x, end.y - along.y + offset.y - (end.y > start.y ? 15 : 0), targetAnchor),
+            name: { x: (start.x + end.x) / 2 + offset.x, y: (start.y + end.y) / 2 + offset.y + 5, anchor: 'middle' as const }
+        };
+    }
+
+    /** Place self-relation labels to the left of the loop. */
+    private _getLoopLabelPositions(route: Point[]): { source: EndLabelPositions, target: EndLabelPositions, name: LabelPosition } {
+        const [start, outerTop, , end] = route;
+        return {
+            source: {
+                multiplicity: { x: start.x - 15, y: start.y - 5, anchor: 'end' },
+                role: { x: start.x - 15, y: start.y + 10, anchor: 'end' }
+            },
+            target: {
+                multiplicity: { x: end.x - 15, y: end.y + 25, anchor: 'end' },
+                role: { x: end.x - 15, y: end.y + 40, anchor: 'end' }
+            },
+            name: { x: outerTop.x - 30, y: (start.y + end.y) / 2 + 5, anchor: 'middle' }
+        };
+    }
+
+    /** Sync the moved node's position and reroute the diagram. */
     private updateNodeVisuals(nodeId: string) {
         const movedNode = this.editor.getNodeFromId(nodeId);
         if (!movedNode) return;
 
-        // update asscociation class line to association
-        if (movedNode.data && movedNode.data.associatedConnectionId) {
-            this._updateAssociationClassLine(nodeId);
-        } 
+        // Drawflow's stored position is one mouse delta ahead of the element.
+        const movedNodeHTML = this.shadowRoot?.querySelector(`#node-${nodeId}`) as HTMLElement;
+        const left = parseFloat(movedNodeHTML?.style.left);
+        const top = parseFloat(movedNodeHTML?.style.top);
+        if (!isNaN(left) && !isNaN(top)) {
+            const storedNode = this.editor.drawflow.drawflow.Home.data[nodeId];
+            storedNode.pos_x = left;
+            storedNode.pos_y = top;
+        }
 
-        // update proxy positioning
-        const allNodes = this.editor.drawflow.drawflow.Home.data;
-        const myProxies = Object.values(allNodes).filter((n: any) => 
-            n.data.isProxy && n.data.parentNodeId === nodeId
-        ).sort((a: any, b: any) => parseInt(a.id) - parseInt(b.id));
-        const nodeEl = this.shadowRoot?.querySelector(`#node-${nodeId}`) as HTMLElement;
-        const heightNode = nodeEl?.offsetHeight || 100;
-        myProxies.forEach((proxyData: any, index: number) => {
-            const proxyId = proxyData.id;
-            const proxyEl = this.shadowRoot?.querySelector(`#node-${proxyId}`) as HTMLElement;
-
-            if (proxyEl) {
-                const totalProxies = myProxies.length;
-                const factor = (index + 1) / (totalProxies + 1);
-                const centerY = heightNode * factor;
-                const spread = 40;
-
-                const newX = movedNode.pos_x - 50;
-                
-                const newY = movedNode.pos_y + centerY - (spread / 2);
-
-                this.editor.drawflow.drawflow.Home.data[proxyId].pos_x = newX;
-                this.editor.drawflow.drawflow.Home.data[proxyId].pos_y = newY;
-
-                proxyEl.style.left = newX + "px";
-                proxyEl.style.top = newY + "px";
-
-                this.editor.updateConnectionNodes(`node-${proxyId}`);
-            }
-        });
-
-        // update relations and ports
-        const allConnections = this.getNodeConnectionsById(nodeId);
-        allConnections.forEach(connectionId => {
-            const parts = connectionId.split('_');
-            const targetId = parts[2].replace('node-', '');
-            const sourceId = parts[5].replace('node-', '');
-            const outPortName = parts[6] + '_' + parts[7]; 
-            const inPortName = parts[8] + '_' + parts[9];  
-
-            this.updatePortPositions(sourceId, targetId, outPortName, inPortName);
-
-            const targetNode = this.editor.getNodeFromId(targetId);
-            if (targetNode && targetNode.data.isProxy && targetNode.data.parentNodeId === sourceId) {
-                 const selector = `svg.connection.node_out_node-${sourceId}.node_in_node-${targetId}.${outPortName}.${inPortName}`;
-                 const connectionSvg = this.shadowRoot?.querySelector(selector);
-                 if (connectionSvg && !connectionSvg.classList.contains('self-relation')) {
-                     connectionSvg.classList.add('self-relation');
-                 }
-            }
-
-            this.renderRelationLabels(connectionId);
-            this._updateRelatedAssociationClass(connectionId);
-        });
-
-        // correct pathes of self relations
-        this._forceSelfRelationPaths();
+        this._routeRelations();
     }
 
     /** Helper method to create or update text elements */
-    private updateText(
-        className: string, 
-        content: string, 
-        x: number, 
-        y: number, 
-        svgElement: SVGElement,
-        offset: { x: number, y: number } = { x: 0, y: 0 },
-        textAnchor: 'start' | 'middle' | 'end' = 'middle'
-        ) {
+    private updateText(className: string, content: string, position: LabelPosition, svgElement: SVGElement) {
         
         // Check if element already exists
         let textEl = svgElement.querySelector(`.${className}`) as SVGTextElement;
@@ -1818,12 +1431,12 @@ export class UMLEditor extends LitElementWw{
 
         // update content
         textEl.textContent = content || '';
-        textEl.setAttribute('x', (x + offset.x).toString());
-        textEl.setAttribute('y', (y + offset.y).toString());
+        textEl.setAttribute('x', position.x.toString());
+        textEl.setAttribute('y', position.y.toString());
         
         // text-anchor controls the alignment point of the SVG text relative to its x coordinate
         // 'start' = grows right, 'middle' = centered, 'end' = grows left
-        textEl.setAttribute('text-anchor', textAnchor);
+        textEl.setAttribute('text-anchor', position.anchor);
     }
 
     /** Handle the clear/reset of the canvas */
@@ -2001,7 +1614,9 @@ export class UMLEditor extends LitElementWw{
 
         if (!svgElement) return;
 
-        const mid = this.getMiddleOfConnection(connectionId);
+        const middle = this.getMiddleOfConnection(connectionId);
+        if (!middle) return;
+        const mid = middle.point;
         const classAnchor = this.calculateOptimalPortPositionsForAssertionClasses(nodeId, mid.x, mid.y);
 
         let line = svgElement.querySelector(`.assoc-line-${nodeId}`) as SVGLineElement;
@@ -2021,31 +1636,10 @@ export class UMLEditor extends LitElementWw{
         line.setAttribute('y2', classAnchor.y.toString());
     }
 
-    /** Helper method to get the middle point of a relation */
-    private getMiddleOfConnection(connectionId: string) {
-        const partsForSelector = connectionId.split('_');
-
-        const sourceNodeId = partsForSelector[5].replace('node-', '');
-        const targetNodeId = partsForSelector[2].replace('node-', '');
-
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
-        const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
-
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        const midX = (xOutputNode + xInputNode) / 2;
-        const midY = (yOutputNode + yInputNode) / 2;
-
-        const mid = {x: midX, y: midY}
-
-        return mid;
+    /** Helper method to get the middle point of a relation and whether the line there is horizontal */
+    private getMiddleOfConnection(connectionId: string): { point: Point, horizontal: boolean } | null {
+        const route = this._routes.get(connectionId);
+        return route && route.length >= 2 ? routeMidpoint(route) : null;
     }
 
     /** create a new Assertion class and draw a line to the middle of the connection */
@@ -2054,55 +1648,26 @@ export class UMLEditor extends LitElementWw{
 
         // check for constraints
         if (this._getClassCount() >= this.settings.maxClasses) {
-            alert(msg("Maximal number of classes reached!"));
+            this.showNotice(msg("Maximum number of classes reached"));
             return;
         }
 
-        // calculate the middle-point of the association
-        // getMiddleOfConnection() is not used here because we also need the individual
-        // port positions to calculate the placement of the new association class
-        const partsForSelector = connectionId.split('_');
+        // place the new class below a horizontal or right of a vertical middle of the association
+        const middle = this.getMiddleOfConnection(connectionId);
+        if (!middle) return;
 
-        const sourceNodeId = partsForSelector[5].replace('node-', '');
-        const targetNodeId = partsForSelector[2].replace('node-', '');
-
-        const sourceNode = this.editor.getNodeFromId(sourceNodeId);
-        const targetNode = this.editor.getNodeFromId(targetNodeId);
-
-        const outputPortId = partsForSelector[6] + '_' + partsForSelector[7];
-        const inputPortId = partsForSelector[8] + '_' + partsForSelector[9];
-
-        const portPositions = this._calculateOptimalPortPositionsWithIds(sourceNodeId, targetNodeId, outputPortId, inputPortId);
-        
-        if (!portPositions) return;
-
-        const xOutputNode = sourceNode.pos_x + portPositions.portOut.x;
-        const yOutputNode = sourceNode.pos_y + portPositions.portOut.y;
-        const xInputNode = targetNode.pos_x + portPositions.portIn.x;
-        const yInputNode = targetNode.pos_y + portPositions.portIn.y;
-
-        const midX = (xOutputNode + xInputNode) / 2;
-        const midY = (yOutputNode + yInputNode) / 2;
-
-        const xDiff = Math.abs(Math.abs(xOutputNode) - Math.abs(xInputNode));
-        const yDiff = Math.abs(Math.abs(yOutputNode) - Math.abs(yInputNode));
-        let centerX = midX;
-        let centerY = midY;
-        
-        if (xDiff > yDiff) {
-            centerY = midY + 100;
+        let centerX = middle.point.x;
+        let centerY = middle.point.y;
+        if (middle.horizontal) {
+            centerY += 100;
         } else {
-            if (xOutputNode > xInputNode){
-                centerX = midX - 250;
-            } else  {
-                centerX = midX + 100;
-            }
+            centerX += 100;
         }
 
         // initialize new class
         const nodeData: ClassModel = {
             type: 'standard',
-            name: "New Association Class",
+            name: "NewAssociationClass",
             attributes: [],
             methods: [],
             objectName: '',
@@ -2242,7 +1807,9 @@ export class UMLEditor extends LitElementWw{
         if (sourceId === targetId) {
             if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
                 issues.push({
-                    message: msg("It is not allowed to create a " + this.interactionMode + " to the node itself!"),
+                    message: this.interactionMode === 'inheritance'
+                        ? msg("A class cannot inherit from itself.")
+                        : msg("A class cannot realize itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2253,7 +1820,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance') {
             if (sType === 'enum' || sType === 'record') {
                 issues.push({
-                    message: msg("Enums and Records cannot extend other classes."),
+                    message: msg("Enumerations and records cannot extend other classes."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2277,13 +1844,13 @@ export class UMLEditor extends LitElementWw{
             }
             if (sType === 'interface' && tType !== 'interface') {
                 issues.push({
-                    message: msg("Interfaces can only extend other Interfaces."),
+                    message: msg("Interfaces can only extend other interfaces."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType !== 'interface' && tType === 'interface') {
                 issues.push({
-                    message: msg("Classes cannot extend Interfaces. Please use 'Realization' (Implements)."),
+                    message: msg("Classes cannot extend interfaces. Use realization to implement an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2300,13 +1867,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'realization') {
             if (tType !== 'interface') {
                 issues.push({
-                    message: msg("Realization is only possible towards an Interface."),
+                    message: msg("Only interfaces can be realization targets."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'interface') {
                 issues.push({
-                    message: msg("Interfaces cannot implement. Please use 'Inheritance' (Extends)."),
+                    message: msg("Interfaces cannot realize other elements. Use inheritance to extend an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2328,7 +1895,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
             if (this._detectCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("Cycle detected! Inheritance cycles are not allowed."),
+                    message: msg("Inheritance cycles are not allowed."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2363,7 +1930,7 @@ export class UMLEditor extends LitElementWw{
             }
             if (this._detectCompositionCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("Composition cycle detected! A class cannot directly or indirectly own itself."),
+                    message: msg("A class cannot directly or indirectly own itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2373,13 +1940,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association-bidirectional') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be source of a bidirectional association."),
+                    message: msg("Data types and enumerations cannot be the source of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (tType === 'datatype' || tType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be target of a bidirectional association."),
+                    message: msg("Data types and enumerations cannot be the target of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2389,7 +1956,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("DataTypes and Enums cannot be the source of an association."),
+                    message: msg("Data types and enumerations cannot be the source of an association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2419,129 +1986,60 @@ export class UMLEditor extends LitElementWw{
 
             <div 
                 id="drawflowEditorDiv" 
-                class=${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''}
+                class="${this.interactionMode !== 'idle' ? 'interaction-mode-active' : ''} ${this._isEmpty ? 'empty' : ''}"
             >
                 <svg style="position: absolute; width: 0; height: 0;">
-                    <defs>
-                        <marker 
-                            id="arrow-inheritance" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="12" 
-                            markerHeight="12" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-700)" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-realization" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="12" 
-                            markerHeight="12" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-700)" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-association" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-association-reverse" 
-                            viewBox="0 0 10 10" 
-                            refX="0" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 10 0 L 0 5 L 10 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-dependency" 
-                            viewBox="0 0 10 10" 
-                            refX="10" 
-                            refY="5" 
-                            markerWidth="8" 
-                            markerHeight="8" 
-                            orient="auto">
-                            <path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="var(--sl-color-neutral-700)" stroke-width="1.5" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-aggregation" 
-                            viewBox="0 0 12 10" 
-                            refX="12" 
-                            refY="5" 
-                            markerWidth="10" 
-                            markerHeight="10" 
-                            orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1" />
-                        </marker>
-
-                        <marker 
-                            id="arrow-composition" 
-                            viewBox="0 0 12 10" 
-                            refX="12" 
-                            refY="5" 
-                            markerWidth="10" 
-                            markerHeight="10" 
-                            orient="auto">
-                            <path d="M 0 5 L 6 0 L 12 5 L 6 10 Z" fill="var(--sl-color-neutral-900)" stroke="var(--sl-color-neutral-900)" stroke-width="1" />
-                        </marker>
-                    </defs>
+                    <defs>${arrowMarkers(2)}</defs>
                 </svg>
             </div>
 
-            ${this.interactionMode !== 'idle' ? html`
-                <div class="interaction-banner">
-                    <sl-icon name="info-circle"></sl-icon>
-                    <span>
-                        ${this.firstOrSecondClass === 'first' ? 'Select Source: ' : 'Select Target: '}
-                        <strong>${this.interactionMode}</strong>
-                    </span>
-                    <sl-button size="small" pill @click=${this._cancelAddRelation}>
-                        ${msg("Cancel")}
-                    </sl-button>
+            ${this._notice ? keyed(this._noticeCount, html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="danger"
+                        duration="5000"
+                        closable
+                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
+                    >
+                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
+                        <span class="canvas-alert-text">${this._notice}</span>
+                    </sl-alert>
+                </div>
+            `) : this.interactionMode !== 'idle' ? html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="primary"
+                        closable
+                        open
+                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._cancelAddRelation(); }}
+                    >
+                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
+                        <span>
+                            ${this.firstOrSecondClass === 'first'
+                                ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
+                                : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
+                        </span>
+                    </sl-alert>
                 </div>
             ` : ''}
 
-            <div class="zoomControls">
-                <sl-icon-button
-                    src=${zoomIn}
-                    label="${msg("Zoom In")}"
-                    style="font-size: var(--sl-font-size-x-large);"
-                    @click=${() => this.editor.zoom_in()}
-                ></sl-icon-button>
-                
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
+            ${this._isEmpty ? html`
+                <div class="empty-hint">
+                    ${this.diagramType === 'object-diagram'
+                        ? msg("Add objects via the toolbar above.")
+                        : msg("Add classes via the toolbar above.")}
+                </div>
+            ` : ''}
 
-                <sl-icon-button
-                    src=${this.isFullscreen ? minimizeIcon : maximizeIcon}
-                    label="${msg("Toggle Fullscreen")}"
-                    style="font-size: 20px;"
-                    @click=${this._toggleFullscreen}
-                ></sl-icon-button>
-
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-                
-                <sl-icon-button
-                    src=${zoomOut}
-                    label="${msg("Zoom Out")}"
-                    style="font-size: 20px;"
-                    @click=${() => this.editor.zoom_out()}
-                ></sl-icon-button>
-            </div>
+            <zoom-controls
+                .zoomLevel=${this.editor?.zoom ?? 1}
+                .minZoom=${this.editor?.zoom_min ?? 0.5}
+                .maxZoom=${this.editor?.zoom_max ?? 1.6}
+                .isFullscreen=${this.isFullscreen}
+                ?zoomDisabled=${this._isEmpty}
+                @zoom-in=${() => this.editor.zoom_in()}
+                @zoom-out=${() => this.editor.zoom_out()}
+            ></zoom-controls>
 
             <uml-class-dialog 
                 .settings=${this.settings}
@@ -2565,6 +2063,8 @@ export class UMLEditor extends LitElementWw{
                 @dialog-opened=${() => this.dispatchEvent(new CustomEvent('dialog-opened', { bubbles: true, composed: true }))}
                 @dialog-closed=${() => this.dispatchEvent(new CustomEvent('dialog-closed', { bubbles: true, composed: true }))}
             ></uml-relation-dialog>
+
+            <confirm-dialog></confirm-dialog>
         `;
     }
 }

@@ -9,27 +9,30 @@ import { SequenceSettings } from "./components/sequence-diagram/models/sequence-
 import { GlobalSettings } from "./components/global-settings/global-settings-model";
 import { GlobalSettingsMenu } from "./components/global-settings/global-settings-menu/global-settings-menu";
 import { SequenceModel } from "./components/sequence-diagram/models/sequence-model";
-import styles from "./bamoritzs-oowidget.styles";
+import { DiagramTabs, visibleDiagramTypes } from "./components/diagram-tabs/diagram-tabs";
+import styles from "./webwriter-uml-diagram.styles";
 import { localized } from "@lit/localize";
+import LOCALIZE from "../localization/generated";
 
 /**
- * Main Widget for Object-Oriented Modelling
- * * **Responsibility:**
- * Top Level Manager for the application
- * Instantiates different diagram containers
- * Manages Visibility of the current diagram type
- * Holds and distributes settings
+ * Interactive editor for UML class, object and sequence diagrams.
+ * Authors configure the available diagram types, elements, limits and validation rules and can provide a
+ * starting diagram that learners can reset to. Learners model their solution directly in the widget.
  */
 @localized()
-@customElement("bamoritzs-oowidget")
-export class BamoritzsOowidget extends LitElementWw {
+@customElement("webwriter-uml-diagram")
+export class WebwriterUmlDiagram extends LitElementWw {
 
-    /** Register used Elements */
+    /** @internal Localization config; WebWriter uses it to set the locale of the widget */
+    public localize = LOCALIZE;
+
+    /** @internal Register used Elements */
     static get scopedElements() {
         return {
             "class-object-container": ClassObjectContainer,
             "sequence-diagram-container": SequenceDiagramContainer,
-            "global-settings-menu": GlobalSettingsMenu
+            "global-settings-menu": GlobalSettingsMenu,
+            "diagram-tabs": DiagramTabs
         };
     }
 
@@ -39,12 +42,12 @@ export class BamoritzsOowidget extends LitElementWw {
         this.addEventListener("fullscreenchange", () => this.requestUpdate());
     }
   
-    /** Set Styles for this Element */
+    /** @internal Set Styles for this Element */
     static styles = [styles];
 
     /** Create References & States */
 
-    /** property for the settings for the class diagram */
+    /** Class diagram settings as JSON: available class and relation types, limits and validation rules */
     @property({
         attribute: 'class-settings',
         reflect: true,
@@ -59,7 +62,7 @@ export class BamoritzsOowidget extends LitElementWw {
     })
     accessor classSettings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
 
-    /** property for the settings for the object diagram */
+    /** Object diagram settings as JSON: available elements, displayed details, limits and validation rules */
     @property({
         attribute: 'object-settings',
         reflect: true,
@@ -74,7 +77,7 @@ export class BamoritzsOowidget extends LitElementWw {
     })
     accessor objectSettings: ClassSettings = ClassSettings.getInitialObjectDiagramSettings();
 
-    /** property for the settings for the sequence diagram */
+    /** Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules */
     @property({
         attribute: 'sequence-settings',
         reflect: true,
@@ -92,7 +95,7 @@ export class BamoritzsOowidget extends LitElementWw {
     })
     accessor sequenceSettings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
 
-    /** property for the global settings */
+    /** Global settings as JSON: enabled diagram types, checkpoint reset and validation mode */
     @property({
         attribute: 'global-settings',
         reflect: true,
@@ -107,10 +110,10 @@ export class BamoritzsOowidget extends LitElementWw {
     })
     accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 
-    /** property to store the current diagram type */
+    /** Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram` */
     @property({ attribute: 'diagram-type', reflect: true }) accessor diagramType: string = "class-diagram";
 
-    /** property to the current sequence diagram */
+    /** Sequence diagram content as JSON (lifelines, messages and fragments) */
     @property({
         attribute: 'sequence-model-data',
         reflect: true,
@@ -125,22 +128,83 @@ export class BamoritzsOowidget extends LitElementWw {
     })
     accessor sequenceModelData: SequenceModel = SequenceModel.getInitialModel();
 
-    /** Property to store the state of the class diagram */
+    /** Class diagram content as JSON */
     @property({ attribute: 'class-diagram-data', reflect: true }) accessor classDiagramData: string = '';
 
-    /** Property to store the state of the object diagram */
+    /** Object diagram content as JSON */
     @property({ attribute: 'object-diagram-data', reflect: true }) accessor objectDiagramData: string = '';
 
-    /** Property to store a initial state of the class diagram */
-    @property({ attribute: 'class-diagram-checkpoint', reflect: true}) accessor savedClassDiagramCheckpoint: string = '';
+    /**
+     * Checkpoints learners can return to: the diagrams as saved by the author, i.e. as loaded.
+     * Taken from the attributes on the first update, so they are not affected by later (learner) changes.
+     */
+    private _classDiagramCheckpoint = '';
+    private _objectDiagramCheckpoint = '';
+    private _sequenceDiagramCheckpoint = '';
 
-    /** Property to store a initial state of the object diagram */
-    @property({ attribute: 'object-diagram-checkpoint', reflect: true}) accessor savedObjectDiagramCheckpoint: string = '';
+    /**
+     * Diagram changes are written to the attributes only after editing has paused for this long (ms).
+     * WebWriter records every attribute change as its own undo step, and a single user action
+     * (e.g. creating a relation) can emit several intermediate states.
+     */
+    private static readonly SAVE_DELAY = 300;
 
-    /** Property to store a initial state of the sequence diagram */
-    @property({ attribute: 'sequence-diagram-checkpoint', reflect: true}) accessor savedSequenceDiagramCheckpoint: string = '';
+    /** Pending diagram changes by diagram type, applied together after SAVE_DELAY */
+    private _pendingSaves = new Map<string, () => void>();
+    private _saveTimeout?: ReturnType<typeof setTimeout>;
 
-    /** getter for state of fullscreen */
+    protected willUpdate() {
+        if (!this.hasUpdated) {
+            this._classDiagramCheckpoint = this.getAttribute('class-diagram-data') ?? '';
+            this._objectDiagramCheckpoint = this.getAttribute('object-diagram-data') ?? '';
+            this._sequenceDiagramCheckpoint = this.getAttribute('sequence-model-data') ?? '';
+        }
+    }
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.ownerDocument.addEventListener('mousedown', this._clearProseMirrorNodeSelection);
+    }
+
+    disconnectedCallback() {
+        this._flushSaves();
+        this.ownerDocument.removeEventListener('mousedown', this._clearProseMirrorNodeSelection);
+        super.disconnectedCallback();
+    }
+
+    /**
+     * WebWriter selects the widget on every press, which can turn into a DOM range around it that highlights
+     * all of its texts. Remove that range (the widget stays selected), but leave text fields alone.
+     */
+    private _clearProseMirrorNodeSelection = (e: MouseEvent) => {
+        const path = e.composedPath();
+        if (!path.includes(this) || (path[0] as Element).closest?.('input, textarea')) return;
+        const selection = this.ownerDocument.getSelection();
+        if (!selection?.rangeCount || selection.isCollapsed) return;
+        const range = selection.getRangeAt(0);
+        const hostRange = this.ownerDocument.createRange();
+        hostRange.selectNode(this);
+        if (range.compareBoundaryPoints(Range.START_TO_START, hostRange) <= 0
+            && range.compareBoundaryPoints(Range.END_TO_END, hostRange) >= 0) {
+            selection.removeAllRanges();
+        }
+    };
+
+    /** Schedules a diagram change to be written once editing has paused, replacing an earlier pending one */
+    private _scheduleSave(diagramType: string, save: () => void) {
+        this._pendingSaves.set(diagramType, save);
+        clearTimeout(this._saveTimeout);
+        this._saveTimeout = setTimeout(() => this._flushSaves(), WebwriterUmlDiagram.SAVE_DELAY);
+    }
+
+    /** Writes all pending diagram changes */
+    private _flushSaves() {
+        clearTimeout(this._saveTimeout);
+        this._pendingSaves.forEach(save => save());
+        this._pendingSaves.clear();
+    }
+
+    /** @internal Whether the widget is shown in fullscreen */
     get isFullscreen() {
         return this.ownerDocument.fullscreenElement === this;
     }
@@ -161,25 +225,17 @@ export class BamoritzsOowidget extends LitElementWw {
 
     /** Handles model changes from the sequence diagram container */
     private _handleSequenceModelChanged(e: CustomEvent) {
-        this.sequenceModelData = e.detail.model;
-        if(this.contentEditable !== undefined) {
-            this.savedSequenceDiagramCheckpoint = JSON.stringify(e.detail.model);
-        }
+        const model = e.detail.model;
+        this._scheduleSave('sequence-diagram', () => this.sequenceModelData = model);
     }
 
     /** Handles diagram data changes from the class/object diagram editor */
     private _handleDiagramDataChanged(e: CustomEvent) {
         const { diagramType, data } = e.detail;
         if (diagramType === 'class-diagram') {
-            this.classDiagramData = data;
-            if (this.contentEditable !== undefined) {
-                this.savedClassDiagramCheckpoint = data;
-            }
+            this._scheduleSave(diagramType, () => this.classDiagramData = data);
         } else if (diagramType === 'object-diagram') {
-            this.objectDiagramData = data;
-            if (this.contentEditable !== undefined) {
-                this.savedObjectDiagramCheckpoint = data;
-            }
+            this._scheduleSave(diagramType, () => this.objectDiagramData = data);
         }
     }
 
@@ -241,59 +297,69 @@ export class BamoritzsOowidget extends LitElementWw {
         const hideObjectDiagram = this.diagramType === 'object-diagram' ? '' : 'display: none;';
         const hideSequenceDiagram = this.diagramType === 'sequence-diagram' ? '' : 'display: none;';
 
+        // The first visible tab sits on the frame's top left corner, so that corner is only rounded when another tab is active
+        const firstTabType = visibleDiagramTypes(this.globalSettings, this.diagramType)[0];
+
         return html`
-            
-            <div 
-                class="diagram-wrapper" 
-                style="${hideSequenceDiagram}"
-            >
-                <sequence-diagram-container
-                    @change-diagram-type=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
-                    .settings=${this.sequenceSettings}
+            <div class="root ${this.isFullscreen ? 'fullscreen' : ''}">
+                <diagram-tabs
+                    .active=${this.diagramType}
                     .globalSettings=${this.globalSettings}
-                    .model=${this.sequenceModelData}
-                    .checkpoint=${this.savedSequenceDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @sequence-model-changed=${this._handleSequenceModelChanged}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></sequence-diagram-container>
-            </div>
+                    ?fullscreen=${this.isFullscreen}
+                    @select-diagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
+                ></diagram-tabs>
 
-            <div 
-                class="diagram-wrapper" 
-                style="${hideClassDiagram}"
-            >
-                <class-object-container 
-                    diagramType="class-diagram"
-                    .settings=${this.classSettings}
-                    .globalSettings=${this.globalSettings}
-                    .savedDiagramData=${this.classDiagramData}
-                    .checkpoint=${this.savedClassDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @diagram-data-changed=${this._handleDiagramDataChanged}
-                    @changeDiagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.diagramType)}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></class-object-container>
-            </div>
+                <div class="frame ${this.diagramType === firstTabType ? 'first-tab-active' : ''}">
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideSequenceDiagram}"
+                    >
+                        <sequence-diagram-container
+                            .settings=${this.sequenceSettings}
+                            .globalSettings=${this.globalSettings}
+                            .model=${this.sequenceModelData}
+                            .checkpoint=${this._sequenceDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @sequence-model-changed=${this._handleSequenceModelChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></sequence-diagram-container>
+                    </div>
 
-            <div 
-                class="diagram-wrapper" 
-                style="${hideObjectDiagram}"
-            >
-                <class-object-container 
-                    diagramType="object-diagram"
-                    .settings=${this.objectSettings}
-                    .globalSettings=${this.globalSettings}
-                    .savedDiagramData=${this.objectDiagramData}
-                    .checkpoint=${this.savedObjectDiagramCheckpoint}
-                    .contentEditable=${this.contentEditable}
-                    @diagram-data-changed=${this._handleDiagramDataChanged}
-                    @changeDiagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.diagramType)}
-                    @toggle-fullscreen=${this._handleToggleFullscreen}
-                    .isFullscreen=${this.isFullscreen}
-                ></class-object-container>
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideClassDiagram}"
+                    >
+                        <class-object-container 
+                            diagramType="class-diagram"
+                            .settings=${this.classSettings}
+                            .globalSettings=${this.globalSettings}
+                            .savedDiagramData=${this.classDiagramData}
+                            .checkpoint=${this._classDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @diagram-data-changed=${this._handleDiagramDataChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></class-object-container>
+                    </div>
+
+                    <div 
+                        class="diagram-wrapper" 
+                        style="${hideObjectDiagram}"
+                    >
+                        <class-object-container 
+                            diagramType="object-diagram"
+                            .settings=${this.objectSettings}
+                            .globalSettings=${this.globalSettings}
+                            .savedDiagramData=${this.objectDiagramData}
+                            .checkpoint=${this._objectDiagramCheckpoint}
+                            .contentEditable=${this.contentEditable}
+                            @diagram-data-changed=${this._handleDiagramDataChanged}
+                            @toggle-fullscreen=${this._handleToggleFullscreen}
+                            .isFullscreen=${this.isFullscreen}
+                        ></class-object-container>
+                    </div>
+                </div>
             </div>
 
             <global-settings-menu
@@ -302,7 +368,6 @@ export class BamoritzsOowidget extends LitElementWw {
                 .classSettings=${this.classSettings}
                 .objectSettings=${this.objectSettings}
                 .sequenceSettings=${this.sequenceSettings}
-                .diagramType=${this.diagramType}
                 @settings-changed=${this._handleSettingsUpdate}
             ></global-settings-menu>
         `;

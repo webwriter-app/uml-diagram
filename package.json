@@ -1,12 +1,40 @@
 {
-    "name": "@bamoritzs/oowidget",
-    "version": "0.0.1",
+    "name": "@webwriter/uml-diagram",
+    "version": "1.0.0",
+    "description": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+    "keywords": [
+        "webwriter-widget",
+        "widget-conceptual",
+        "widget-practical",
+        "widget-lang-en",
+        "widget-lang-de",
+        "widget-lang-es",
+        "widget-lang-fr",
+        "widget-lang-it",
+        "widget-lang-nl",
+        "widget-lang-pl",
+        "widget-lang-pt-BR",
+        "iscedf2013-06",
+        "isced2011-3",
+        "isced2011-6",
+        "isced2011-7",
+        "uml",
+        "class-diagram",
+        "object-diagram",
+        "sequence-diagram",
+        "modeling",
+        "object-oriented programming"
+    ],
+    "license": "MIT",
+    "author": "moritz.sander@rwth-aachen.de",
+    "repository": "https://github.com/webwriter-app/uml-diagram",
     "scripts": {
         "prepublishOnly": "npx @webwriter/build",
         "dev": "npx @webwriter/build dev",
         "localize": "lit-localize extract && npx @webwriter/build localize && lit-localize build"
     },
     "dependencies": {
+        "@lit/localize": "^0.12.2",
         "@shoelace-style/shoelace": "^2.20.1",
         "@tabler/icons": "^3.36.1",
         "@webwriter/lit": "^2",
@@ -18,14 +46,15 @@
         "@lit/localize-tools": "^0.8"
     },
     "exports": {
-        "./widgets/bamoritzs-oowidget.*": {
-            "source": "./widgets/bamoritzs-oowidget.ts",
-            "default": "./dist/widgets/bamoritzs-oowidget.*"
-        }
+        "./widgets/webwriter-uml-diagram.*": {
+            "source": "./widgets/webwriter-uml-diagram.ts",
+            "default": "./dist/widgets/webwriter-uml-diagram.*"
+        },
+        "./icon": "./icon.svg",
+        "./editing-config.json": "./editing-config.json",
+        "./snippets/library-loan.html": "./snippets/library-loan.html",
+        "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
+        "./custom-elements.json": "./custom-elements.json"
     },
-    "keywords": [
-        "webwriter-widget"
-    ],
-    "license": "MIT",
-    "author": "moritz.sander@rwth-aachen.de"
+    "customElements": "custom-elements.json"
 }

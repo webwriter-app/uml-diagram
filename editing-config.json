@@ -1,0 +1,43 @@
+{
+    ".": {
+        "description": {
+            "_": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "de": "UML-Klassen-, Objekt- und Sequenzdiagramme erstellen und üben, mit konfigurierbaren Elementen, Grenzen und Validierung.",
+            "fr": "Créer et pratiquer des diagrammes UML de classes, d'objets et de séquence avec des éléments, limites et validations configurables.",
+            "es": "Crear y practicar diagramas UML de clases, objetos y secuencia con elementos, límites y validación configurables.",
+            "it": "Creare ed esercitarsi con diagrammi UML delle classi, degli oggetti e di sequenza con elementi, limiti e validazione configurabili.",
+            "nl": "UML-klasse-, object- en sequentiediagrammen maken en oefenen met configureerbare elementen, limieten en validatie.",
+            "pl": "Twórz i ćwicz diagramy UML klas, obiektów i sekwencji z konfigurowalnymi elementami, limitami i walidacją.",
+            "pt-BR": "Crie e pratique diagramas UML de classes, objetos e sequência com elementos, limites e validação configuráveis."
+        }
+    },
+    "./widgets/webwriter-uml-diagram": {
+        "label": {
+            "_": "UML Diagram"
+        }
+    },
+    "./snippets/library-loan": {
+        "label": {
+            "_": "Library Loan",
+            "de": "Buchausleihe",
+            "fr": "Prêt de livre",
+            "es": "Préstamo de libros",
+            "it": "Prestito di libri",
+            "nl": "Boek lenen",
+            "pl": "Wypożyczenie książki",
+            "pt-BR": "Empréstimo de livros"
+        }
+    },
+    "./snippets/online-shop-checkout": {
+        "label": {
+            "_": "Online Shop",
+            "de": "Onlineshop",
+            "fr": "Boutique en ligne",
+            "es": "Tienda en línea",
+            "it": "Negozio online",
+            "nl": "Webwinkel",
+            "pl": "Sklep internetowy",
+            "pt-BR": "Loja online"
+        }
+    }
+}

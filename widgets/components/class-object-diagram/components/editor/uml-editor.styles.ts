@@ -18,15 +18,22 @@ export default css`
     /* Drawflow Canvas                                                            */
     /* -------------------------------------------------------------------------- */
 
-    /* Main editor canvas with a dotted grid background */
+    /* Main editor canvas with a dotted grid background that follows panning and zooming (grid variables are set by the editor) */
     #drawflowEditorDiv {
         position: relative;
         width: 100%;
         height: 100%;
-        background-color: var(--sl-color-neutral-0);
+        background-color: var(--uml-canvas-background, var(--sl-color-neutral-0));
         background-image: radial-gradient(circle, var(--sl-color-neutral-300) 1px, transparent 1px);
-        background-size: 40px 40px;
+        background-size: var(--grid-size, 40px) var(--grid-size, 40px);
+        background-position: var(--grid-x, 0) var(--grid-y, 0);
         overflow: hidden;
+        /* Touches pan, zoom and drag the diagram instead of scrolling or zooming the page */
+        touch-action: none;
+        /* Long presses open the element's menu instead of selecting text or showing Safari's callout */
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
     }
 
     /* Hides the default Drawflow delete button */
@@ -66,7 +73,7 @@ export default css`
         min-width: 30px;
         min-height: 30px;
         cursor: grab;
-        transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+        transition: border-color var(--sl-transition-fast) ease;
     }
 
     /* Switches to grabbing cursor while actively dragging a node */
@@ -74,17 +81,37 @@ export default css`
         cursor: grabbing;
     }
 
-    /* Highlights nodes on hover when not in relation mode */
-    #drawflowEditorDiv:not(.interaction-mode-active) .drawflow-node:hover {
-        border-color: var(--sl-color-primary-500);
-        box-shadow: var(--sl-shadow-medium);
-        transform: translateY(-2px);
-        z-index: 5;
+    /* Outlines hovered nodes in the primary color (without moving them) */
+    .drawflow .drawflow-node:hover {
+        border-color: var(--sl-color-primary-600);
     }
 
     /* Switches to move cursor when panning the canvas background */
     #drawflowEditorDiv:active {
         cursor: move;
+    }
+
+    /* The empty canvas cannot be panned */
+    #drawflowEditorDiv.empty:active {
+        cursor: default;
+    }
+
+    /* Hint in the center of an empty canvas, pointing to the toolbar */
+    .empty-hint {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--sl-spacing-large);
+        box-sizing: border-box;
+        text-align: center;
+        font-family: var(--sl-font-sans);
+        font-size: var(--sl-font-size-small);
+        color: var(--sl-color-neutral-500);
+        -webkit-user-select: none;
+        user-select: none;
+        pointer-events: none;
     }
 
     /* -------------------------------------------------------------------------- */
@@ -223,18 +250,18 @@ export default css`
         stroke-width: 2px;
         cursor: pointer;
         pointer-events: stroke !important;
-        transition: stroke 0.2s ease, stroke-width 0.2s ease;
+        transition: stroke var(--sl-transition-fast) ease;
         paint-order: stroke;
     }
 
-    /* Thickens the connection line on hover */
-    .drawflow .connection .main-path:hover {
-        stroke-width: 3px;
+    /* Colors hovered connections (incl. their arrow heads) in the primary color */
+    .drawflow .connection:hover .main-path {
+        stroke: var(--sl-color-primary-600) !important;
     }
 
-    /* Thickens the connection line when the SVG container is hovered */
-    .drawflow .connection:hover .main-path {
-        stroke-width: 3px !important;
+    /* In relation mode only classes can be selected, so connections can't be hovered or selected */
+    .interaction-mode-active .drawflow .connection :is(.main-path, .back-path) {
+        pointer-events: none !important;
     }
 
     /* Prevents the cursor from flickering over connection text labels */
@@ -254,48 +281,44 @@ export default css`
 
     /* Closed triangle arrowhead for inheritance */
     .drawflow .connection.inheritance .main-path {
-        marker-end: url(#arrow-inheritance);
+        marker-end: url(#arrow-triangle);
     }
 
     /* Dashed line with closed triangle for realization */
     .drawflow .connection.realization .main-path {
         stroke-dasharray: 10, 5;
-        marker-end: url(#arrow-inheritance);
+        marker-end: url(#arrow-triangle);
     }
 
     /* Open arrowhead for directed association */
     .drawflow .connection.association .main-path {
-        marker-end: url(#arrow-association);
+        marker-end: url(#arrow-open);
     }
 
     /* Dashed line with open arrowhead for dependency */
     .drawflow .connection.dependency .main-path {
         stroke-dasharray: 10, 5;
-        marker-end: url(#arrow-association);
+        marker-end: url(#arrow-open);
     }
 
     /* Filled diamond arrowhead for composition */
     .drawflow .connection.composition .main-path {
-        marker-end: url(#arrow-composition);
+        marker-end: url(#arrow-diamond-filled);
     }
 
     /* Empty diamond arrowhead for aggregation */
     .drawflow .connection.aggregation .main-path {
-        marker-end: url(#arrow-aggregation);
+        marker-end: url(#arrow-diamond-hollow);
     }
 
     /* Open arrowheads at both ends for bidirectional association */
     .drawflow .connection.association-bidirectional .main-path {
-        stroke-width: 1.5px;
-        stroke: var(--sl-color-neutral-700);
-        marker-end: url(#arrow-association);
-        marker-start: url(#arrow-association-reverse);
+        marker-end: url(#arrow-open);
+        marker-start: url(#arrow-open);
     }
 
     /* No arrowheads for undirected association */
     .drawflow .connection.association-undirected .main-path {
-        stroke-width: 1.5px;
-        stroke: var(--sl-color-neutral-700);
         marker-end: none;
         marker-start: none;
     }
@@ -304,74 +327,17 @@ export default css`
     /* Relation Mode Interaction                                                  */
     /* -------------------------------------------------------------------------- */
 
-    /* Crosshair cursor and highlight for selectable nodes in relation mode */
-    .interaction-mode-active .drawflow-node {
+    /* In relation mode, marks all nodes that can be clicked with a dashed outline (outside the border, so nothing moves) */
+    .interaction-mode-active .drawflow-node:not(.uml-proxy-node) {
         cursor: crosshair;
-        box-shadow: 0 0 8px var(--sl-color-primary-300);
-        border-color: var(--sl-color-primary-400);
-        transition: all 0.3s ease;
+        outline: 2px dashed var(--sl-color-primary-400);
+        outline-offset: 3px;
     }
 
-    /* Stronger highlight for nodes hovered in relation mode */
-    .interaction-mode-active .drawflow-node:hover {
-        box-shadow: 0 0 15px var(--sl-color-primary-500);
-        transform: scale(1.02);
-    }
-
-    /* Highlights the node selected as the relation source */
-    .node-source-selected {
-        border: 3px solid var(--sl-color-primary-600) !important;
-        box-shadow: 0 0 20px var(--sl-color-primary-600) !important;
-    }
-
-    /* Floating banner shown at the top of the editor during relation creation */
-    .interaction-banner {
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 999;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 20px;
-        background-color: var(--sl-color-primary-700);
-        color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-pill);
-        box-shadow: var(--sl-shadow-large);
-        font-size: var(--sl-font-size-small);
-        pointer-events: auto;
-        border: 1px solid var(--sl-color-primary-900);
-    }
-
-    /* -------------------------------------------------------------------------- */
-    /* Zoom Controls                                                              */
-    /* -------------------------------------------------------------------------- */
-
-    /* Floating panel in the bottom-right corner for zoom buttons */
-    .zoomControls {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        z-index: 10;
-        padding: 4px;
-        background-color: var(--sl-color-neutral-0);
-        border-radius: var(--sl-border-radius-medium);
-        border: 1px solid var(--sl-color-neutral-200);
-        box-shadow: var(--sl-shadow-small);
-    }
-
-    /* Default color and padding for zoom icon buttons */
-    .zoomControls sl-icon-button::part(base) {
-        padding: 4px;
-        color: var(--sl-color-neutral-700);
-    }
-
-    /* Highlights zoom buttons on hover */
-    .zoomControls sl-icon-button:hover::part(base) {
-        color: var(--sl-color-primary-600);
+    /* Marks the node selected as the relation source with the (solid) Shoelace focus ring */
+    .interaction-mode-active .drawflow-node.node-source-selected {
+        border-color: var(--sl-color-primary-600);
+        outline: var(--sl-focus-ring);
+        outline-offset: var(--sl-focus-ring-offset);
     }
 `;

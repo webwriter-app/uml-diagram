@@ -3,11 +3,13 @@ import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { ClassSettings } from "../../models/class-settings-model";
+import toolbarStyles from "../../../shared/toolbar.styles";
+import { closeOtherDropdowns } from "../../../shared/toolbar-dropdowns";
 import styles from "./class-toolbar.styles";
-import squareIcon from "@tabler/icons/outline/square.svg";
-import arrowUpRightIcon from "@tabler/icons/outline/arrow-up-right.svg";
+import classPlusIcon from "../../../../../assets/icons/class-plus.svg";
+import objectPlusIcon from "../../../../../assets/icons/object-plus.svg";
+import connectionPlusIcon from "../../../../../assets/icons/connection-plus.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { SlButton, SlDivider, SlMenu, SlMenuItem, SlMenuLabel, SlDropdown, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 
 /** 
@@ -32,7 +34,7 @@ export class ClassToolbar extends LitElementWw{
     }
 
     /** Styles are definied in the corespondig file ./class-toolbar.styles.ts */
-    static styles = [styles];
+    static styles = [toolbarStyles, styles];
 
     /** Property to hold the current diagram type passed down by the widget */
     @property() accessor diagramType: string = "class-diagram";
@@ -40,17 +42,11 @@ export class ClassToolbar extends LitElementWw{
     /** Property to hold the passed down settings for the diagram */
     @property({ attribute: false }) accessor settings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
 
-    /** Property to hold the passed down global settings */
-    @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
-
     /** Property to hold the current number of classes/objects passed down by the container*/
     @property({ type: Number }) accessor currentClassCount: number = 0;
 
     /** Property to hold the current number of relations/links passed down by the container */
     @property({ type: Number }) accessor currentRelationCount: number = 0;
-
-    /** Property to hold the current state of the fullscreen mode (on or off) */
-    @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
     /** Property to inform the toolbar that a dialog is opend to deactivate it */
     @property({ type: Boolean, reflect: true }) accessor dialogOpen: boolean = false;
@@ -91,17 +87,6 @@ export class ClassToolbar extends LitElementWw{
         }
     }
 
-    /** Dispatch an event to inform the widget to change the diagram type */
-    private _changeDiagram(diagramType: string) {
-        this.dispatchEvent(
-            new CustomEvent('changeDiagram', {
-                bubbles: true,
-                composed: true,
-                detail: { diagramType }
-            })
-        )
-    }
-
     // --------------------------------------------------------------------------------------------------------
     // rendering and rendering helper methods
     // --------------------------------------------------------------------------------------------------------
@@ -111,12 +96,12 @@ export class ClassToolbar extends LitElementWw{
         const s = "currentColor"; 
         const w = 1.5;            
         
-        // define different arrowheads
-        const arrowRight = svg`<path d="M 26 3 L 34 7 L 26 11" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const arrowLeft = svg`<path d="M 9 3 L 1 7 L 9 11" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const triangleEmpty = svg`<path d="M 24 2 L 34 7 L 24 12 Z" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const diamondEmpty = svg`<path d="M 20 7 L 27 3 L 34 7 L 27 11 Z" fill="none" stroke="${s}" stroke-width="${w}" />`;
-        const diamondFilled = svg`<path d="M 20 7 L 27 3 L 34 7 L 27 11 Z" fill="${s}" stroke="${s}" stroke-width="${w}" />`;
+        // define different arrowheads (rounded tips and proportions as in the diagram)
+        const arrowRight = svg`<path d="M 26 3 L 34 7 L 26 11" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const arrowLeft = svg`<path d="M 9 3 L 1 7 L 9 11" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const triangleEmpty = svg`<path d="M 24 2 L 34 7 L 24 12 Z" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const diamondEmpty = svg`<path d="M 22 7 L 28 2.5 L 34 7 L 28 11.5 Z" fill="none" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
+        const diamondFilled = svg`<path d="M 22 7 L 28 2.5 L 34 7 L 28 11.5 Z" fill="${s}" stroke="${s}" stroke-width="${w}" stroke-linejoin="round" />`;
 
 
         // define different Arrowlines
@@ -124,7 +109,7 @@ export class ClassToolbar extends LitElementWw{
         const lineToArrowDashed = svg`<line x1="0" y1="7" x2="26" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="4,2" />`;
         const lineToTriangle = svg`<line x1="0" y1="7" x2="24" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineToTriangleDashed = svg`<line x1="0" y1="7" x2="24" y2="7" stroke="${s}" stroke-width="${w}" stroke-dasharray="4,2" />`;
-        const lineToDiamond = svg`<line x1="0" y1="7" x2="20" y2="7" stroke="${s}" stroke-width="${w}" />`;
+        const lineToDiamond = svg`<line x1="0" y1="7" x2="22" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineBiDir = svg`<line x1="9" y1="7" x2="26" y2="7" stroke="${s}" stroke-width="${w}" />`;
         const lineFull = svg`<line x1="0" y1="7" x2="35" y2="7" stroke="${s}" stroke-width="${w}" />`;
 
@@ -163,82 +148,48 @@ export class ClassToolbar extends LitElementWw{
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
         return html`
-            <div class="toolbar-container ${this.isFullscreen ? 'fullscreen' : ''}">
-                
-                <div class="left-section">
-                    <sl-dropdown hoist>
-                        <sl-button class="toolbar-btn" slot="trigger" caret>${msg(this.diagramType)}</sl-button>
-                        
-                        <sl-menu class="toolbar-menu" style="width: 265px;">
-    
-                            ${!isObjectDiagram && this.globalSettings.objectDiagramEnabled ? html`
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("object-diagram")}>
-                                    ${msg("Switch to Object-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                            ${isObjectDiagram && this.globalSettings.classDiagramEnabled ? html`
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("class-diagram")}>
-                                    ${msg("Switch to Class-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                            ${this.globalSettings.sequenceDiagramEnabled ? html`
-                                <sl-divider class="toolbar-divider"></sl-divider>
-                                <sl-menu-item class="toolbar-menu-item" @click=${() => this._changeDiagram("sequence-diagram")}>
-                                    ${msg("Switch to Sequence-Diagram")}
-                                </sl-menu-item>
-                            ` : ''}
-
-                        </sl-menu>
-                    </sl-dropdown>
-                </div>
-
-                <div class="center-section">
+            <div class="toolbar-container" @sl-show=${closeOtherDropdowns} @pointerdown=${closeOtherDropdowns}>
+                <div class="actions">
                     ${isObjectDiagram 
                         ? html`
                             <sl-tooltip
-                                content=${msg("Max. number of objects reached")}
+                                content=${msg("Maximum number of objects reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
+                                placement="bottom-start"
                                 hoist
                             >
                                 <sl-button 
-                                    class="toolbar-btn" 
-                                    variant="text" 
+                                    size="small"
                                     @click=${() => this._sendClass("object")}
                                     ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                 >
-                                    <sl-icon 
-                                        slot="prefix" 
-                                        src=${squareIcon}
-                                    ></sl-icon>
-                                    ${msg("Add Object")}
+                                    <sl-icon slot="prefix" src=${objectPlusIcon}></sl-icon>
+                                    ${msg("Object")}
                                 </sl-button>
                             </sl-tooltip>
                         ` 
                         : html`
                             <sl-tooltip
-                                content=${msg("Max. number of classes reached")}
+                                content=${msg("Maximum number of classes reached")}
                                 ?disabled=${this.currentClassCount < this.settings.maxClasses}
+                                placement="bottom-start"
                                 hoist
                             >
                                 <div>
-                                    <sl-dropdown placement="bottom-end" hoist>
+                                    <sl-dropdown placement="bottom-start" hoist>
                                         <sl-button 
-                                            class="toolbar-btn" 
+                                            size="small"
                                             slot="trigger" 
-                                            variant="text" 
                                             caret
                                             ?disabled=${this.currentClassCount >= this.settings.maxClasses}
                                         >
-                                            <sl-icon slot="prefix" src=${squareIcon}></sl-icon>
-                                            ${msg("Add Class")}
+                                            <sl-icon slot="prefix" src=${classPlusIcon}></sl-icon>
+                                            ${msg("Class")}
                                         </sl-button>
 
-                                        <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
+                                        <sl-menu class="toolbar-menu" style="min-width: 250px;" hoist>
                                             ${ (this.settings.standardExists || this.settings.abstractExists || this.settings.parameterizedExists) ? html`
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Classes:")}</sl-menu-label>
-                                                <sl-divider class="toolbar-divider"></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Classes")}</sl-menu-label>
                                                 ${this.settings.standardExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("standard")}>${msg("Class")}</sl-menu-item>` : ''}
                                                 ${this.settings.abstractExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("abstract")}>${msg("Abstract Class")}</sl-menu-item>` : ''}
                                                 ${this.settings.parameterizedExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("param-class")}>${msg("Parameterized Class")}</sl-menu-item>` : ''}
@@ -246,25 +197,22 @@ export class ClassToolbar extends LitElementWw{
 
                                             ${ (this.settings.interfaceExists || this.settings.annotationExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Interfaces & Metadata:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Interfaces & Metadata")}</sl-menu-label>
                                                 ${this.settings.interfaceExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("interface")}>${msg("Interface")}</sl-menu-item>` : ''}
                                                 ${this.settings.annotationExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("annotation")}>${msg("Annotation")}</sl-menu-item>` : ''}
                                             ` : '' }
 
                                             ${ (this.settings.recordExists || this.settings.dataTypeExists || this.settings.enumExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Data Types:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Data Types")}</sl-menu-label>
                                                 ${this.settings.recordExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("record")}>${msg("Record")}</sl-menu-item>` : ''}
-                                                ${this.settings.dataTypeExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("datatype")}>${msg("DataType")}</sl-menu-item>` : ''}
+                                                ${this.settings.dataTypeExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("datatype")}>${msg("Data Type")}</sl-menu-item>` : ''}
                                                 ${this.settings.enumExists ? html`<sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("enum")}>${msg("Enumeration")}</sl-menu-item>` : ''}
                                             ` : '' }
 
                                             ${ (this.settings.objectExists) ? html`
                                                 <sl-divider class="toolbar-divider"></sl-divider>
-                                                <sl-menu-label class="toolbar-menu-label">${msg("Runtime:")}</sl-menu-label>
-                                                <sl-divider></sl-divider>
+                                                <sl-menu-label class="toolbar-menu-label">${msg("Runtime")}</sl-menu-label>
                                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendClass("object")}>${msg("Object")}</sl-menu-item>
                                             ` : '' }
                                         </sl-menu>
@@ -274,31 +222,28 @@ export class ClassToolbar extends LitElementWw{
                         `
                     }
 
-                    <sl-divider vertical style="height: 30px"></sl-divider>
-
                     <sl-tooltip
-                        content=${msg("Max. number of connections reached")}
+                        content=${msg("Maximum number of connections reached")}
                         ?disabled=${this.currentRelationCount < this.settings.maxRelations}
+                        placement="bottom-start"
                         hoist
                     >
                         <div>
-                            <sl-dropdown placement="bottom-end" hoist>
+                            <sl-dropdown placement="bottom-start" hoist>
                                 <sl-button 
-                                    class="toolbar-btn" 
+                                    size="small"
                                     slot="trigger" 
-                                    variant="text" 
                                     caret
                                     ?disabled=${this.currentRelationCount >= this.settings.maxRelations}
                                 >
-                                    <sl-icon slot="prefix" src=${arrowUpRightIcon}></sl-icon>
-                                    ${isObjectDiagram ? msg("Add Link") : msg("Add Relation")}
+                                    <sl-icon slot="prefix" src=${connectionPlusIcon}></sl-icon>
+                                    ${isObjectDiagram ? msg("Link") : msg("Relation")}
                                 </sl-button>
                                 
-                                <sl-menu class="toolbar-menu" style="width: 250px;" hoist>
+                                <sl-menu class="toolbar-menu" style="min-width: 250px;" hoist>
                                     
                                     ${ (this.settings.associationExists || this.settings.associationBidirectionalExists || this.settings.associationUndirectedExists) ? html`
-                                        <sl-menu-label class="toolbar-menu-label">${isObjectDiagram ? msg("Links") : msg("Connections")}</sl-menu-label>
-                                        <sl-divider class="toolbar-divider"></sl-divider>
+                                        ${!isObjectDiagram ? html`<sl-menu-label class="toolbar-menu-label">${msg("Connections")}</sl-menu-label>` : ''}
                                         
                                         ${this.settings.associationExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("association")}>
@@ -310,7 +255,7 @@ export class ClassToolbar extends LitElementWw{
                                         ${this.settings.associationBidirectionalExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("association-bidirectional")}>
                                                 <div slot="prefix" style="display: flex; align-items: center;">${this._renderRelationIcon('association-bidirectional')}</div>
-                                                ${isObjectDiagram ? msg("Link (Bi-Dir)") : msg("Association (Bi-Dir)")}
+                                                ${isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)")}
                                             </sl-menu-item>
                                         ` : ''}
 
@@ -325,7 +270,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (!isObjectDiagram && (this.settings.inheritanceExists || this.settings.realizationExists)) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Generalization")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         ${this.settings.inheritanceExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("inheritance")}>
@@ -345,7 +289,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (!isObjectDiagram && this.settings.dependencyExists) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Dependencies")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("dependency")}>
                                             <div slot="prefix" style="display: flex; align-items: center;">${this._renderRelationIcon('dependency')}</div>
@@ -356,7 +299,6 @@ export class ClassToolbar extends LitElementWw{
                                     ${ (this.settings.aggregationExists || this.settings.compositionExists) ? html`
                                         <sl-divider class="toolbar-divider"></sl-divider>
                                         <sl-menu-label class="toolbar-menu-label">${msg("Part / Whole")}</sl-menu-label>
-                                        <sl-divider></sl-divider>
 
                                         ${this.settings.aggregationExists ? html`
                                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._sendRelation("aggregation")}>
@@ -379,15 +321,15 @@ export class ClassToolbar extends LitElementWw{
                     </sl-tooltip>
                 </div>
                 
-                <div class="right-section">
+                <sl-tooltip content=${msg("Reset diagram")} placement="bottom-end" hoist>
                     <sl-button 
                         class="clear-btn" 
-                        variant="text" 
+                        size="small"
                         @click=${() => this.dispatchEvent(new CustomEvent('clearCanvas', { bubbles: true, composed: true }))}
                     >
-                        <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
+                        <sl-icon src=${trashIcon} label=${msg("Reset diagram")}></sl-icon>
                     </sl-button>
-                </div>
+                </sl-tooltip>
             </div>
         `;
     }

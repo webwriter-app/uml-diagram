@@ -10,36 +10,9 @@ export default css`
     /* Sets a fixed width with a maximum */
     #edit-dialog::part(panel) {
         width: 800px;
-        max-width: 90%; 
-        max-height: 100%;
-        border: 2px solid var(--sl-color-neutral-900);
-    }
-
-    /* Reduces header padding */
-    #edit-dialog::part(header) {
-        padding-top: 0px;
-        padding-bottom: 0px;
-        min-height: 0;
-    }
-
-    /* Reduces body padding */
-    #edit-dialog::part(body) {
-        padding-top: 1px;
-        padding-bottom: 1px;
-        min-height: 0;
-    }
-
-    /* tightens the line height of the dialog title */
-    #edit-dialog::part(title) {
-        line-height: 1.2;
-    }
-
-    /* reduces the close button size and centers it */
-    #edit-dialog::part(close-button) {
-        font-size: var(--sl-font-size-x-large);
-        padding: 0px;
-        display: flex;
-        align-items: center;
+        max-width: 90%;
+        /* leave some space above and below when the dialog fills the full height */
+        max-height: calc(100% - var(--sl-spacing-2x-large));
     }
 
     /* Binds the dialog to the widget instead of the document */
@@ -128,19 +101,5 @@ export default css`
         display: flex;
         justify-content: space-between;
         width: 100%;
-    }
-
-    /* Styles the save button */
-    .save-btn::part(base) {
-        background-color: transparent;
-        border-color: var(--sl-color-neutral-900);
-        color: var(--sl-color-neutral-900);
-    }
-
-    /* Highlights save button on hover */
-    .save-btn:hover::part(base) {
-        background-color: var(--sl-color-neutral-100);
-        border-color: var(--sl-color-neutral-900);
-        color: var(--sl-color-neutral-900);
     }
 `;

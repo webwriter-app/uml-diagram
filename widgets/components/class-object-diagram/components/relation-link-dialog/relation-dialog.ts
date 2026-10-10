@@ -1,7 +1,7 @@
 import { html, svg } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
+import { msg, str, localized } from "@lit/localize";
 import { live } from 'lit/directives/live.js';
 import { SlButton, SlDialog, SlInput, SlIcon, SlDivider } from "@shoelace-style/shoelace";
 import styles from "./relation-dialog.styles";
@@ -9,6 +9,22 @@ import { ClassSettings } from "../../models/class-settings-model";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { arrowMarkers } from "../../../shared/arrow-markers";
+
+/** Resolve display labels at call time so they follow the active locale. */
+export function relationLabel(type: string, isObjectDiagram: boolean): string {
+    const labels: Record<string, string> = {
+        association: isObjectDiagram ? msg("Link (Directed)") : msg("Association (Directed)"),
+        "association-bidirectional": isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)"),
+        "association-undirected": isObjectDiagram ? msg("Link (Undirected)") : msg("Association (Undirected)"),
+        inheritance: msg("Inheritance"),
+        realization: msg("Realization"),
+        dependency: msg("Dependency"),
+        aggregation: msg("Aggregation"),
+        composition: msg("Composition"),
+    };
+    return labels[type] ?? (isObjectDiagram ? msg("Link") : msg("Relation"));
+}
 
 /** Interface for the structure of Validation Issues */
 interface ValidationIssue {
@@ -124,16 +140,22 @@ export class RelationDialog extends LitElementWw {
     // Handlers
     // --------------------------------------------------------------------------------------------------------
 
+    /** Show the errors at all invalid fields and scroll to the first one; returns false if there are any */
+    private async _validate(): Promise<boolean> {
+        const activeIssues = this._activeIssues;
+        if (activeIssues.length === 0) return true;
+        this._touchedFields = new Set([...this._touchedFields, ...activeIssues.map(i => i.target)]);
+        await this.updateComplete;
+        this.shadowRoot?.querySelector('.has-error')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return false;
+    }
+
     /** Dispatch save event to send modified data to the main widget and close */
-    private _save() {
+    private async _save() {
         if (!this._dialogData) return;
 
         // check for invalid input
-        const activeIssues = this._activeIssues;
-        if (activeIssues.length > 0) {
-            alert(activeIssues.map(i => i.message).join('\n'));
-            return;
-        }
+        if (!await this._validate()) return;
 
         // Dispatch event to store changes
         this.dispatchEvent(new CustomEvent('save-relation', {
@@ -156,15 +178,11 @@ export class RelationDialog extends LitElementWw {
     }
 
     /** Special handler for Associations: Save and creating an Association Class */
-    private _saveAndAddClass() {
+    private async _saveAndAddClass() {
         if (!this._dialogData) return;
 
         // check for invalid input
-        const activeIssues = this._activeIssues;
-        if (activeIssues.length > 0) {
-            alert(activeIssues.map(i => i.message).join('\n'));
-            return;
-        }
+        if (!await this._validate()) return;
 
         // Dispatch event to store changes and add association class
         this.dispatchEvent(new CustomEvent('save-and-add-class', {
@@ -241,14 +259,14 @@ export class RelationDialog extends LitElementWw {
         if (!this._isValidMultiplicity(sMult)) {
             issues.push({
                 target: 'sourceMultiplicity',
-                message: msg("Invalid Source Multiplicity. Allowed formats: '1', '0..1', '*', '1..*'"),
+                message: msg("Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
         if (!this._isValidMultiplicity(tMult)) {
             issues.push({
                 target: 'targetMultiplicity',
-                message: msg("Invalid Target Multiplicity. Allowed formats: '1', '0..1', '*', '1..*'"),
+                message: msg("Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
@@ -259,7 +277,7 @@ export class RelationDialog extends LitElementWw {
             if (!stereotypeRegex.test(name.trim())) {
                 issues.push({
                     target: 'name',
-                    message: msg("Dependency stereotypes must be wrapped in << >> or « »."),
+                    message: msg(str`Dependency stereotypes must be wrapped in ${"<< >>"} or ${"« »"}.`),
                     settingKey: 'checkDependencyStereotypeSyntax'
                 });
             }
@@ -292,7 +310,7 @@ export class RelationDialog extends LitElementWw {
 
         // arrow line style (dashed or not)
         const isDashed = ['dependency', 'realization'].includes(type);
-        const dashArray = isDashed ? "5,5" : "none";
+        const dashArray = isDashed ? "10,5" : "none";
 
         // arrow heads
         let markerStartId = "none";
@@ -301,7 +319,7 @@ export class RelationDialog extends LitElementWw {
         if (type === 'association') {
             markerEndId = "arrow-open";         
         } else if (type === 'association-bidirectional') {
-            markerStartId = "arrow-open-reverse"; 
+            markerStartId = "arrow-open"; 
             markerEndId = "arrow-open";      
         } else if (type === 'association-undirected') {
             markerStartId = "none";
@@ -309,11 +327,11 @@ export class RelationDialog extends LitElementWw {
         } else if (type === 'dependency') {
             markerEndId = "arrow-open";
         } else if (['inheritance', 'realization'].includes(type)) {
-            markerEndId = "arrow-triangle-white";
+            markerEndId = "arrow-triangle";
         } else if (type === 'aggregation') {
-            markerEndId = "arrow-diamond-white";
+            markerEndId = "arrow-diamond-hollow";
         } else if (type === 'composition') {
-            markerEndId = "arrow-diamond-black";
+            markerEndId = "arrow-diamond-filled";
         }
 
         const showName = ['association', 'association-bidirectional', 'association-undirected', 'dependency'].includes(type);
@@ -334,27 +352,7 @@ export class RelationDialog extends LitElementWw {
                 <div class="preview-connection">
                     ${svg`
                         <svg width="100%" height="80" style="overflow: visible;">
-                            <defs>
-                                <marker id="arrow-open" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
-                                    <path d="M0,0 L11,6 L0,12" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-                                
-                                <marker id="arrow-open-reverse" markerWidth="12" markerHeight="12" refX="1" refY="6" orient="auto">
-                                    <path d="M12,0 L1,6 L12,12" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-triangle-white" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto">
-                                    <path d="M0,0 L11,6 L0,12 L0,0" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-diamond-white" markerWidth="16" markerHeight="10" refX="15" refY="5" orient="auto">
-                                    <path d="M0,5 L8,0 L16,5 L8,10 L0,5" fill="var(--sl-color-neutral-0)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-
-                                <marker id="arrow-diamond-black" markerWidth="16" markerHeight="10" refX="15" refY="5" orient="auto">
-                                    <path d="M0,5 L8,0 L16,5 L8,10 L0,5" fill="var(--sl-color-neutral-900)" stroke="var(--sl-color-neutral-900)" stroke-width="1.5"/>
-                                </marker>
-                            </defs>
+                            <defs>${arrowMarkers(1.5)}</defs>
 
                             <line 
                                 x1="0" y1="${lineY}" x2="100%" y2="${lineY}" 
@@ -417,12 +415,14 @@ export class RelationDialog extends LitElementWw {
 
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
-        const nameLabel = type === 'dependency' ? msg("Stereotype") : msg("Relation Name");
+        const nameLabel = type === 'dependency' ? msg("Stereotype") : (isObjectDiagram ? msg("Link Name") : msg("Relation Name"));
 
         return html`
             <sl-dialog 
                 id="relation-dialog" 
-                label="${msg('Edit')} ${type.charAt(0).toUpperCase() + type.slice(1)}"
+                label=${isObjectDiagram
+                    ? msg(str`Edit link: ${relationLabel(type, isObjectDiagram)}`)
+                    : msg(str`Edit relation: ${relationLabel(type, isObjectDiagram)}`)}
                 @sl-request-close=${(e: CustomEvent) => {
                     if (e.detail.source === 'overlay') e.preventDefault();
                 }}
@@ -456,7 +456,7 @@ export class RelationDialog extends LitElementWw {
                         <div style="display: flex; gap: 15px;">
                             
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Source")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Source")}</span>
                                 <sl-input 
                                     autocomplete="off"
                                     label="${msg('Role')}" 
@@ -474,7 +474,7 @@ export class RelationDialog extends LitElementWw {
                                         @sl-focus=${() => this._handleFocus('sourceMultiplicity')}
                                     ></sl-input>
                                     ${this._focusedField !== 'sourceMultiplicity' && this._touchedFields.has('sourceMultiplicity') && this._activeIssues.find(i => i.target === 'sourceMultiplicity') ? html`
-                                        <div style="color: var(--sl-color-danger-600); font-size: font-size: var(--sl-font-size-small); margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                                        <div style="color: var(--sl-color-danger-600); font-size: var(--sl-font-size-small); margin-top: 2px; display: flex; align-items: center; gap: 4px;">
                                             <sl-icon name="exclamation-triangle"></sl-icon>
                                             ${this._activeIssues.find(i => i.target === 'sourceMultiplicity')?.message}
                                         </div>
@@ -485,7 +485,7 @@ export class RelationDialog extends LitElementWw {
                             <sl-divider vertical style="height: auto;"></sl-divider>
 
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style=font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Target")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Target")}</span>
                                 <sl-input 
                                     autocomplete="off"
                                     label="${msg('Role')}" 
@@ -516,7 +516,7 @@ export class RelationDialog extends LitElementWw {
 
                     ${(!showName && !showProperties) ? html`
                         <p style="color: var(--sl-color-neutral-500); font-style: italic; text-align: center;">
-                            ${msg("This relation type has no editable properties")}
+                            ${msg("This relation type has no editable properties.")}
                         </p>
                     ` : ''}
 
@@ -531,13 +531,13 @@ export class RelationDialog extends LitElementWw {
                     <div style="display: flex; gap: 10px;">
                         
                         ${((type === 'association' || type === 'association-bidirectional' || type === 'association-undirected') && !isObjectDiagram) ? html`
-                            <sl-button class="save-btn" @click=${this._saveAndAddClass}>
+                            <sl-button @click=${this._saveAndAddClass}>
                                 <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
-                                ${msg("Assoc. Class & Save")}
+                                ${msg("Save & Add Association Class")}
                             </sl-button>
                         ` : ''}
                         
-                        <sl-button class="save-btn" @click=${this._save}>
+                        <sl-button variant="primary" @click=${this._save}>
                             ${msg("Save")}
                         </sl-button>
                     </div>

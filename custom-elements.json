@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "widgets/webwriter-uml-diagram.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "Interactive editor for UML class, object and sequence diagrams.\nAuthors configure the available diagram types, elements, limits and validation rules and can provide a\nstarting diagram that learners can reset to. Learners model their solution directly in the widget.",
+          "name": "WebwriterUmlDiagram",
+          "members": [
+            {
+              "kind": "field",
+              "name": "classSettings",
+              "type": {
+                "text": "ClassSettings"
+              },
+              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
+              "attribute": "class-settings",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "objectSettings",
+              "type": {
+                "text": "ClassSettings"
+              },
+              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
+              "attribute": "object-settings",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "sequenceSettings",
+              "type": {
+                "text": "SequenceSettings"
+              },
+              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
+              "attribute": "sequence-settings",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "globalSettings",
+              "type": {
+                "text": "GlobalSettings"
+              },
+              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
+              "attribute": "global-settings",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "diagramType",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"class-diagram\"",
+              "description": "Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram`",
+              "attribute": "diagram-type",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "sequenceModelData",
+              "type": {
+                "text": "SequenceModel"
+              },
+              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
+              "attribute": "sequence-model-data",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "classDiagramData",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Class diagram content as JSON",
+              "attribute": "class-diagram-data",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "objectDiagramData",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Object diagram content as JSON",
+              "attribute": "object-diagram-data",
+              "reflects": true
+            },
+            {
+              "kind": "field",
+              "name": "_classDiagramCheckpoint",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''",
+              "description": "Checkpoints learners can return to: the diagrams as saved by the author, i.e. as loaded.\nTaken from the attributes on the first update, so they are not affected by later (learner) changes."
+            },
+            {
+              "kind": "field",
+              "name": "_objectDiagramCheckpoint",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "_sequenceDiagramCheckpoint",
+              "type": {
+                "text": "string"
+              },
+              "privacy": "private",
+              "default": "''"
+            },
+            {
+              "kind": "field",
+              "name": "SAVE_DELAY",
+              "type": {
+                "text": "number"
+              },
+              "privacy": "private",
+              "static": true,
+              "readonly": true,
+              "default": "300",
+              "description": "Diagram changes are written to the attributes only after editing has paused for this long (ms).\nWebWriter records every attribute change as its own undo step, and a single user action\n(e.g. creating a relation) can emit several intermediate states."
+            },
+            {
+              "kind": "field",
+              "name": "_pendingSaves",
+              "privacy": "private",
+              "default": "new Map<string, () => void>()",
+              "description": "Pending diagram changes by diagram type, applied together after SAVE_DELAY"
+            },
+            {
+              "kind": "field",
+              "name": "_saveTimeout",
+              "type": {
+                "text": "ReturnType<typeof setTimeout> | undefined"
+              },
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
+              "name": "_clearProseMirrorNodeSelection",
+              "privacy": "private",
+              "description": "WebWriter selects the widget on every press, which can turn into a DOM range around it that highlights\nall of its texts. Remove that range (the widget stays selected), but leave text fields alone."
+            },
+            {
+              "kind": "method",
+              "name": "_scheduleSave",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "diagramType",
+                  "type": {
+                    "text": "string"
+                  }
+                },
+                {
+                  "name": "save",
+                  "type": {
+                    "text": "() => void"
+                  }
+                }
+              ],
+              "description": "Schedules a diagram change to be written once editing has paused, replacing an earlier pending one"
+            },
+            {
+              "kind": "method",
+              "name": "_flushSaves",
+              "privacy": "private",
+              "description": "Writes all pending diagram changes"
+            },
+            {
+              "kind": "method",
+              "name": "_handleToggleFullscreen",
+              "privacy": "private",
+              "description": "Handles fullscreen toggle requests from the editors"
+            },
+            {
+              "kind": "method",
+              "name": "_handleSequenceModelChanged",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "CustomEvent"
+                  }
+                }
+              ],
+              "description": "Handles model changes from the sequence diagram container"
+            },
+            {
+              "kind": "method",
+              "name": "_handleDiagramDataChanged",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "CustomEvent"
+                  }
+                }
+              ],
+              "description": "Handles diagram data changes from the class/object diagram editor"
+            },
+            {
+              "kind": "method",
+              "name": "_handleSettingsUpdate",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "e",
+                  "type": {
+                    "text": "CustomEvent"
+                  }
+                }
+              ],
+              "description": "Handles if the global settings menu sends any changes"
+            },
+            {
+              "kind": "method",
+              "name": "_handleChangeDiagram",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "newType",
+                  "type": {
+                    "text": "string"
+                  }
+                }
+              ],
+              "description": "Handler to change the active diagram type and switch views"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "class-settings",
+              "type": {
+                "text": "ClassSettings"
+              },
+              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
+              "fieldName": "classSettings"
+            },
+            {
+              "name": "object-settings",
+              "type": {
+                "text": "ClassSettings"
+              },
+              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
+              "fieldName": "objectSettings"
+            },
+            {
+              "name": "sequence-settings",
+              "type": {
+                "text": "SequenceSettings"
+              },
+              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
+              "fieldName": "sequenceSettings"
+            },
+            {
+              "name": "global-settings",
+              "type": {
+                "text": "GlobalSettings"
+              },
+              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
+              "fieldName": "globalSettings"
+            },
+            {
+              "name": "diagram-type",
+              "type": {
+                "text": "string"
+              },
+              "default": "\"class-diagram\"",
+              "description": "Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram`",
+              "fieldName": "diagramType"
+            },
+            {
+              "name": "sequence-model-data",
+              "type": {
+                "text": "SequenceModel"
+              },
+              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
+              "fieldName": "sequenceModelData"
+            },
+            {
+              "name": "class-diagram-data",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Class diagram content as JSON",
+              "fieldName": "classDiagramData"
+            },
+            {
+              "name": "object-diagram-data",
+              "type": {
+                "text": "string"
+              },
+              "default": "''",
+              "description": "Object diagram content as JSON",
+              "fieldName": "objectDiagramData"
+            }
+          ],
+          "superclass": {
+            "name": "LitElementWw",
+            "package": "@webwriter/lit"
+          },
+          "tagName": "webwriter-uml-diagram",
+          "customElement": true,
+          "modulePath": "widgets/webwriter-uml-diagram.ts",
+          "definitionPath": "widgets/webwriter-uml-diagram.ts"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "WebwriterUmlDiagram",
+          "declaration": {
+            "name": "WebwriterUmlDiagram",
+            "module": "widgets/webwriter-uml-diagram.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "webwriter-uml-diagram",
+          "declaration": {
+            "name": "WebwriterUmlDiagram",
+            "module": "widgets/webwriter-uml-diagram.ts"
+          }
+        }
+      ]
+    }
+  ]
+}

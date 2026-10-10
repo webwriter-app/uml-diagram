@@ -1,34 +1,59 @@
 import { LitElementWw } from "@webwriter/lit";
 import { html, svg } from "lit";
-import { property, state } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
+import { keyed } from "lit/directives/keyed.js";
+import { property, query, state } from "lit/decorators.js";
+import { msg, str, localized } from "@lit/localize";
 import interact from 'interactjs';
-import { SlButton, SlDrawer, SlInput, SlIconButton, SlDivider, SlIcon, SlSelect, SlOption } from "@shoelace-style/shoelace";
-import zoomIn from "@tabler/icons/outline/zoom-in.svg";
-import zoomOut from "@tabler/icons/outline/zoom-out.svg";
+import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption, SlAlert } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
 import databaseIcon from '@tabler/icons/outline/database.svg';
 import serverIcon from '@tabler/icons/outline/server.svg';
 import desktopIcon from '@tabler/icons/outline/device-desktop.svg';
 import { repeat } from 'lit/directives/repeat.js';
-import maximizeIcon from "@tabler/icons/outline/arrows-maximize.svg";
-import minimizeIcon from "@tabler/icons/outline/arrows-minimize.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import xIcon from "@tabler/icons/outline/x.svg";
+import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
+import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import mobileIcon from "@tabler/icons/outline/device-mobile.svg";
+import noIcon from "@tabler/icons/outline/ban.svg";
+import usersIcon from "@tabler/icons/outline/users.svg";
+import worldIcon from "@tabler/icons/outline/world.svg";
+import cloudIcon from "@tabler/icons/outline/cloud.svg";
+import apiIcon from "@tabler/icons/outline/api.svg";
+import settingsIcon from "@tabler/icons/outline/settings.svg";
+import lockIcon from "@tabler/icons/outline/lock.svg";
+import mailIcon from "@tabler/icons/outline/mail.svg";
+import fileIcon from "@tabler/icons/outline/file.svg";
+import clockIcon from "@tabler/icons/outline/clock.svg";
+import creditCardIcon from "@tabler/icons/outline/credit-card.svg";
 import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
+import canvasAlertStyles from "../../../shared/canvas-alert.styles";
 import styles from "./sequence-diagram-editor.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { arrowMarkers } from "../../../shared/arrow-markers";
+import { ZoomControls } from "../../../zoom-controls/zoom-controls";
+import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
+import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
 
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
     'user': userIcon,
-    'database': databaseIcon,
-    'server': serverIcon,
+    'users': usersIcon,
     'device-desktop': desktopIcon,
-    'device-mobile': mobileIcon
+    'device-mobile': mobileIcon,
+    'world': worldIcon,
+    'server': serverIcon,
+    'cloud': cloudIcon,
+    'database': databaseIcon,
+    'api': apiIcon,
+    'settings': settingsIcon,
+    'lock': lockIcon,
+    'mail': mailIcon,
+    'file': fileIcon,
+    'clock': clockIcon,
+    'credit-card': creditCardIcon
 };
 
 /** Interface definition for single validation issues in the sequence diagram */
@@ -38,8 +63,9 @@ export interface SequenceValidationIssue {
     settingKey: keyof SequenceSettings; 
 }
 
-/** define a minimal length of a lifeline */
-const MIN_LIFELINE_LENGTH = 50; 
+/** Leave space below object headers and above lifeline ends. */
+const LIFELINE_PADDING = 20;
+const MIN_LIFELINE_LENGTH = 80 + 2 * LIFELINE_PADDING;
 
 /** Interactive editor for the Sequence Diagram */
 @localized()
@@ -51,11 +77,12 @@ export class SequenceEditor extends LitElementWw {
             "sl-button": SlButton,
             "sl-drawer": SlDrawer, 
             "sl-input": SlInput,
-            "sl-icon-button": SlIconButton,
-            "sl-divider": SlDivider,
             "sl-icon": SlIcon,
             "sl-select": SlSelect,
-            "sl-option": SlOption
+            "sl-option": SlOption,
+            "zoom-controls": ZoomControls,
+            "confirm-dialog": ConfirmDialog,
+            "sl-alert": SlAlert
         };
     }
 
@@ -71,8 +98,18 @@ export class SequenceEditor extends LitElementWw {
     /** Store the source id of a new message while creating a new one */
     @property({ type: String }) accessor messageSourceId: string | null = null;
 
+    /** Store the id of the lifeline a new fragment starts at while creating a new one */
+    @property({ type: String }) accessor fragmentSourceId: string | null = null;
+
     /** State to store the id of the current edited lifeline */
     @state() private accessor editingLifelineId: string | null = null;
+
+    /**
+     * The drag in progress (moving/resizing an element or panning the view): the id of the dragged element
+     * (null while panning) and the cursor to show. While set, the dragged element stays highlighted,
+     * other elements show no hover state and the cursor stays the same everywhere.
+     */
+    @state() private accessor _activeDrag: { id: string | null, cursor: string } | null = null;
 
     /** State to store the id of the current edited activation bar */
     @state() private accessor editingActivation: { lifelineId: string, id: string } | null = null;
@@ -95,8 +132,20 @@ export class SequenceEditor extends LitElementWw {
     /** State to store the placement of the drawer ('start' for left, 'end' for right) */
     @state() private accessor drawerPlacement: 'start' | 'end' = 'end';
 
+    /** Whether the drawer is shown; set at the start of its show/hide animations so the zoom controls move along with it */
+    @state() private accessor _drawerShown: boolean = false;
+
     /** Property to store the state of the fullscreen mode */
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
+
+    @state() private accessor _notice: string | null = null;
+
+    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
+    @state() private accessor _noticeCount = 0;
+
+    @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
+    @query("#canvas") private accessor _canvas!: SVGSVGElement;
 
     /** Global settings instance passed down from the main widget */
     @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
@@ -106,6 +155,12 @@ export class SequenceEditor extends LitElementWw {
     @state() accessor panX: number = 0;
     @state() accessor panY: number = 0;
     private _isPanning: boolean = false;
+
+    /** The fingers currently touching the canvas, by pointer id */
+    private _touchPointers = new Map<number, PointerEvent>();
+
+    /** The fingers, zoom and pan at the start of the current pinch; null while not pinching */
+    private _pinchStart: { pinch: Pinch, zoom: number, panX: number, panY: number } | null = null;
 
     /** Store the last position of the pointer */
     private _lastPointerX: number = 0;
@@ -119,6 +174,10 @@ export class SequenceEditor extends LitElementWw {
     private readonly SLOT_SPACING = 250; 
     private readonly START_X = 100;
 
+    /** width of an activation bar and how far each nested bar is shifted to the right */
+    private readonly ACTIVATION_WIDTH = 14;
+    private readonly ACTIVATION_NESTING_OFFSET = 8;
+
     /** Fragment Puffer hight for collision with lifeline end */
     private readonly FRAGMENT_MIN_OVERLAP = 30;
 
@@ -126,7 +185,7 @@ export class SequenceEditor extends LitElementWw {
     private _blockDblClick: boolean = false;
 
     /** styles are defined in the editor.styles */
-    static styles = [styles];
+    static styles = [styles, canvasAlertStyles];
 
     // --------------------------------------------------------------------------------------------------------
     // Lifecycle and InteractJS
@@ -143,6 +202,16 @@ export class SequenceEditor extends LitElementWw {
             }
         });
         resizeObserver.observe(this);
+
+        // Pinch to zoom, captured to keep the pinch's fingers from panning and from interact.js
+        for (const type of ['pointerdown', 'pointermove', 'pointerup', 'pointercancel']) {
+            this._canvas.addEventListener(type, (e) => this._handlePinchPointer(e as PointerEvent), true);
+        }
+
+        emulateTouchClicks(this._canvas);
+
+        // bound by selector, so once is enough (binding again would replace the listeners mid-drag)
+        this._bindActivationDragAndResize();
     }
 
     /** Method to routine check after each render cycle. In this case to bind interactJs to the elements */
@@ -151,22 +220,43 @@ export class SequenceEditor extends LitElementWw {
 
         this._bindLifelineDrag();
         this._bindLifelineResize();
-        this._bindActivationDragAndResize();
         this._bindMessageDrag();
         this._bindFragmentDragAndResize();
+        this._updateGridBackground();
     }
 
-    /** Send Event to main widget to toggle fullscreen mode */
-    private _toggleFullscreen() {
-        this.dispatchEvent(new CustomEvent('toggle-fullscreen', {
-            bubbles: true,
-            composed: true
-        }));
+    /** Move and scale the dotted background grid with the view, keeping the dots themselves the same size */
+    private _updateGridBackground() {
+        this.style.setProperty('--grid-size', `${40 * this.zoom}px`);
+        this.style.setProperty('--grid-x', `${-this.panX * this.zoom}px`);
+        this.style.setProperty('--grid-y', `${-this.panY * this.zoom}px`);
+    }
+
+    /**
+     * The dragged value (position or size) at the start of the current drag. Drags compute the new value from it and
+     * the total pointer movement, so the element follows the pointer again only once the pointer is back in the
+     * allowed range, instead of adding up movements onto an already clamped value.
+     */
+    private _dragStartValue = 0;
+
+    /** The current drag's start value plus the total vertical pointer movement since the drag started */
+    private _draggedValueY(event: any): number {
+        return this._dragStartValue + (event.clientY - event.clientY0) / this.zoom;
+    }
+
+    /** Marks an element as being dragged (only in idle mode, as the drags do nothing in the other modes) */
+    private _startDrag(id: string | null, cursor: string) {
+        if (this.interactionMode === 'idle') {
+            this._activeDrag = { id, cursor };
+        }
     }
 
     // --------------------------------------------------------------------------------------------------------
     // InteractJS Binding Methods (to simplify the updated method
     // --------------------------------------------------------------------------------------------------------
+
+    // All draggables use styleCursor(false): the cursors are defined in the stylesheet, otherwise interact.js
+    // sets an inline 'move' cursor on hover that parts without their own cursor (e.g. message lines) inherit.
 
     /** Iterate over all lifeline elements and bind interactJs to it. The lifelines should be free movable while "in hand" but droped to fixed slots */
     private _bindLifelineDrag() {
@@ -176,13 +266,14 @@ export class SequenceEditor extends LitElementWw {
             el.setAttribute('data-bound', 'true');
             const id = el.getAttribute('data-id');
 
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
                 startAxis: 'x',
                 lockAxis: 'x',
                 allowFrom: '.lifeline-click-area',
-                ignoreFrom: '.lifeline-handle',
+                ignoreFrom: '.lifeline-handle, .selecting *',
                 listeners: {
                     start: (event) => {
+                        this._startDrag(id, 'grabbing');
                         event.target.setAttribute('data-drag-x', '0');
                         (event.target as HTMLElement).style.opacity = '0.7'; 
                     },
@@ -218,8 +309,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
-                        if (!id || this.interactionMode !== 'idle') return;
-
+                        this._activeDrag = null;
                         const target = event.target as SVGGElement;
                         target.style.transform = '';
                         target.setAttribute('data-drag-x', '0');
@@ -238,29 +328,36 @@ export class SequenceEditor extends LitElementWw {
             handle.setAttribute('data-bound', 'true');
             const id = handle.getAttribute('data-id');
             
-            interact(handle).draggable({
+            interact(handle).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
+                    start: (event) => {
+                        event.target.classList.add('dragged');
+                        this._startDrag(id, 'ns-resize');
+                        this._dragStartValue = this.model.lifelines.find(l => l.id === id)?.length ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         const lifeline = this.model.lifelines.find(l => l.id === id);
                         if (lifeline) {
-                            let newLength = lifeline.length + (event.dy / this.zoom);
+                            let newLength = this._draggedValueY(event);
                             
                             // messages as boundary
                             const connectedMessages = this.model.messages.filter(m => m.sourceId === id || m.targetId === id);
                             let minLengthFromMessages = 0;
                             if (connectedMessages.length > 0) {
-                                const maxMessageY = Math.max(...connectedMessages.map(m => m.y));
-                                minLengthFromMessages = (maxMessageY - lifeline.y); 
+                                const maxMessageY = Math.max(...connectedMessages.map(m =>
+                                    m.y + (m.type === 'create' ? 40 : m.sourceId === m.targetId ? 30 : 0)));
+                                minLengthFromMessages = maxMessageY - lifeline.y + LIFELINE_PADDING;
                             }
 
                             // activity bar as boundary
                             let minLengthFromActivations = 0;
                             if (lifeline.activations && lifeline.activations.length > 0) {
                                 const maxActBottom = Math.max(...lifeline.activations.map(act => act.y + act.length));
-                                minLengthFromActivations = (maxActBottom - lifeline.y); 
+                                minLengthFromActivations = maxActBottom - lifeline.y + LIFELINE_PADDING;
                             }
 
                             // fragment as boundary
@@ -268,7 +365,7 @@ export class SequenceEditor extends LitElementWw {
                             const startedFragments = (this.model.fragments || []).filter(f => f.startLifelineId === id);
                             if (startedFragments.length > 0) {
                                 const maxFragStartY = Math.max(...startedFragments.map(f => f.y));
-                                minLengthFromFragments = (maxFragStartY + this.FRAGMENT_MIN_OVERLAP) - lifeline.y;
+                                minLengthFromFragments = maxFragStartY + this.FRAGMENT_MIN_OVERLAP - lifeline.y + LIFELINE_PADDING;
                             }
 
                             const finalMinLength = Math.max(
@@ -283,6 +380,8 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        event.target.classList.remove('dragged');
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         const lifeline = this.model.lifelines.find(l => l.id === id);
                         if (lifeline) {
@@ -296,89 +395,88 @@ export class SequenceEditor extends LitElementWw {
         });
     }
 
-    /** Bind InteractJs to the activation bars to allow moving them up and down the lifelines and add a handle to the end to make it editable in its size (length) */
+    /** Bind InteractJs to the activation bars to move them along the lifelines and resize them at both ends */
     private _bindActivationDragAndResize() {
+        // looked up at the start, as the bars are re-rendered while dragging
+        let dragged: { lifelineId: string, activation: { id: string, y: number, length: number } } | null = null;
+        const findActivation = (target: Element) => {
+            const lifelineId = target.getAttribute('data-lifeline-id');
+            const id = target.getAttribute('data-id');
+            const activation = this.model.lifelines.find(ll => ll.id === lifelineId)?.activations?.find(act => act.id === id);
+            return lifelineId && activation ? { lifelineId, activation } : null;
+        };
+
         // movable in y direction
-        interact('.draggable-activation').draggable({
+        interact('.draggable-activation').styleCursor(false).draggable({
+            ignoreFrom: '.selecting *',
             listeners: {
-                move: (event) => {
-                    const target = event.target as SVGRectElement;
-                    const lifelineId = target.getAttribute('data-lifeline-id');
-                    if (!lifelineId) return;
-
-                    const currentY = parseFloat(target.getAttribute('y') || '0');
-                    const height = parseFloat(target.getAttribute('height') || '0');
-                    let newY = currentY + (event.dy / this.zoom);
-                    
-                    const bounds = this._getLifelineVerticalBounds(lifelineId);
-                    
-                    // upper bound
-                    if (newY < bounds.minY) {
-                        newY = bounds.minY;
-                    }
-                    // lower bound
-                    if (newY + height > bounds.maxY) {
-                        newY = bounds.maxY - height;
-                    }
-
-                    target.setAttribute('y', newY.toString());
-
-                    // synchronize handle position
-                    const handle = target.parentNode?.querySelector('.activation-resize-handle') as SVGRectElement;
-                    if (handle) {
-                        handle.setAttribute('y', (newY + height - 4).toString());
-                    }
+                start: (event) => {
+                    dragged = findActivation(event.target);
+                    this._activeDrag = { id: dragged?.activation.id ?? null, cursor: 'grabbing' };
+                    this._dragStartValue = dragged?.activation.y ?? 0;
                 },
-                end: (event) => {
-                    const target = event.target as SVGRectElement;
-                    const newY = parseFloat(target.getAttribute('y') || '0');
-                    const id = target.getAttribute('data-id');
-                    const lifelineId = target.getAttribute('data-lifeline-id');
+                move: (event) => {
+                    if (!dragged || this.interactionMode !== 'idle') return;
+                    const { lifelineId, activation } = dragged;
+                    const bounds = this._getLifelineVerticalBounds(lifelineId);
+                    if (activation.length > bounds.maxY - bounds.minY) return;
 
+                    // stay within the lifeline
+                    let newY = Math.max(bounds.minY, this._draggedValueY(event));
+                    if (newY + activation.length > bounds.maxY) {
+                        newY = bounds.maxY - activation.length;
+                    }
+                    activation.y = newY;
+                    this.requestUpdate();
+                },
+                end: () => {
+                    this._activeDrag = null;
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
+                    dragged = null;
                     this.dispatchEvent(new CustomEvent('update-activation', {
-                        detail: { lifelineId, activationId: id, y: newY }
+                        detail: { lifelineId, activationId: activation.id, y: activation.y }
                     }));
                 }
             }
         });
 
-        // resizing in length
-        interact('.activation-resize-handle').draggable({
+        // resizing at the bottom or top edge
+        let resizingTop = false;
+        let bottomY = 0;
+        interact('.activation-resize-handle').styleCursor(false).draggable({
+            ignoreFrom: '.selecting *',
             listeners: {
+                start: (event) => {
+                    dragged = findActivation(event.target);
+                    event.target.classList.add('dragged');
+                    resizingTop = event.target.getAttribute('data-edge') === 'top';
+                    bottomY = dragged ? dragged.activation.y + dragged.activation.length : 0;
+                    this._activeDrag = { id: dragged?.activation.id ?? null, cursor: 'ns-resize' };
+                    this._dragStartValue = (resizingTop ? dragged?.activation.y : dragged?.activation.length) ?? 0;
+                },
                 move: (event) => {
-                    const handle = event.target as SVGRectElement;
-                    const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
-                    const lifelineId = handle.getAttribute('data-lifeline-id');
-                    
-                    if (!actBox || !lifelineId) return;
-
-                    const currentHeight = parseFloat(actBox.getAttribute('height') || '0');
-                    const startY = parseFloat(actBox.getAttribute('y') || '0');
-                    
-                    let newHeight = currentHeight + (event.dy / this.zoom);
-                    
+                    if (!dragged || this.interactionMode !== 'idle') return;
+                    const { lifelineId, activation } = dragged;
                     const bounds = this._getLifelineVerticalBounds(lifelineId);
-                    
-                    const maxHeight = bounds.maxY - startY;
-
-                    newHeight = Math.max(15, Math.min(newHeight, maxHeight));
-
-                    actBox.setAttribute('height', newHeight.toString());
-                    
-                    // update handle position
-                    handle.setAttribute('y', (startY + newHeight - 4).toString());
+                    if (resizingTop) {
+                        if (bottomY - bounds.minY < 15) return;
+                        activation.y = Math.max(bounds.minY, Math.min(this._draggedValueY(event), bottomY - 15));
+                        activation.length = bottomY - activation.y;
+                    } else {
+                        if (bounds.maxY - activation.y < 15) return;
+                        activation.length = Math.max(15, Math.min(this._draggedValueY(event), bounds.maxY - activation.y));
+                    }
+                    this.requestUpdate();
                 },
                 end: (event) => {
-                    const handle = event.target as SVGRectElement;
-                    const actBox = handle.parentNode?.querySelector('.activation-box') as SVGRectElement;
-                    if (!actBox) return;
-
-                    const newHeight = parseFloat(actBox.getAttribute('height') || '0');
-                    const id = handle.getAttribute('data-id');
-                    const lifelineId = handle.getAttribute('data-lifeline-id');
-
+                    event.target.classList.remove('dragged');
+                    this._activeDrag = null;
+                    if (!dragged) return;
+                    const { lifelineId, activation } = dragged;
+                    dragged = null;
                     this.dispatchEvent(new CustomEvent('update-activation', {
-                        detail: { lifelineId, activationId: id, length: newHeight }
+                        detail: { lifelineId, activationId: activation.id, y: activation.y, length: activation.length }
                     }));
                 }
             }
@@ -391,24 +489,30 @@ export class SequenceEditor extends LitElementWw {
         
         messageElements.forEach(el => {
             el.setAttribute('data-bound', 'true');
-            const id = el.getAttribute('data-id');
+            // read at drag start, as Lit reuses list elements after deletions
+            let id: string | null = null;
             
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
+                    start: () => {
+                        id = el.getAttribute('data-id');
+                        this._startDrag(id, 'grabbing');
+                        this._dragStartValue = this.model.messages.find(m => m.id === id)?.y ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const message = this.model.messages.find(m => m.id === id);
                         if (message) {
-                            let proposedY = message.y + (event.dy / this.zoom); 
+                            let proposedY = this._draggedValueY(event); 
 
                             const bounds = this._getMessageBounds(message.sourceId, message.targetId, message.type, message.id);
 
-                            if (bounds.minY <= bounds.maxY) {
-                                proposedY = Math.max(bounds.minY, Math.min(proposedY, bounds.maxY));
-                            }
+                            if (bounds.minY > bounds.maxY) return;
+                            proposedY = Math.max(bounds.minY, Math.min(proposedY, bounds.maxY));
 
                             message.y = proposedY; 
 
@@ -428,6 +532,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const message = this.model.messages.find(m => m.id === id);
@@ -462,23 +567,31 @@ export class SequenceEditor extends LitElementWw {
         
         fragmentHeaders.forEach(el => {
             el.setAttribute('data-bound', 'true');
-            const id = el.getAttribute('data-id');
+            // read at drag start, as Lit reuses list elements after deletions
+            let id: string | null = null;
             
-            interact(el).draggable({
+            interact(el).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y', 
                 listeners: {
+                    start: () => {
+                        id = el.getAttribute('data-id');
+                        this._startDrag(id, 'grabbing');
+                        this._dragStartValue = this.model.fragments?.find(f => f.id === id)?.y ?? 0;
+                    },
                     move: (event) => {
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === id);
                         if (fragment) {
-                            let proposedY = fragment.y + (event.dy / this.zoom); 
+                            let proposedY = this._draggedValueY(event); 
                             
                             const bounds = this._getLifelineVerticalBounds(fragment.startLifelineId);
                             
                             const safeMinY = bounds.minY;
-                            const safeMaxY = Math.max(bounds.minY, bounds.maxY - this.FRAGMENT_MIN_OVERLAP);
+                            const safeMaxY = bounds.maxY - this.FRAGMENT_MIN_OVERLAP;
+                            if (safeMinY > safeMaxY) return;
                             
                             fragment.y = Math.max(safeMinY, Math.min(proposedY, safeMaxY));
 
@@ -486,6 +599,7 @@ export class SequenceEditor extends LitElementWw {
                         }
                     },
                     end: (event) => {
+                        this._activeDrag = null;
                         if (!id || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === id);
@@ -499,18 +613,33 @@ export class SequenceEditor extends LitElementWw {
             });
         });
 
-        // Resize in y direction (no boundarys)
+        // Resize the operands in y direction, the first one also at the top edge
         const fragmentResizeHandles = Array.from(this.shadowRoot!.querySelectorAll('.fragment-operand-resize-handle:not([data-bound])')) as SVGElement[];
         
         fragmentResizeHandles.forEach(handle => {
             handle.setAttribute('data-bound', 'true');
-            const fId = handle.getAttribute('data-fragment-id');
-            const oId = handle.getAttribute('data-operand-id');
+            // read at drag start (see above)
+            let fId: string | null = null;
+            let oId: string | null = null;
+            let resizingTop = false;
+            let bottomY = 0;
             
-            interact(handle).draggable({
+            interact(handle).styleCursor(false).draggable({
+                ignoreFrom: '.selecting *',
                 startAxis: 'y',
                 lockAxis: 'y',
                 listeners: {
+                    start: () => {
+                        handle.classList.add('dragged');
+                        fId = handle.getAttribute('data-fragment-id');
+                        oId = handle.getAttribute('data-operand-id');
+                        resizingTop = handle.getAttribute('data-edge') === 'top';
+                        this._startDrag(fId, 'ns-resize');
+                        const fragment = this.model.fragments?.find(f => f.id === fId);
+                        const height = fragment?.operands.find(o => o.id === oId)?.height ?? 0;
+                        bottomY = (fragment?.y ?? 0) + height;
+                        this._dragStartValue = resizingTop ? fragment?.y ?? 0 : height;
+                    },
                     move: (event) => {
                         if (!fId || !oId || this.interactionMode !== 'idle') return;
                         
@@ -518,11 +647,20 @@ export class SequenceEditor extends LitElementWw {
                         const operand = fragment?.operands.find(o => o.id === oId);
                         
                         if (fragment && operand) {
-                            operand.height = Math.max(30, operand.height + (event.dy / this.zoom));
+                            if (resizingTop) {
+                                const minY = this._getLifelineVerticalBounds(fragment.startLifelineId).minY;
+                                if (bottomY - minY < 30) return;
+                                fragment.y = Math.max(minY, Math.min(this._draggedValueY(event), bottomY - 30));
+                                operand.height = bottomY - fragment.y;
+                            } else {
+                                operand.height = Math.max(30, this._draggedValueY(event));
+                            }
                             this.requestUpdate();
                         }
                     },
                     end: (event) => {
+                        handle.classList.remove('dragged');
+                        this._activeDrag = null;
                         if (!fId || this.interactionMode !== 'idle') return;
                         
                         const fragment = this.model.fragments?.find(f => f.id === fId);
@@ -532,6 +670,7 @@ export class SequenceEditor extends LitElementWw {
                             this.dispatchEvent(new CustomEvent('update-fragment', {
                                 detail: { 
                                     id: fId, 
+                                    y: fragment.y,
                                     operands: updatedOperands 
                                 }
                             }));
@@ -546,8 +685,38 @@ export class SequenceEditor extends LitElementWw {
     // Viewpoint and Canvas Controles
     // --------------------------------------------------------------------------------------------------------
 
+    /** Without any lifelines there is no reference point, so the canvas cannot be panned or zoomed */
+    private get _isEmpty(): boolean {
+        return !this.model?.lifelines?.length;
+    }
+
+    public async showNotice(message: string) {
+        this._notice = message;
+        this._noticeCount++;
+        await this.updateComplete;
+        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+    }
+
+    public confirm(options: ConfirmOptions): Promise<boolean> {
+        return this._confirmDialog.confirm(options);
+    }
+
+    /** Reset an empty canvas to its initial view before rendering */
+    protected willUpdate(changedProperties: any) {
+        super.willUpdate(changedProperties);
+        if (changedProperties.has('interactionMode') && this.interactionMode !== 'idle') {
+            this._notice = null;
+        }
+        if (this._isEmpty) {
+            this.zoom = 1;
+            this.panX = 0;
+            this.panY = 0;
+        }
+    }
+
     /** Handle the zooming with the mouseweel taking the mouse position into account */
     private _handleWheel(e: WheelEvent) {
+        if (this._isEmpty) return;
         e.preventDefault(); 
         
         const zoomSensitivity = 0.0015;
@@ -576,9 +745,11 @@ export class SequenceEditor extends LitElementWw {
 
     /** if mousclick down on the background activate panning */
     private _handlePointerDown(e: PointerEvent) {
+        if (this._isEmpty || this._pinchStart) return;
         const target = e.target as SVGElement;
         if (target.tagName.toLowerCase() === 'svg') {
             this._isPanning = true;
+            this._activeDrag = { id: null, cursor: 'move' };
             this._lastPointerX = e.clientX;
             this._lastPointerY = e.clientY;
             target.setPointerCapture(e.pointerId);
@@ -605,9 +776,64 @@ export class SequenceEditor extends LitElementWw {
     private _handlePointerUp(e: PointerEvent) {
         if (this._isPanning) {
             this._isPanning = false;
+            this._activeDrag = null;
             const target = e.target as SVGElement;
             target.releasePointerCapture(e.pointerId);
         }
+    }
+
+    /**
+     * Zoom and pan with two fingers. Once a second finger touches the canvas, their movements no longer pan the view
+     * or reach interact.js until all fingers are lifted, so no element is dragged at the same time.
+     */
+    private _handlePinchPointer(e: PointerEvent) {
+        if (e.pointerType !== 'touch') return;
+        const pointers = this._touchPointers;
+
+        if (e.type === 'pointerdown') {
+            // Each touch gesture starts with the primary pointer, which drops fingers whose release was missed
+            if (e.isPrimary) pointers.clear();
+            pointers.set(e.pointerId, e);
+        } else if (e.type === 'pointermove') {
+            if (!pointers.has(e.pointerId)) return;
+            pointers.set(e.pointerId, e);
+        } else {
+            // Releases still reach interact.js, so it ends the pointers it saw go down
+            pointers.delete(e.pointerId);
+        }
+        const [a, b] = pointers.values();
+
+        if (!this._pinchStart) {
+            if (e.type !== 'pointerdown' || pointers.size < 2 || this._isEmpty) return;
+            e.stopPropagation();
+            // An element already being dragged keeps being dragged, ignoring the second finger
+            if (this._activeDrag && !this._isPanning) return;
+            this._isPanning = false;
+            this._activeDrag = null;
+        } else if (e.type === 'pointerdown' || e.type === 'pointermove') {
+            e.stopPropagation();
+        }
+        // A single finger is ignored until lifted
+        if (!b) {
+            if (!a) this._pinchStart = null;
+            return;
+        }
+        if (e.type === 'pointermove') return this._applyPinch(measurePinch(a, b));
+
+        // The pinch starts, or fingers were added or lifted: continue from their current position
+        this._pinchStart = { pinch: measurePinch(a, b), zoom: this.zoom, panX: this.panX, panY: this.panY };
+    }
+
+    /** Zoom by the change of the finger distance, keeping the diagram point under the fingers' midpoint under them */
+    private _applyPinch(pinch: Pinch) {
+        const start = this._pinchStart!;
+        // Zoom Limit: 30% - 300%
+        const zoom = Math.min(Math.max(0.3, start.zoom * pinch.distance / start.pinch.distance), 3);
+
+        const rect = this._canvas.getBoundingClientRect();
+        this.panX = start.panX + (start.pinch.x - rect.left) / start.zoom - (pinch.x - rect.left) / zoom;
+        this.panY = start.panY + (start.pinch.y - rect.top) / start.zoom - (pinch.y - rect.top) / zoom;
+        this.zoom = zoom;
     }
 
     /** Zoom in or out by a given factor (to or from the middle of the current view (instead of mouse position as in zooming with the weel))*/
@@ -647,6 +873,11 @@ export class SequenceEditor extends LitElementWw {
         const index = this.model.lifelines.findIndex(ll => ll.id === id);
         if (index === -1) return 0;
         return this.START_X + (index * this.SLOT_SPACING);
+    }
+
+    /** The grip of a resize handle, shown on hover */
+    private _renderResizeGrip(x: number, y: number) {
+        return svg`<circle class="resize-grip" cx="${x}" cy="${y}" r="4" />`;
     }
 
     /** Determines if the drawer should open on the left or right based on click position */
@@ -709,7 +940,11 @@ export class SequenceEditor extends LitElementWw {
         if (this.interactionMode === 'creating-fragment-start') {
             const { minY, maxY } = this._getLifelineVerticalBounds(id);
             
-            const safeMaxY = Math.max(minY, maxY - this.FRAGMENT_MIN_OVERLAP);
+            const safeMaxY = maxY - this.FRAGMENT_MIN_OVERLAP;
+            if (minY > safeMaxY) {
+                this.dispatchEvent(new CustomEvent('cancel-interaction'));
+                return;
+            }
             
             const clampedY = Math.max(minY, Math.min(svgP.y, safeMaxY));
 
@@ -739,7 +974,7 @@ export class SequenceEditor extends LitElementWw {
                 const bounds = this._getMessageBounds(id, 'external', mappedType);
                 
                 if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                    alert(msg("Message cannot be placed here (outside of logical boundaries)."));
+                    this.showNotice(msg("Message cannot be placed here (outside of logical boundaries)."));
                     this.dispatchEvent(new CustomEvent('cancel-interaction'));
                     return;
                 }
@@ -755,7 +990,7 @@ export class SequenceEditor extends LitElementWw {
             const source = this.messageSourceId === 'external' ? 'external' : this.messageSourceId!;
             
             if (mappedType === 'create' && source === id) {
-                alert(msg("An object cannot create itself (self-create is not allowed)."));
+                this.showNotice(msg("An object cannot create itself (self-create is not allowed)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -763,7 +998,7 @@ export class SequenceEditor extends LitElementWw {
             const bounds = this._getMessageBounds(source, id, mappedType);
             
             if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                alert(msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
+                this.showNotice(msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -782,33 +1017,20 @@ export class SequenceEditor extends LitElementWw {
         let minTargetY = 0;
         let maxTargetY = Infinity;
 
-        const PUFFER = 15;
-
-        // calculate init borders for the source
         if (sourceLL) {
-            minSourceY = sourceLL.y + 80; 
+            minSourceY = sourceLL.y + 80 + LIFELINE_PADDING;
             
             const sourceDestroy = this.model.messages.find(m => m.type === 'destroy' && m.targetId === sourceLL.id && m.id !== ignoreMsgId);
-            if (sourceDestroy) {
-                maxSourceY = sourceDestroy.y - PUFFER;
-            } else {
-                maxSourceY = sourceLL.y + sourceLL.length;
-            }
+            maxSourceY = (sourceDestroy?.y ?? sourceLL.y + sourceLL.length) - LIFELINE_PADDING;
         }
 
-        // calculate init borders for the target
         if (targetLL) {
-            minTargetY = targetLL.y + 80;
+            minTargetY = targetLL.y + 80 + LIFELINE_PADDING;
             
             const targetDestroy = this.model.messages.find(m => m.type === 'destroy' && m.targetId === targetLL.id && m.id !== ignoreMsgId);
-            if (targetDestroy) {
-                maxTargetY = targetDestroy.y - PUFFER;
-            } else {
-                maxTargetY = targetLL.y + targetLL.length;
-            }
+            maxTargetY = (targetDestroy?.y ?? targetLL.y + targetLL.length) - LIFELINE_PADDING;
         }
 
-        // change borders based on type of message
         let minY = 0;
         let maxY = Infinity;
 
@@ -821,10 +1043,12 @@ export class SequenceEditor extends LitElementWw {
             if (targetLL) {
                 const targetMsgs = this.model.messages.filter(m => (m.sourceId === targetId || m.targetId === targetId) && m.id !== ignoreMsgId && m.type !== 'create');
                 if (targetMsgs.length > 0) {
-                    firstTargetMsgY = Math.min(...targetMsgs.map(m => m.y)) - 80;
+                    firstTargetMsgY = Math.min(...targetMsgs.map(m => m.y)) - 80 - LIFELINE_PADDING;
                 }
             }
-            maxY = Math.min(maxSourceY, firstTargetMsgY);
+            // Create messages store the target box's top; the arrow is 40px below it.
+            const targetBoxMaxY = targetLL ? targetLL.y + targetLL.length - MIN_LIFELINE_LENGTH : Infinity;
+            maxY = Math.min(maxSourceY - 40, firstTargetMsgY, targetBoxMaxY);
 
         } else if (type === 'destroy') {
             // upper bound: last message in target
@@ -835,9 +1059,9 @@ export class SequenceEditor extends LitElementWw {
             if (targetLL) {
                 const targetMsgs = this.model.messages.filter(m => (m.sourceId === targetId || m.targetId === targetId) && m.id !== ignoreMsgId && m.type !== 'destroy');
                 if (targetMsgs.length > 0) {
-                    lastTargetMsgY = Math.max(...targetMsgs.map(m => m.y)) + PUFFER;
+                    lastTargetMsgY = Math.max(...targetMsgs.map(m => m.y)) + LIFELINE_PADDING;
                 } else {
-                    lastTargetMsgY = targetLL.y + 80; 
+                    lastTargetMsgY = minTargetY;
                 }
             }
             minY = Math.max(minSourceY, lastTargetMsgY);
@@ -856,35 +1080,24 @@ export class SequenceEditor extends LitElementWw {
             maxY = Math.min(maxSourceY, maxTargetY);
         }
 
+        // Self messages return 30px below their starting point.
+        if (sourceId === targetId && type !== 'create') maxY -= 30;
+
         return { minY, maxY };
     }
 
-    /** calculates the lifeline boudarys for activation bars and fragments */
+    /** Padded bounds for activations and fragments. */
     private _getLifelineVerticalBounds(llId: string): { minY: number, maxY: number } {
         const ll = this.model.lifelines.find(l => l.id === llId);
         if (!ll) return { minY: 0, maxY: Infinity };
 
-        // upper bound
-        const minY = ll.y + 80;
-
-        // is there a destroy (important for lower bound)
+        const minY = ll.y + 80 + LIFELINE_PADDING;
         const destroyMsg = this.model.messages.find(m => m.type === 'destroy' && m.targetId === llId);
+        const maxY = destroyMsg
+            ? destroyMsg.y + (destroyMsg.sourceId === destroyMsg.targetId ? 30 : 0)
+            : ll.y + ll.length;
 
-        let maxY: number;
-
-        if (destroyMsg) {
-            if (destroyMsg.sourceId === destroyMsg.targetId) {
-                // selfdestroy need to look for the end of the message not the normal y
-                maxY = destroyMsg.y + 30;
-            } else {
-                maxY = destroyMsg.y;
-            }
-        } else {
-            // default lower bound
-            maxY = ll.y + ll.length;
-        }
-
-        return { minY, maxY };
+        return { minY, maxY: maxY - LIFELINE_PADDING };
     }
 
     // --------------------------------------------------------------------------------------------------------
@@ -916,10 +1129,31 @@ export class SequenceEditor extends LitElementWw {
         }));
     }
 
+    /** built per call so the labels follow the current locale */
+    private _lifelineIconOptions() {
+        return [
+            { value: 'none', label: msg("No icon"), src: noIcon },
+            { value: 'user', label: msg("User"), src: iconMap['user'] },
+            { value: 'users', label: msg("Users"), src: iconMap['users'] },
+            { value: 'device-desktop', label: msg("Desktop"), src: iconMap['device-desktop'] },
+            { value: 'device-mobile', label: msg("Mobile"), src: iconMap['device-mobile'] },
+            { value: 'world', label: msg("Globe"), src: iconMap['world'] },
+            { value: 'server', label: msg("Server"), src: iconMap['server'] },
+            { value: 'cloud', label: msg("Cloud"), src: iconMap['cloud'] },
+            { value: 'database', label: msg("Database"), src: iconMap['database'] },
+            { value: 'api', label: msg("API"), src: iconMap['api'] },
+            { value: 'settings', label: msg("Gear"), src: iconMap['settings'] },
+            { value: 'lock', label: msg("Lock"), src: iconMap['lock'] },
+            { value: 'mail', label: msg("Mail"), src: iconMap['mail'] },
+            { value: 'file', label: msg("File"), src: iconMap['file'] },
+            { value: 'clock', label: msg("Clock"), src: iconMap['clock'] },
+            { value: 'credit-card', label: msg("Credit Card"), src: iconMap['credit-card'] },
+        ];
+    }
+
     /** Handles the click on the delete button in the liveline drawer menu and inform the controller */
     private _handleDeleteLifelineClick() {
         if (this.editingLifelineId) {
-            if (!confirm(msg("Do you really want to delete this element?"))) return;
             this.dispatchEvent(new CustomEvent('delete-lifeline', {
                 detail: { id: this.editingLifelineId },
                 bubbles: true,
@@ -1159,7 +1393,7 @@ export class SequenceEditor extends LitElementWw {
             if (m.name && m.type !== 'reply' && !m.name.trim().startsWith('<') && /^[A-ZÄÖÜ]/.test(m.name.trim())) {
                 issues.push({
                     target: `msg-${m.id}-name`,
-                    message: msg("Messages (excluding replys) should start with a lowercase letter."),
+                    message: msg("Message names, except replies, should start with a lowercase letter."),
                     settingKey: 'checkForFirstLetterOfMessages'
                 });
             }
@@ -1338,6 +1572,28 @@ export class SequenceEditor extends LitElementWw {
 
         if (!this.model) return html``;
 
+        // the activation bars of every lifeline from top to bottom with their x position, shifted right for each bar they start inside of
+        const activationBars = new Map(this.model.lifelines.map(ll => {
+            const activations = [...(ll.activations || [])].sort((a, b) => a.y - b.y);
+            const lifelineX = this._getLifelineX(ll.id);
+            return [ll.id, activations.map((activation, index) => {
+                const nestingLevel = activations.slice(0, index)
+                    .filter(outer => activation.y >= outer.y && activation.y < outer.y + outer.length).length;
+                return { activation, nested: nestingLevel > 0, x: lifelineX - this.ACTIVATION_WIDTH / 2 + nestingLevel * this.ACTIVATION_NESTING_OFFSET };
+            })];
+        }));
+
+        // messages start and end at the edges of the activation bars active at their height (the right edge if
+        // they continue to the right) instead of running underneath them, or at the lifeline if there are none
+        const messageEndX = (lifelineId: string, y: number, rightEdge: boolean) => {
+            const bars = (activationBars.get(lifelineId) || [])
+                .filter(({ activation }) => y >= activation.y && y <= activation.y + activation.length);
+            if (bars.length === 0) return this._getLifelineX(lifelineId);
+            return rightEdge
+                ? Math.max(...bars.map(bar => bar.x + this.ACTIVATION_WIDTH))
+                : Math.min(...bars.map(bar => bar.x));
+        };
+
         // get the current edited lifeline for the drawer
         const editingLifeline = this.editingLifelineId 
             ? this.model.lifelines.find(l => l.id === this.editingLifelineId) 
@@ -1354,26 +1610,46 @@ export class SequenceEditor extends LitElementWw {
             : false;
 
         return html`
-            ${this.interactionMode !== 'idle' ? html`
-                <div class="interaction-banner">
-                    <span>
-                        ${this.interactionMode === 'add-message-source' 
-                            ? msg("Select sending lifeline") 
-                            : this.interactionMode === 'add-activation' 
-                            ? msg("Select a lifeline")
-                            : this.interactionMode === 'creating-fragment-start'
-                            ? msg("Select start lifeline")
-                            : this.interactionMode === 'creating-fragment-end'
-                            ? msg("Select end lifeline")
-                            : msg("Select receiving liveline")}
-                    </span>
-                    <sl-button size="small" pill @click=${() => this.dispatchEvent(new CustomEvent('cancel-interaction'))}>
-                        ${msg("Cancel")}
-                    </sl-button>
+            ${this._notice ? keyed(this._noticeCount, html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="danger"
+                        duration="5000"
+                        closable
+                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
+                    >
+                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
+                        <span class="canvas-alert-text">${this._notice}</span>
+                    </sl-alert>
+                </div>
+            `) : this.interactionMode !== 'idle' ? html`
+                <div class="canvas-alert">
+                    <sl-alert
+                        variant="primary"
+                        closable
+                        open
+                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this.dispatchEvent(new CustomEvent('cancel-interaction')); }}
+                    >
+                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
+                        <span>
+                            ${this.interactionMode === 'add-message-source' 
+                                ? msg("Select sending lifeline") 
+                                : this.interactionMode === 'add-activation' 
+                                ? msg("Select a lifeline")
+                                : this.interactionMode === 'creating-fragment-start'
+                                ? msg("Select start lifeline")
+                                : this.interactionMode === 'creating-fragment-end'
+                                ? msg("Select end lifeline")
+                                : msg("Select receiving lifeline")}
+                        </span>
+                    </sl-alert>
                 </div>
             ` : ''}
 
             <svg 
+                id="canvas"
+                class="${this._isEmpty ? 'empty' : ''} ${this._activeDrag ? 'dragging' : ''} ${this.interactionMode !== 'idle' ? 'selecting' : ''}"
+                style=${this._activeDrag ? `--drag-cursor: ${this._activeDrag.cursor}` : ''}
                 viewBox="${this.panX} ${this.panY} ${this._svgWidth / this.zoom} ${this._svgHeight / this.zoom}"
                 @wheel=${this._handleWheel}
                 @pointerdown=${this._handlePointerDown}
@@ -1383,13 +1659,7 @@ export class SequenceEditor extends LitElementWw {
                 @contextmenu=${(e: MouseEvent) => e.preventDefault()}
             >
                 <defs>
-                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--sl-color-neutral-900)" />
-                    </marker>
-                    
-                    <marker id="arrowhead-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                        <polyline points="0 0, 9 3.5, 0 7" fill="none" stroke="var(--sl-color-neutral-900)" stroke-width="1.5" />
-                    </marker>
+                    ${arrowMarkers(1.5)}
                 </defs>
 
                 ${repeat(this.model.lifelines, (ll) => ll.id, (ll, index) => {
@@ -1403,10 +1673,10 @@ export class SequenceEditor extends LitElementWw {
                     const clickAreaHeight = Math.max(0, lineEndY - clickAreaStartY);
 
                     return svg`
-                        <g class="lifeline" data-id="${ll.id}">
+                        <g class="lifeline ${[this._activeDrag?.id, this.messageSourceId, this.fragmentSourceId].includes(ll.id) ? 'active' : ''}" data-id="${ll.id}">
                             
                             <rect 
-                                class="lifeline-click-area ${this.messageSourceId === ll.id ? 'selected-source' : ''}" 
+                                class="lifeline-click-area" 
                                 x="${currentX - 35}" 
                                 y="${clickAreaStartY}" 
                                 width="70" 
@@ -1420,7 +1690,8 @@ export class SequenceEditor extends LitElementWw {
                             <line class="lifeline-line" x1="${currentX}" y1="${ll.y + 30}" x2="${currentX}" y2="${lineEndY}" />
 
                             ${!destroyMsg ? svg`
-                                <rect class="lifeline-handle" data-id="${ll.id}" x="${currentX - 15}" y="${ll.y + ll.length}" width="30" height="15" rx="3" ry="3" />
+                                <rect class="lifeline-handle" data-id="${ll.id}" x="${currentX - 15}" y="${ll.y + ll.length - 6}" width="30" height="12" />
+                                ${this._renderResizeGrip(currentX, ll.y + ll.length)}
                             ` : ''}
                             
                             <foreignObject
@@ -1476,31 +1747,36 @@ export class SequenceEditor extends LitElementWw {
 
                     if ((!sourceLL && !isFound) || (!targetLL && !isLost)) return svg``;
 
-                    const startX = isFound ? targetX - 150 : sourceX;
-                    const endX = isLost ? sourceX + 150 : targetX;
                     const y = msg.y;
                     
                     const dashArray = (isReply || isCreate) ? "5, 5" : "none";
-                    const markerUrl = (isAsync || isReply || isCreate) ? "url(#arrowhead-open)" : "url(#arrowhead)";
-
-                    let actualEndX = endX;
-                    if (isCreate) {
-                        actualEndX = startX < endX ? endX - 70 : endX + 70;
-                    }
+                    const markerUrl = (isAsync || isReply || isCreate) ? "url(#arrow-open)" : "url(#arrow-filled)";
 
                     let actualY = y;
                     if (isCreate) {
                         actualY = y+40;
                     }
 
+                    const rightwards = isFound || isLost || isSelfMessage || sourceX < targetX;
+                    const startX = isFound ? targetX - 150 : messageEndX(msg.sourceId, actualY, rightwards);
+                    const endX = isLost ? sourceX + 150 : messageEndX(msg.targetId, actualY, !rightwards);
+
+                    let actualEndX = endX;
+                    if (isCreate) {
+                        actualEndX = rightwards ? targetX - 70 : targetX + 70;
+                    }
+
                     if (isSelfMessage) {
                         const loopWidth = 40;
                         const loopHeight = 30;
-                        const pathD = `M ${startX} ${y} L ${startX + loopWidth} ${y} L ${startX + loopWidth} ${y + loopHeight} L ${startX} ${y + loopHeight}`;
+                        // returns to the edge of the activation bars at its end (e.g. a nested bar for the called operation)
+                        const loopEndX = messageEndX(msg.sourceId, y + loopHeight, true);
+                        const outerX = Math.max(sourceX + loopWidth, startX + 20, loopEndX + 20);
+                        const pathD = `M ${startX} ${y} L ${outerX} ${y} L ${outerX} ${y + loopHeight} L ${loopEndX} ${y + loopHeight}`;
                         
                         return svg`
                             <g 
-                                class="message" 
+                                class="message ${this._activeDrag?.id === msg.id ? 'active' : ''}" 
                                 data-id="${msg.id}" 
                                 @dblclick=${(e: MouseEvent) => this._handleMessageDblClick(e, msg.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleMessageDblClick(e, msg.id)}}
@@ -1514,12 +1790,12 @@ export class SequenceEditor extends LitElementWw {
                                 
                                 ${isDestroy ? svg`
                                     <g stroke="var(--sl-color-neutral-900)" stroke-width="2.5">
-                                        <line x1="${startX - 15}" y1="${y + loopHeight - 15}" x2="${startX + 15}" y2="${y + loopHeight + 15}" />
-                                        <line x1="${startX - 15}" y1="${y + loopHeight + 15}" x2="${startX + 15}" y2="${y + loopHeight - 15}" />
+                                        <line x1="${sourceX - 15}" y1="${y + loopHeight - 15}" x2="${sourceX + 15}" y2="${y + loopHeight + 15}" />
+                                        <line x1="${sourceX - 15}" y1="${y + loopHeight + 15}" x2="${sourceX + 15}" y2="${y + loopHeight - 15}" />
                                     </g>
                                 ` : ''}
                                 <text class="message-text" 
-                                      x="${startX + loopWidth + 10}" 
+                                      x="${outerX + 10}" 
                                       y="${y + (loopHeight / 2)}" 
                                       style="text-anchor: start; dominant-baseline: middle;">
                                     ${msg.assignment ? `${msg.assignment} = ` : ''}${msg.name}
@@ -1531,7 +1807,7 @@ export class SequenceEditor extends LitElementWw {
 
                         return svg`
                             <g 
-                                class="message" 
+                                class="message ${this._activeDrag?.id === msg.id ? 'active' : ''}" 
                                 data-id="${msg.id}" 
                                 @dblclick=${(e: MouseEvent) => this._handleMessageDblClick(e, msg.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleMessageDblClick(e, msg.id)}}
@@ -1545,8 +1821,8 @@ export class SequenceEditor extends LitElementWw {
                                 ` : ''}
                                 ${isDestroy ? svg`
                                     <g stroke="var(--sl-color-neutral-900)" stroke-width="2.5">
-                                        <line x1="${actualEndX - 15}" y1="${actualY - 15}" x2="${actualEndX + 15}" y2="${actualY + 15}" />
-                                        <line x1="${actualEndX - 15}" y1="${actualY + 15}" x2="${actualEndX + 15}" y2="${actualY - 15}" />
+                                        <line x1="${targetX - 15}" y1="${actualY - 15}" x2="${targetX + 15}" y2="${actualY + 15}" />
+                                        <line x1="${targetX - 15}" y1="${actualY + 15}" x2="${targetX + 15}" y2="${actualY - 15}" />
                                     </g>
                                 ` : ''}
                                 <line class="message-line" 
@@ -1563,30 +1839,24 @@ export class SequenceEditor extends LitElementWw {
                 })}
 
                 ${this.model.lifelines.map(ll => {
-                    const currentX = this._getLifelineX(ll.id);
-                    return (ll.activations || []).sort((a, b) => a.y - b.y).map((act, index, sortedActs) => {
-                        let nestingLevel = 0;
-                        for (let i = 0; i < index; i++) {
-                            const prevAct = sortedActs[i];
-                            if (act.y >= prevAct.y && act.y < prevAct.y + prevAct.length) {
-                                nestingLevel++;
-                            }
-                        }
-                        const boxWidth = 14;
-                        const xPos = currentX - (boxWidth / 2) + (nestingLevel * 8);
+                    return activationBars.get(ll.id)!.map(({ activation: act, nested, x: xPos }) => {
+                        const boxWidth = this.ACTIVATION_WIDTH;
                         return svg`
                             <g 
-                                class="activation" 
+                                class="activation ${this._activeDrag?.id === act.id ? 'active' : ''}" 
                                 data-id="${act.id}"
                                 data-lifeline-id="${ll.id}"
+                                style="
+                                    --touch-outset: ${-8 / this.zoom}px;
+                                    --activation-hitbox-left: ${nested ? 0 : -8 / this.zoom}px;
+                                    --activation-resize-inset: ${5 - act.length / 3}px;
+                                "
                                 @click=${(e: MouseEvent) => this._handleLifelineClick(e, ll.id)}
                                 @dblclick=${(e: MouseEvent) => this._handleActivationDblClick(e, ll.id, act.id)}
                                 @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._handleActivationDblClick(e, ll.id, act.id)}}
                             >
                                 <rect 
-                                    class="activation-box draggable-activation" 
-                                    data-id="${act.id}"
-                                    data-lifeline-id="${ll.id}"
+                                    class="activation-box"
                                     x="${xPos}" 
                                     y="${act.y}" 
                                     width="${boxWidth}" 
@@ -1594,18 +1864,30 @@ export class SequenceEditor extends LitElementWw {
                                     fill="var(--sl-color-neutral-0)"
                                     stroke="var(--sl-color-neutral-900)"
                                     stroke-width="1.5"
+                                    style="pointer-events: none;"
                                 />
-                                <rect 
-                                    class="activation-resize-handle" 
+                                <rect
+                                    class="touch-area draggable-activation ${nested ? 'nested' : ''}"
                                     data-id="${act.id}"
                                     data-lifeline-id="${ll.id}"
-                                    x="${xPos}" 
-                                    y="${act.y + act.length - 4}" 
-                                    width="${boxWidth}" 
-                                    height="8" 
-                                    fill="transparent" 
-                                    style="cursor: ns-resize;"
+                                    x="${xPos}"
+                                    y="${act.y}"
+                                    width="${boxWidth}"
+                                    height="${act.length}"
                                 />
+                                ${[act.y, act.y + act.length].map((edgeY, index) => svg`
+                                    <rect 
+                                        class="activation-resize-handle" 
+                                        data-id="${act.id}"
+                                        data-lifeline-id="${ll.id}"
+                                        data-edge="${index === 0 ? 'top' : 'bottom'}"
+                                        x="${xPos}" 
+                                        y="${edgeY - 5}" 
+                                        width="${boxWidth}" 
+                                        height="10" 
+                                    />
+                                    ${this._renderResizeGrip(xPos + boxWidth / 2, edgeY)}
+                                `)}
                             </g>
                         `;
                     });
@@ -1659,9 +1941,9 @@ export class SequenceEditor extends LitElementWw {
                     const boxWidth = rightX - leftX;
 
                     return svg`
-                        <g class="fragment" data-id="${frag.id}">
+                        <g class="fragment ${this._activeDrag?.id === frag.id ? 'active' : ''}" data-id="${frag.id}">
                             <rect 
-                                class="fragment-background"
+                                class="fragment-background ${overlappingFragmentIds.has(frag.id) ? 'overlapping' : ''}"
                                 x="${leftX}" 
                                 y="${frag.y}" 
                                 width="${boxWidth}" 
@@ -1672,22 +1954,20 @@ export class SequenceEditor extends LitElementWw {
                                 style="pointer-events: none;" 
                             />
 
-                            <path 
-                                class="fragment-header-hitbox"
-                                data-id="${frag.id}"
-                                d="M ${leftX} ${frag.y} 
-                                   L ${leftX + 50} ${frag.y} 
-                                   L ${leftX + 60} ${frag.y + 10} 
-                                   L ${leftX + 60} ${frag.y + 20} 
-                                   L ${leftX} ${frag.y + 20} Z" 
-                                fill="var(--sl-color-neutral-0)" 
-                                stroke="var(--sl-color-neutral-900)" 
+                            <path
+                                class="fragment-header"
+                                d="M ${leftX} ${frag.y}
+                                   L ${leftX + 50} ${frag.y}
+                                   L ${leftX + 60} ${frag.y + 10}
+                                   L ${leftX + 60} ${frag.y + 20}
+                                   L ${leftX} ${frag.y + 20} Z"
+                                fill="var(--sl-color-neutral-0)"
+                                stroke="var(--sl-color-neutral-900)"
                                 stroke-width="1.5"
-                                style="pointer-events: auto; cursor: grab;"
-                                @dblclick=${(e: MouseEvent) => this._editFragment(e, frag.id)}
-                                @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._editFragment(e, frag.id)}}
+                                style="pointer-events: none;"
                             />
-                            <polyline 
+                            <polyline
+                                class="fragment-header-fold"
                                 points="${leftX + 50},${frag.y} ${leftX + 50},${frag.y + 10} ${leftX + 60},${frag.y + 10}" 
                                 fill="none" 
                                 stroke="var(--sl-color-neutral-900)"
@@ -1705,6 +1985,30 @@ export class SequenceEditor extends LitElementWw {
                             >
                                 ${frag.type}
                             </text>
+                            <rect
+                                class="touch-area fragment-header-hitbox"
+                                data-id="${frag.id}"
+                                x="${leftX}"
+                                y="${frag.y}"
+                                width="60"
+                                height="20"
+                                style="pointer-events: auto;"
+                                @dblclick=${(e: MouseEvent) => this._editFragment(e, frag.id)}
+                                @contextmenu=${(e: MouseEvent) => {e.preventDefault(); this._editFragment(e, frag.id)}}
+                            />
+
+                            <rect 
+                                class="fragment-operand-resize-handle"
+                                data-fragment-id="${frag.id}"
+                                data-operand-id="${frag.operands[0]?.id}"
+                                data-edge="top"
+                                x="${leftX + 60}" 
+                                y="${frag.y - 5}" 
+                                width="${boxWidth - 60}" 
+                                height="10" 
+                                style="pointer-events: auto;"
+                            />
+                            ${this._renderResizeGrip(leftX + boxWidth / 2, frag.y)}
 
                             ${(() => {
                                 let currentY = frag.y;
@@ -1749,9 +2053,9 @@ export class SequenceEditor extends LitElementWw {
                                                 y="${currentY + op.height - 5}" 
                                                 width="${boxWidth}" 
                                                 height="10" 
-                                                fill="transparent" 
-                                                style="cursor: ns-resize; pointer-events: auto;"
+                                                style="pointer-events: auto;"
                                             />
+                                            ${this._renderResizeGrip(leftX + boxWidth / 2, currentY + op.height)}
                                         </g>
                                     `;
                                     
@@ -1765,36 +2069,28 @@ export class SequenceEditor extends LitElementWw {
                 })}
             </svg>
 
-            <div class="zoomControls" style="right: ${(this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null) && this.drawerPlacement === 'end' ? 'calc(33% + 20px)' : '20px'};">
-                <sl-icon-button
-                    src=${zoomIn}
-                    label="${msg("Zoom In")}"
-                    @click=${this._zoomIn}
-                ></sl-icon-button>
-                
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
+            ${this._isEmpty ? html`
+                <div class="empty-hint">${msg("Add lifelines via the toolbar above.")}</div>
+            ` : ''}
 
-                <sl-icon-button
-                    src=${this.isFullscreen ? minimizeIcon : maximizeIcon}
-                    label="${msg("Toggle Fullscreen")}"
-                    @click=${this._toggleFullscreen}
-                ></sl-icon-button>
-
-                <sl-divider vertical style="height: 20px; margin: 0 4px;"></sl-divider>
-                
-                <sl-icon-button
-                    src=${zoomOut}
-                    label="${msg("Zoom Out")}"
-                    @click=${this._zoomOut}
-                ></sl-icon-button>
-            </div>
+            <zoom-controls
+                style="right: ${this._drawerShown && this.drawerPlacement === 'end' ? 'calc(33% + var(--sl-spacing-x-small))' : 'var(--sl-spacing-x-small)'};"
+                .zoomLevel=${this.zoom}
+                .minZoom=${0.3}
+                .maxZoom=${3}
+                .isFullscreen=${this.isFullscreen}
+                ?zoomDisabled=${this._isEmpty}
+                @zoom-in=${this._zoomIn}
+                @zoom-out=${this._zoomOut}
+            ></zoom-controls>
 
             <sl-drawer 
                 contained
                 label="${editingLifeline ? msg("Lifeline") : editingMessage ? msg("Message") : this.editingActivation ? msg("Activation") : msg("Fragment")}"
                 .placement=${this.drawerPlacement}
                 .open=${this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null}
-                class=${this.drawerPlacement === 'start' ? 'drawer-left' : 'drawer-right'}
+                @sl-show=${(e: Event) => { if (e.target === e.currentTarget) this._drawerShown = true; }}
+                @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._drawerShown = false; }}
                 @sl-after-hide=${(e: Event) => {
                     if (e.target === e.currentTarget) {
                         this.editingLifelineId = null;
@@ -1815,7 +2111,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Object-Name")}" 
+                                label="${msg("Object Name")}"
                                 value="${editingLifeline.name || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('name', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('name', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-name`); }}
@@ -1832,7 +2128,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Class-Name")}" 
+                                label="${msg("Class Name")}"
                                 value="${editingLifeline.className || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('className', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('className', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-classname`); }}
@@ -1848,21 +2144,24 @@ export class SequenceEditor extends LitElementWw {
                         </div>
 
                         ${this.settings.iconsInObjectBoxExists ? html`
-                            <sl-select 
-                                label="${msg("Icon")}" 
-                                value="${editingLifeline.icon || 'none'}"
-                                @sl-change=${(e: any) => this._handleLifelineUpdate('icon', e.target.value)}
-                            >
-                                <sl-option value="none">${msg("Default (Box)")}</sl-option>
-                                <sl-option value="user">${msg("Actor (User)")}</sl-option>
-                                <sl-option value="database">${msg("Database")}</sl-option>
-                                <sl-option value="server">${msg("Server")}</sl-option>
-                                <sl-option value="device-desktop">${msg("Client / Desktop")}</sl-option>
-                                <sl-option value="device-mobile">${msg("Client / Mobile Device")}</sl-option>
-                            </sl-select>
+                            <div class="icon-picker">
+                                <div class="icon-picker-label" id="icon-picker-label">${msg("Icon")}</div>
+                                <div class="icon-picker-grid" role="group" aria-labelledby="icon-picker-label">
+                                    ${this._lifelineIconOptions().map(option => html`
+                                        <sl-button
+                                            class="icon-picker-option"
+                                            variant=${(editingLifeline.icon || 'none') === option.value ? 'primary' : 'default'}
+                                            title=${option.label}
+                                            @click=${() => this._handleLifelineUpdate('icon', option.value)}
+                                        >
+                                            <sl-icon src=${option.src} label=${option.label}></sl-icon>
+                                        </sl-button>
+                                    `)}
+                                </div>
+                            </div>
                         ` : ''}
 
-                        <sl-button class="delete-btn" @click=${this._handleDeleteLifelineClick}>
+                        <sl-button variant="danger" outline @click=${this._handleDeleteLifelineClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
                             ${msg("Delete Object")}
                         </sl-button>
@@ -1923,10 +2222,13 @@ export class SequenceEditor extends LitElementWw {
                                 ` : ''}
                             </sl-select>
                         ` : html`
-                            <sl-input label="${msg("Message Type")}" value="${editingMessage.type}" disabled></sl-input>
+                            <sl-input label="${msg("Message Type")}" value=${editingMessage.type === 'create' ? msg("Create")
+                                : editingMessage.type === 'destroy' ? msg("Destroy")
+                                : editingMessage.type === 'found' ? msg("Found")
+                                : msg("Lost")} disabled></sl-input>
                         `}
 
-                        <sl-button class="delete-btn" @click=${this._handleDeleteMessageClick}>
+                        <sl-button variant="danger" outline @click=${this._handleDeleteMessageClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
                             ${msg("Delete Message")}
                         </sl-button>
@@ -1936,14 +2238,15 @@ export class SequenceEditor extends LitElementWw {
                 ${this.editingActivation ? html`
                     <div class="drawer-content">
                         <sl-button 
-                            class="delete-btn" 
+                            variant="danger" 
+                            outline 
                             @click=${this._handleDeleteActivationClick}
                         >
                             <sl-icon 
                                 slot="prefix" 
                                 src=${trashIcon}
                             ></sl-icon>
-                            ${msg("Delete Activation Box")}
+                            ${msg("Delete Activation")}
                         </sl-button>
                     </div>
                 ` : ''}
@@ -1961,15 +2264,15 @@ export class SequenceEditor extends LitElementWw {
                                 @sl-change=${(e: any) => this._handleFragmentUpdate('type', e.target.value)}
                             >
                                 ${this.settings.optionalFragmentExists || frag.type === 'opt' ? html`
-                                    <sl-option value="opt">opt (Optional)</sl-option>
+                                    <sl-option value="opt">${msg("Optional")} (opt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.alternativeFragmentExists || frag.type === 'alt' ? html`
-                                    <sl-option value="alt">alt (Alternative / If-Else)</sl-option>
+                                    <sl-option value="alt">${msg("Alternative")} (alt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.loopFragmentExists || frag.type === 'loop' ? html`
-                                    <sl-option value="loop">loop</sl-option>
+                                    <sl-option value="loop">${msg("Loop")} (loop)</sl-option>
                                 ` : ''}
                             </sl-select>
 
@@ -1977,7 +2280,7 @@ export class SequenceEditor extends LitElementWw {
                                 <div class="operand-row">
                                     <div class="operand-input-wrapper">
                                         <sl-input 
-                                            label="${msg("Condition")} ${index + 1}" 
+                                            label=${msg(str`Condition ${index + 1}`)}
                                             value="${op.guard}"
                                             @sl-change=${(e: any) => this._handleFragmentOperandUpdate(op.id, e.target.value)}
                                             @sl-blur=${() => this._handleBlur(`frag-${frag.id}-op-${op.id}-guard`)}
@@ -1997,6 +2300,7 @@ export class SequenceEditor extends LitElementWw {
                                         ?disabled=${frag.operands.length <= 1}
                                         @click=${() => this._handleRemoveFragmentOperand(op.id)}
                                         title="${msg("Remove Region")}"
+                                        aria-label=${msg("Remove Region")}
                                     >
                                         <sl-icon src=${xIcon}></sl-icon>
                                     </sl-button>
@@ -2026,7 +2330,6 @@ export class SequenceEditor extends LitElementWw {
                                 <sl-icon 
                                     slot="prefix" 
                                     src=${trashIcon}
-                                    class="delete-btn"
                                 ></sl-icon>
                                 ${msg("Delete Fragment")}
                             </sl-button>
@@ -2034,6 +2337,8 @@ export class SequenceEditor extends LitElementWw {
                     `;
                 })() : ''}
             </sl-drawer>
+
+            <confirm-dialog></confirm-dialog>
         `;
     }
 }

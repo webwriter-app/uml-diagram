@@ -2,16 +2,16 @@ import { html } from "lit";
 import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
-import { SlInput, SlSwitch, SlDetails, SlDivider, SlTooltip } from "@shoelace-style/shoelace";
+import { SlInput, SlSwitch, SlDivider } from "@shoelace-style/shoelace";
 import { ClassSettings } from "../../models/class-settings-model";
-import styles from "./class-settings-menu.styles";
+import styles from "../../../shared/settings-menu.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 
 /** Settings menu component for the Class and Object Diagram */
 @localized()
 export class ClassSettingsMenu extends LitElementWw {
 
-    /** styles defined in class-settings-menu.styles.ts */
+    /** styles are shared with the sequence diagram settings menu */
     static styles = [styles];
 
     /** Register used Elements */
@@ -19,9 +19,7 @@ export class ClassSettingsMenu extends LitElementWw {
         return {
             "sl-switch": SlSwitch,
             "sl-input": SlInput,
-            "sl-details": SlDetails,
-            "sl-divider": SlDivider,
-            "sl-tooltip": SlTooltip
+            "sl-divider": SlDivider
         };
     }
 
@@ -78,7 +76,7 @@ export class ClassSettingsMenu extends LitElementWw {
             // In Class/Object Dialog
             checkEmptyClassNames: msg("No empty class names"),
             checkEmptyObjectNames: msg("No empty object names"),
-            checkEmptyAttrMethParamFields: msg("No empty attribute/ method fields"),
+            checkEmptyAttrMethParamFields: msg("No empty attribute, method, or parameter fields"),
             checkConstructorReturnType: msg("Constructors have no return type"),
             checkUniqueNames: msg("Unique names"),
             checkNamingConventions: msg("Naming conventions"),
@@ -121,184 +119,120 @@ export class ClassSettingsMenu extends LitElementWw {
             archValidationKeys = ["checkRelationalLogic"];
         }
 
-        return html`
-            
-            <sl-details 
-                class="options-group" 
-                summary="${msg('Allowed Elements')}"
-            > 
-                <div class="options-list">
-                    
-                    ${!isObjectDiagram ? html`
-                        <sl-switch size="small" ?checked=${this.settings.abstractExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'abstractExists')}>Abstract Class</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.parameterizedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'parameterizedExists')}>Parameterized Class</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.interfaceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'interfaceExists')}>Interface</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.annotationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'annotationExists')}>Annotation</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.recordExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'recordExists')}>Record</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.enumExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'enumExists')}>Enumeration</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.dataTypeExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dataTypeExists')}>Datatype</sl-switch>
-                    ` : ''}
-                    
-                    ${!isObjectDiagram ? html`
-                        <sl-switch size="small" ?checked=${this.settings.objectExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'objectExists')}>Object</sl-switch>
-                        <sl-divider></sl-divider>
-                    ` : ''}
+        const validationDisabled = this.globalSettings.validationMode !== 'custom';
+        const renderValidationSwitches = (keys: (keyof ClassSettings)[]) => keys.map(key => html`
+            <sl-switch
+                size="small"
+                ?checked=${(this.settings as any)[key]}
+                ?disabled=${validationDisabled}
+                @sl-change=${(e: Event) => this._handleSwitchChange(e, key)}
+            >
+                ${this._getLabel(key)}
+            </sl-switch>
+        `);
 
-                    <sl-switch size="small" ?checked=${this.settings.associationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationExists')}>
-                        ${isObjectDiagram ? msg("Link") : msg("Association")}
-                    </sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.associationBidirectionalExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationBidirectionalExists')}>
-                        ${isObjectDiagram ? msg("Link (Bi-Dir)") : msg("Association (Bi-Dir)")}
-                    </sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.associationUndirectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationUndirectedExists')}>
-                        ${isObjectDiagram ? msg("Link (Undirected)") : msg("Association (Undirected)")}
-                    </sl-switch>
-                    
-                    <sl-switch size="small" ?checked=${this.settings.compositionExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'compositionExists')}>Composition</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.aggregationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'aggregationExists')}>Aggregation</sl-switch>
-                    
-                    ${!isObjectDiagram ? html`
-                        <sl-switch size="small" ?checked=${this.settings.inheritanceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'inheritanceExists')}>Inheritance</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.dependencyExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dependencyExists')}>Dependency</sl-switch>
-                        <sl-switch size="small" ?checked=${this.settings.realizationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'realizationExists')}>Realization</sl-switch>
-                    ` : ''}
-                </div>
+        return html`
+            <section class="section">
+                <h3 class="section-heading">${msg("Allowed Elements")}</h3>
 
                 ${!isObjectDiagram ? html`
+                    <sl-switch size="small" ?checked=${this.settings.abstractExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'abstractExists')}>${msg("Abstract Class")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.parameterizedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'parameterizedExists')}>${msg("Parameterized Class")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.interfaceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'interfaceExists')}>${msg("Interface")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.annotationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'annotationExists')}>${msg("Annotation")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.recordExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'recordExists')}>${msg("Record")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.enumExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'enumExists')}>${msg("Enumeration")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.dataTypeExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dataTypeExists')}>${msg("Data Type")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.objectExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'objectExists')}>${msg("Object")}</sl-switch>
                     <sl-divider></sl-divider>
-                    <sl-switch size="small" ?checked=${this.settings.protectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'protectedExists')}>Protected (#)</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.packageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'packageExists')}>Package (~)</sl-switch>
                 ` : ''}
-            </sl-details>
 
-            ${ (isObjectDiagram || this.settings.objectExists) ? html`
-                <sl-details 
-                    class="options-group" 
-                    summary="${msg('Object Display Options')}"
-                >
-                    <div class="options-list">
-                        <sl-switch 
-                            size="small" 
-                            ?checked=${this.settings.showMethodsInObjects} 
-                            @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showMethodsInObjects')}
-                        >
-                            ${msg("Show Methods")}
-                        </sl-switch>
-                        
-                        <sl-switch 
-                            size="small" 
-                            ?checked=${this.settings.showParametersInObjects} 
-                            ?disabled=${!this.settings.showMethodsInObjects}
-                            @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showParametersInObjects')}
-                        >
-                            ${msg("Show Parameters")}
-                        </sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.associationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationExists')}>
+                    ${isObjectDiagram ? msg("Link (Directed)") : msg("Association (Directed)")}
+                </sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.associationBidirectionalExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationBidirectionalExists')}>
+                    ${isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)")}
+                </sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.associationUndirectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationUndirectedExists')}>
+                    ${isObjectDiagram ? msg("Link (Undirected)") : msg("Association (Undirected)")}
+                </sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.compositionExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'compositionExists')}>${msg("Composition")}</sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.aggregationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'aggregationExists')}>${msg("Aggregation")}</sl-switch>
 
-                        <sl-switch 
-                            size="small" 
-                            ?checked=${this.settings.showModifiersInObjects} 
-                            @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showModifiersInObjects')}
-                        >
-                            ${msg("Show Modifiers (static, final...)")}
-                        </sl-switch>
+                ${!isObjectDiagram ? html`
+                    <sl-switch size="small" ?checked=${this.settings.inheritanceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'inheritanceExists')}>${msg("Inheritance")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.dependencyExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dependencyExists')}>${msg("Dependency")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.realizationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'realizationExists')}>${msg("Realization")}</sl-switch>
+                    <sl-divider></sl-divider>
+                    <sl-switch size="small" ?checked=${this.settings.protectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'protectedExists')}>protected (#)</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.packageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'packageExists')}>package (~)</sl-switch>
+                ` : ''}
+            </section>
 
-                        <sl-switch 
-                            size="small" 
-                            ?checked=${this.settings.showVisibilityInObjects} 
-                            @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showVisibilityInObjects')}
-                        >
-                            ${msg("Show Visibility (+, -, ...)")}
-                        </sl-switch>
-                    </div>
-                </sl-details>
+            ${(isObjectDiagram || this.settings.objectExists) ? html`
+                <section class="section">
+                    <h3 class="section-heading">${msg("Object Display Options")}</h3>
+                    <sl-switch size="small" ?checked=${this.settings.showMethodsInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showMethodsInObjects')}>
+                        ${msg("Show methods")}
+                    </sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.showParametersInObjects} ?disabled=${!this.settings.showMethodsInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showParametersInObjects')}>
+                        ${msg("Show parameters")}
+                    </sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.showModifiersInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showModifiersInObjects')}>
+                        ${msg("Show modifiers (static, final, …)")}
+                    </sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.showVisibilityInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showVisibilityInObjects')}>
+                        ${msg("Show visibility (+, -, …)")}
+                    </sl-switch>
+                </section>
             ` : ''}
 
-            <sl-details 
-                class="options-group" 
-                summary="${msg('Constraints')}"
-            >
-                <div class="options-list">
-                    <sl-input 
-                        type="number" 
-                        label=${msg("Max. Entities")}
-                        size="small"
-                        min="0"
-                        .value=${this.settings.maxClasses.toString()}
-                        @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxClasses')}
-                    ></sl-input>
+            <section class="section">
+                <h3 class="section-heading">${msg("Constraints")}</h3>
+                <sl-input
+                    type="number"
+                    label=${msg("Maximum entities")}
+                    size="small"
+                    min="0"
+                    .value=${this.settings.maxClasses.toString()}
+                    @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxClasses')}
+                ></sl-input>
+                <sl-input
+                    type="number"
+                    label=${msg("Maximum connections (total)")}
+                    size="small"
+                    min="0"
+                    .value=${this.settings.maxRelations.toString()}
+                    @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxRelations')}
+                ></sl-input>
+                <sl-input
+                    type="number"
+                    label=${msg("Maximum connections per pair")}
+                    size="small"
+                    min="0"
+                    .value=${this.settings.maxNumberRelationsBetweenTwoClasses.toString()}
+                    @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxNumberRelationsBetweenTwoClasses')}
+                ></sl-input>
+            </section>
 
-                    <sl-input 
-                        type="number" 
-                        label=${msg("Max. Connections (Total)")} 
-                        size="small"
-                        min="0"
-                        .value=${this.settings.maxRelations.toString()}
-                        @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxRelations')}
-                    ></sl-input>
+            <section class="section">
+                <h3 class="section-heading">${msg("Validation")}</h3>
+                ${validationDisabled ? html`
+                    <p class="help-text">${msg("Set the validation mode to “Custom” to configure individual rules.")}</p>
+                ` : ''}
 
-                    <sl-input 
-                        type="number" 
-                        label=${msg("Max. Connections (per Pair)")} 
-                        size="small"
-                        min="0"
-                        .value=${this.settings.maxNumberRelationsBetweenTwoClasses.toString()}
-                        @sl-change=${(e: Event) => this._handleNumberChange(e, 'maxNumberRelationsBetweenTwoClasses')}
-                    ></sl-input>
-                </div>
-            </sl-details>
+                ${renderValidationSwitches(entityValidationKeys)}
 
-            <sl-tooltip 
-                content=${msg("Set Validation Mode to 'Custom' in Global Settings to configure individual rules")}
-                ?disabled=${this.globalSettings.validationMode === 'custom'}
-                hoist
-                placement="bottom"
-            >
-                <div>
-                    <sl-details 
-                        class="options-group" 
-                        summary="${msg('Validation')}"
-                        ?disabled=${this.globalSettings.validationMode !== 'custom'}
-                    >
-                        <div class="options-list">
-                            ${entityValidationKeys.map(key => html`
-                                <sl-switch
-                                    size="small"
-                                    ?checked=${(this.settings as any)[key]}
-                                    @sl-change=${(e: Event) => this._handleSwitchChange(e, key)}
-                                >
-                                    ${this._getLabel(key)}
-                                </sl-switch>
-                            `)}
+                ${relationValidationKeys.length > 0 ? html`
+                    <sl-divider></sl-divider>
+                    ${renderValidationSwitches(relationValidationKeys)}
+                ` : ''}
 
-                            ${relationValidationKeys.length > 0 ? html`
-                                <sl-divider></sl-divider>
-                                ${relationValidationKeys.map(key => html`
-                                    <sl-switch
-                                        size="small"
-                                        ?checked=${(this.settings as any)[key]}
-                                        @sl-change=${(e: Event) => this._handleSwitchChange(e, key)}
-                                    >
-                                        ${this._getLabel(key)}
-                                    </sl-switch>
-                                `)}
-                            ` : ''}
-
-                            ${archValidationKeys.length > 0 ? html`
-                                <sl-divider></sl-divider>
-                                ${archValidationKeys.map(key => html`
-                                    <sl-switch
-                                        size="small"
-                                        ?checked=${(this.settings as any)[key]}
-                                        @sl-change=${(e: Event) => this._handleSwitchChange(e, key)}
-                                    >
-                                        ${this._getLabel(key)}
-                                    </sl-switch>
-                                `)}
-                            ` : ''}
-                        </div>
-                    </sl-details>
-                </div>
-            </sl-tooltip>
+                ${archValidationKeys.length > 0 ? html`
+                    <sl-divider></sl-divider>
+                    ${renderValidationSwitches(archValidationKeys)}
+                ` : ''}
+            </section>
         `;
     }
 }

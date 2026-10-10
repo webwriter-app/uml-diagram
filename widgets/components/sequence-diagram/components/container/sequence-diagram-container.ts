@@ -1,6 +1,6 @@
-import { html } from "lit";
+import { html, PropertyValues } from "lit";
 import { LitElementWw } from "@webwriter/lit";
-import { state, property } from "lit/decorators.js";
+import { state, property, query } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
 import { SequenceToolbar } from "../toolbar/sequence-diagram-toolbar";
 import { SequenceEditor } from "../editor/sequence-diagram-editor";
@@ -8,6 +8,8 @@ import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import styles from "./sequence-diagram-container.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
+import { resetDiagramConfirmOptions } from "../../../shared/confirm-dialog";
 
 /** Different types of Interaction Modes the editor can be in */
 export type InteractionMode = 'idle' | 'add-message-source' | 'add-message-target' | 'add-activation' | 'creating-fragment-start' | 'creating-fragment-end';
@@ -29,6 +31,8 @@ export class SequenceDiagramContainer extends LitElementWw {
     
     /** Store in which interaction mode the model is right now (begin with idle) */
     @state() accessor interactionMode: InteractionMode = 'idle';
+
+    @query("sequence-editor") private accessor _editor!: SequenceEditor;
 
     /** Store the source id of a message while creating a new one */
     @state() accessor messageSourceId: string | null = null;
@@ -75,23 +79,42 @@ export class SequenceDiagramContainer extends LitElementWw {
     }
 
     /** clear the diagram and cancel all interaction mode */
-    private _handleClearDiagram() {
-        if (this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined) {
-            if (confirm(msg("Do you really want to return to the starting point?"))) {
-                const checkpointModel = typeof this.checkpoint === 'string' 
-                    ? Object.assign(new SequenceModel(), JSON.parse(this.checkpoint))
-                    : this.checkpoint;
-                this._updateModel(checkpointModel);
-                this._cancelInteractionMode();
-            }
+    private async _handleClearDiagram() {
+        const toCheckpoint = !!(this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined);
+        if (!await this._editor.confirm(resetDiagramConfirmOptions(toCheckpoint))) return;
+        if (toCheckpoint) {
+            const checkpointModel = typeof this.checkpoint === 'string' 
+                ? Object.assign(new SequenceModel(), JSON.parse(this.checkpoint))
+                : this.checkpoint;
+            this._updateModel(checkpointModel);
         } else {
-            if (confirm(msg("Do you really want to clear the diagram?"))) {
-                this._updateModel(SequenceModel.getEmptyModel());
-                this._cancelInteractionMode();
-            }
+            this._updateModel(SequenceModel.getEmptyModel());
         }
+        this._cancelInteractionMode();
     }
     
+    /** Aborting it removes the listeners that cancel the current interaction mode */
+    private _cancelListeners?: AbortController;
+
+    /**
+     * While an interaction mode is active, cancel it on Escape, on pointer presses or focus outside of the diagram
+     * and when the window loses focus. Presses on the toolbar cancel it as well (see render).
+     */
+    protected updated(changed: PropertyValues) {
+        if (changed.has('interactionMode')) {
+            this._cancelListeners?.abort();
+            this._cancelListeners = this.interactionMode !== 'idle'
+                ? cancelOnOutsideInteraction(this, () => this._cancelInteractionMode())
+                : undefined;
+        }
+    }
+
+    disconnectedCallback() {
+        this._cancelListeners?.abort();
+        this._cancelInteractionMode();
+        super.disconnectedCallback();
+    }
+
     /** Cancel the current interaction mode (like message mode, ...) */
     private _cancelInteractionMode() {
         this.interactionMode = 'idle';
@@ -108,7 +131,6 @@ export class SequenceDiagramContainer extends LitElementWw {
     private _handleAddLifeline() {
         // test if constraint is reached
         if(this.model.lifelines.length >= this.settings.maxNumberOfLifelines) {
-            alert(msg("Max number of lifelines reached!"));
             return;
         }
 
@@ -213,13 +235,12 @@ export class SequenceDiagramContainer extends LitElementWw {
 
     /** Handle the selection of a lifeline for the new activation bar */
     private _handleAddActivationAt(e: CustomEvent) {
-        // Check if max number of activations is already placed and return with alert if so
+        // Check if max number of activations is already placed (the toolbar is disabled then)
         const totalActivations = this.model.lifelines.reduce((sum, ll) => 
             sum + (ll.activations?.length || 0), 0
         );
         
         if (totalActivations >= this.settings.maxNumberOfActivations) {
-            alert(msg("Max number of activations reached!"));
             return;
         }
 
@@ -343,7 +364,6 @@ export class SequenceDiagramContainer extends LitElementWw {
     private _startMessageMode(e: CustomEvent) {
         // Check for constraints
         if(this.model.messages.length >= this.settings.maxNumberOfMessages) {
-            alert(msg("Max number of messages reached!"));
             return;
         }
         // Found Messages do not need a source lifeline
@@ -429,7 +449,7 @@ export class SequenceDiagramContainer extends LitElementWw {
                 m => m.type === 'destroy' && m.targetId === targetId
             );
             if (isAlreadyDestroyed) {
-                alert(msg("This object is already destroyed by another message. A lifeline can only be destroyed once."));
+                this._editor.showNotice(msg("This object is already destroyed by another message. A lifeline can only be destroyed once."));
                 this._cancelInteractionMode();
                 return; 
             }
@@ -508,7 +528,6 @@ export class SequenceDiagramContainer extends LitElementWw {
     private _startFragmentMode(e: CustomEvent) {
         // check for constraints
         if(this.model.fragments.length >= this.settings.maxNumberOfFragments) {
-            alert(msg("Max number of fragments reached!"));
             return;
         }
         // enter the creating-fragment-start interaction mode and store the type of the new fragment
@@ -606,11 +625,9 @@ export class SequenceDiagramContainer extends LitElementWw {
     render() {
         return html`
             <sequence-toolbar 
+                @pointerdown=${this._cancelInteractionMode}
                 .model=${this.model}
-                .diagramType=${'sequence-diagram'}
                 .settings=${this.settings}
-                .globalSettings=${this.globalSettings}
-                .isFullscreen=${this.isFullscreen}
                 @add-lifeline=${this._handleAddLifeline}
                 @add-activation=${this._handleAddActivationMode}
                 @add-message-mode=${this._startMessageMode}
@@ -624,6 +641,7 @@ export class SequenceDiagramContainer extends LitElementWw {
                 .model=${this.model}
                 .interactionMode=${this.interactionMode}
                 .messageSourceId=${this.messageSourceId}
+                .fragmentSourceId=${this.fragmentSourceId}
                 .settings=${this.settings}
                 .globalSettings=${this.globalSettings}
                 .pendingMessageType=${this.pendingMessageType}

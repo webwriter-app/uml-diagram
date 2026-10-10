@@ -1,0 +1,1095 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<file target-language="pl" source-language="en" original="lit-localize-inputs" datatype="plaintext">
+<body>
+<trans-unit id="sf752b696087fa3c6">
+  <source>Object name is required.</source>
+  <target>Nazwa obiektu jest wymagana.</target>
+</trans-unit>
+<trans-unit id="s2b295702e7140ab7">
+  <source>Class name is required.</source>
+  <target>Nazwa klasy jest wymagana.</target>
+</trans-unit>
+<trans-unit id="s2c0642d152a1c8d5">
+  <source>This name is already used by another class.</source>
+  <target>Ta nazwa jest już używana przez inną klasę.</target>
+</trans-unit>
+<trans-unit id="s0f6e9f991bc2b1ab">
+  <source>Object names should start with a lowercase letter.</source>
+  <target>Nazwy obiektów powinny zaczynać się od małej litery.</target>
+</trans-unit>
+<trans-unit id="s76287c15efb9cd71">
+  <source>Object names must not contain spaces.</source>
+  <target>Nazwy obiektów nie mogą zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="s18d1d88ab70cc0b7">
+  <source>Class names should start with an uppercase letter.</source>
+  <target>Nazwy klas powinny zaczynać się od wielkiej litery.</target>
+</trans-unit>
+<trans-unit id="s40bbce04a4584df2">
+  <source>Class names must not contain spaces.</source>
+  <target>Nazwy klas nie mogą zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="s633876602eda63e7">
+  <source>Attribute name is required.</source>
+  <target>Nazwa atrybutu jest wymagana.</target>
+</trans-unit>
+<trans-unit id="sf6a5af468fd4beae">
+  <source>Attribute type is required.</source>
+  <target>Typ atrybutu jest wymagany.</target>
+</trans-unit>
+<trans-unit id="sba94b3870567f66d">
+  <source>Duplicate attribute name.</source>
+  <target>Zduplikowana nazwa atrybutu.</target>
+</trans-unit>
+<trans-unit id="s5005524c536ceb9e">
+  <source>Attribute names should start with a lowercase letter.</source>
+  <target>Nazwy atrybutów powinny zaczynać się od małej litery.</target>
+</trans-unit>
+<trans-unit id="sc355d95b8c69a202">
+  <source>Attribute names must not contain spaces.</source>
+  <target>Nazwy atrybutów nie mogą zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="s6b5201fbbb39df11">
+  <source>Attributes in interfaces and annotations must be public.</source>
+  <target>Atrybuty w interfejsach i adnotacjach muszą być public.</target>
+</trans-unit>
+<trans-unit id="s545c6277188dd420">
+  <source>Interface attributes must be static and final.</source>
+  <target>Atrybuty interfejsu muszą być static i final.</target>
+</trans-unit>
+<trans-unit id="sdbe713363a6a8a71">
+  <source>Parameter attributes are only valid in parameterized classes.</source>
+  <target>Atrybuty parametrów są dozwolone tylko w klasach sparametryzowanych.</target>
+</trans-unit>
+<trans-unit id="sd0acc3432e22e6a8">
+  <source>Method name is required.</source>
+  <target>Nazwa metody jest wymagana.</target>
+</trans-unit>
+<trans-unit id="seadb073a3ae9a65e">
+  <source>Return type is required.</source>
+  <target>Typ zwracany jest wymagany.</target>
+</trans-unit>
+<trans-unit id="s1a98e915a81ae0a7">
+  <source>Constructors must not have a return type.</source>
+  <target>Konstruktory nie mogą mieć typu zwracanego.</target>
+</trans-unit>
+<trans-unit id="s55de04ebf752aad4">
+  <source>Objects do not have constructors.</source>
+  <target>Obiekty nie mają konstruktorów.</target>
+</trans-unit>
+<trans-unit id="s89fcc8ddcf63ed27">
+  <source>This looks like a constructor but does not match the class name capitalization.</source>
+  <target>To wygląda na konstruktor, ale wielkość liter nie zgadza się z nazwą klasy.</target>
+</trans-unit>
+<trans-unit id="s48c68d7f3d47f509">
+  <source>Method names should start with a lowercase letter.</source>
+  <target>Nazwy metod powinny zaczynać się od małej litery.</target>
+</trans-unit>
+<trans-unit id="s674b9c60a0dd3817">
+  <source>Method names must not contain spaces.</source>
+  <target>Nazwy metod nie mogą zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="s5635fe9ec580c654">
+  <source>Methods in interfaces and annotations must be public.</source>
+  <target>Metody w interfejsach i adnotacjach muszą być public.</target>
+</trans-unit>
+<trans-unit id="s9d8f15fcd9bb2231">
+  <source>Abstract methods cannot be final.</source>
+  <target>Metody abstrakcyjne nie mogą być final.</target>
+</trans-unit>
+<trans-unit id="s3b14c24a8b1969a1">
+  <source>Abstract methods cannot be static.</source>
+  <target>Metody abstrakcyjne nie mogą być static.</target>
+</trans-unit>
+<trans-unit id="s1c4e9efe8e8d2d47">
+  <source>Constructors cannot be static or final.</source>
+  <target>Konstruktory nie mogą być static ani final.</target>
+</trans-unit>
+<trans-unit id="s4944d9a50ed82b68">
+  <source>Parameter name is required.</source>
+  <target>Nazwa parametru jest wymagana.</target>
+</trans-unit>
+<trans-unit id="s77002f685d02ee65">
+  <source>Parameter type is required.</source>
+  <target>Typ parametru jest wymagany.</target>
+</trans-unit>
+<trans-unit id="sb2f13f84f2055646">
+  <source>Duplicate parameter name.</source>
+  <target>Zduplikowana nazwa parametru.</target>
+</trans-unit>
+<trans-unit id="sb49efe53843f28c9">
+  <source>Parameter names should start with a lowercase letter.</source>
+  <target>Nazwy parametrów powinny zaczynać się od małej litery.</target>
+</trans-unit>
+<trans-unit id="s7d02f7fdf88760d7">
+  <source>Parameter names must not contain spaces.</source>
+  <target>Nazwy parametrów nie mogą zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="s815e4e6869b373c7">
+  <source>Selected class type cannot extend other classes.</source>
+  <target>Wybrany typ klasy nie może rozszerzać innych klas.</target>
+</trans-unit>
+<trans-unit id="se205a5d6339202a0">
+  <source>Selected class type can only extend other interfaces.</source>
+  <target>Wybrany typ klasy może rozszerzać tylko inne interfejsy.</target>
+</trans-unit>
+<trans-unit id="s7fbbfcdbad53e530">
+  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
+  <target>Wybrany typ klasy nie może rozszerzać interfejsu. Zamiast tego użyj realizacji.</target>
+</trans-unit>
+<trans-unit id="s3d81f99c8bbe7c1e">
+  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
+  <target>Wybrany typ klasy nie może być rozszerzany przez klasę. Zamiast tego użyj realizacji.</target>
+</trans-unit>
+<trans-unit id="s5ab48567a7b89fef">
+  <source>Selected class type can only be extended by other interfaces.</source>
+  <target>Wybrany typ klasy może być rozszerzany tylko przez inne interfejsy.</target>
+</trans-unit>
+<trans-unit id="sf868ffaf4e63faf5">
+  <source>Selected class type cannot be a parent class.</source>
+  <target>Wybrany typ klasy nie może być klasą nadrzędną.</target>
+</trans-unit>
+<trans-unit id="se0a11ec9a3548c89">
+  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
+  <target>Wybrany typ klasy nie może implementować interfejsów. Zamiast tego użyj dziedziczenia.</target>
+</trans-unit>
+<trans-unit id="s79c23de608bf327c">
+  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
+  <target>Wybrany typ klasy nie może być celem realizacji. Tylko interfejsy są prawidłowymi celami.</target>
+</trans-unit>
+<trans-unit id="scde2458b59249c80">
+  <source>Selected class type cannot own compositions or aggregations.</source>
+  <target>Wybrany typ klasy nie może posiadać kompozycji ani agregacji.</target>
+</trans-unit>
+<trans-unit id="s99014a4992baa534">
+  <source>Selected class type cannot be part of a composition or aggregation.</source>
+  <target>Wybrany typ klasy nie może być częścią kompozycji ani agregacji.</target>
+</trans-unit>
+<trans-unit id="s36b2d9d82a7a6ccf">
+  <source>Selected class type cannot participate in bidirectional associations.</source>
+  <target>Wybrany typ klasy nie może uczestniczyć w asocjacjach dwukierunkowych.</target>
+</trans-unit>
+<trans-unit id="sd1ec21ab6f95c1db">
+  <source>Selected class type cannot be the source of an association.</source>
+  <target>Wybrany typ klasy nie może być źródłem asocjacji.</target>
+</trans-unit>
+<trans-unit id="sf57c6078d6d78598">
+  <source>Objects cannot be the source of inheritance or realization relations.</source>
+  <target>Obiekty nie mogą być źródłem relacji dziedziczenia ani realizacji.</target>
+</trans-unit>
+<trans-unit id="s7f139035aaa81544">
+  <source>Objects cannot be the target of inheritance or realization relations.</source>
+  <target>Obiekty nie mogą być celem relacji dziedziczenia ani realizacji.</target>
+</trans-unit>
+<trans-unit id="s8355ec0cae86058f">
+  <source>Object Editor</source>
+  <target>Edytor obiektu</target>
+</trans-unit>
+<trans-unit id="s983013687f0e8f20">
+  <source>Class Editor</source>
+  <target>Edytor klasy</target>
+</trans-unit>
+<trans-unit id="sfbcefc193ef97dd5">
+  <source>Instance Name</source>
+  <target>Nazwa instancji</target>
+</trans-unit>
+<trans-unit id="s5bdb5af84455fc0e">
+  <source>Class Name</source>
+  <target>Nazwa klasy</target>
+</trans-unit>
+<trans-unit id="sef49aec68fd1dc66">
+  <source>Name</source>
+  <target>Nazwa</target>
+</trans-unit>
+<trans-unit id="sd2223afb7d6b100d">
+  <source>Type</source>
+  <target>Typ</target>
+</trans-unit>
+<trans-unit id="s53a526d5c80c3e28">
+  <source>Standard</source>
+  <target>Standardowa</target>
+</trans-unit>
+<trans-unit id="s220a5d7255e5ddd3">
+  <source>Abstract</source>
+  <target>Abstrakcyjna</target>
+</trans-unit>
+<trans-unit id="s9b6d60939d3afd52">
+  <source>Parameterized</source>
+  <target>Sparametryzowana</target>
+</trans-unit>
+<trans-unit id="s16b9446e3a70e1f4">
+  <source>Attributes</source>
+  <target>Atrybuty</target>
+</trans-unit>
+<trans-unit id="sf5fa7230e8c645f2">
+  <source>parameterized</source>
+  <target>sparametryzowany</target>
+</trans-unit>
+<trans-unit id="sdc673e73b5c13aea">
+  <source>Delete</source>
+  <target>Usuń</target>
+</trans-unit>
+<trans-unit id="s41f7dca46d3f1b4a">
+  <source>Value</source>
+  <target>Wartość</target>
+</trans-unit>
+<trans-unit id="s77553b151737aa7c">
+  <source>Add Attribute</source>
+  <target>Dodaj atrybut</target>
+</trans-unit>
+<trans-unit id="sc15aaef74ecdbd3a">
+  <source>Enumeration Values</source>
+  <target>Wartości wyliczenia</target>
+</trans-unit>
+<trans-unit id="s8263352c7a634e7f">
+  <source>Delete Value</source>
+  <target>Usuń wartość</target>
+</trans-unit>
+<trans-unit id="sfc49bac6b16bbe35">
+  <source>Add Value</source>
+  <target>Dodaj wartość</target>
+</trans-unit>
+<trans-unit id="sbc7a8b2f2555ebb9">
+  <source>Methods</source>
+  <target>Metody</target>
+</trans-unit>
+<trans-unit id="s8381bad674d45e25">
+  <source>Return type</source>
+  <target>Typ zwracany</target>
+</trans-unit>
+<trans-unit id="s1a21c094652f7bd9">
+  <source>Parameters:</source>
+  <target>Parametry:</target>
+</trans-unit>
+<trans-unit id="s35402401cbe1e019">
+  <source>Delete Parameter</source>
+  <target>Usuń parametr</target>
+</trans-unit>
+<trans-unit id="s79d527d97ba1c163">
+  <source>Add Parameter</source>
+  <target>Dodaj parametr</target>
+</trans-unit>
+<trans-unit id="sf42ae7595d232ff5">
+  <source>Add Method</source>
+  <target>Dodaj metodę</target>
+</trans-unit>
+<trans-unit id="s33f85f24c0f5f008">
+  <source>Save</source>
+  <target>Zapisz</target>
+</trans-unit>
+<trans-unit id="s1de38819c1d0c545">
+  <source>Maximum number of connections per pair reached</source>
+  <target>Osiągnięto maksymalną liczbę połączeń na parę</target>
+</trans-unit>
+<trans-unit id="s991302c34d4ab3bf">
+  <source>A class cannot inherit from itself.</source>
+  <target>Klasa nie może dziedziczyć po sobie samej.</target>
+</trans-unit>
+<trans-unit id="sf285ba473f20505a">
+  <source>A class cannot realize itself.</source>
+  <target>Klasa nie może realizować samej siebie.</target>
+</trans-unit>
+<trans-unit id="s25f8ef11d9d27e69">
+  <source>Enumerations and records cannot extend other classes.</source>
+  <target>Wyliczenia i rekordy nie mogą rozszerzać innych klas.</target>
+</trans-unit>
+<trans-unit id="s2232c3d843d945c8">
+  <source>Annotations cannot extend other classes.</source>
+  <target>Adnotacje nie mogą rozszerzać innych klas.</target>
+</trans-unit>
+<trans-unit id="sca622529f55548ec">
+  <source>Annotations cannot be extended.</source>
+  <target>Adnotacje nie mogą być rozszerzane.</target>
+</trans-unit>
+<trans-unit id="s03536c9db8ed23de">
+  <source>Objects cannot participate in inheritance relations.</source>
+  <target>Obiekty nie mogą uczestniczyć w relacjach dziedziczenia.</target>
+</trans-unit>
+<trans-unit id="s979178cfb4d8a3dd">
+  <source>Interfaces can only extend other interfaces.</source>
+  <target>Interfejsy mogą rozszerzać tylko inne interfejsy.</target>
+</trans-unit>
+<trans-unit id="s4b43ba347d4af4c7">
+  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
+  <target>Klasy nie mogą rozszerzać interfejsów. Aby zaimplementować interfejs, użyj realizacji.</target>
+</trans-unit>
+<trans-unit id="s683b5495fe491317">
+  <source>This class already inherits from the selected class.</source>
+  <target>Ta klasa już dziedziczy po wybranej klasie.</target>
+</trans-unit>
+<trans-unit id="sd4b44f1897d9691c">
+  <source>Only interfaces can be realization targets.</source>
+  <target>Tylko interfejsy mogą być celem realizacji.</target>
+</trans-unit>
+<trans-unit id="s99007178f766a0d3">
+  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
+  <target>Interfejsy nie mogą realizować innych elementów. Aby rozszerzyć interfejs, użyj dziedziczenia.</target>
+</trans-unit>
+<trans-unit id="se2e072d9e76d78e7">
+  <source>Annotations cannot implement interfaces.</source>
+  <target>Adnotacje nie mogą implementować interfejsów.</target>
+</trans-unit>
+<trans-unit id="s6873f37f88d68bee">
+  <source>Objects cannot participate in realization relations.</source>
+  <target>Obiekty nie mogą uczestniczyć w relacjach realizacji.</target>
+</trans-unit>
+<trans-unit id="sdd1a3d0051483ab1">
+  <source>Inheritance cycles are not allowed.</source>
+  <target>Cykle dziedziczenia są niedozwolone.</target>
+</trans-unit>
+<trans-unit id="s9fb6d60ce907b45a">
+  <source>This class is already part of a composition. A class can only have one owner.</source>
+  <target>Ta klasa jest już częścią kompozycji. Klasa może mieć tylko jednego właściciela.</target>
+</trans-unit>
+<trans-unit id="s66260080e372437e">
+  <source>A class cannot directly or indirectly own itself.</source>
+  <target>Klasa nie może bezpośrednio ani pośrednio posiadać samej siebie.</target>
+</trans-unit>
+<trans-unit id="sfb4181c4306745a9">
+  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
+  <target>Typy danych i wyliczenia nie mogą być źródłem asocjacji dwukierunkowej.</target>
+</trans-unit>
+<trans-unit id="sc774f0def0051c0d">
+  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
+  <target>Typy danych i wyliczenia nie mogą być celem asocjacji dwukierunkowej.</target>
+</trans-unit>
+<trans-unit id="s2a9fd53c400e3ce4">
+  <source>Data types and enumerations cannot be the source of an association.</source>
+  <target>Typy danych i wyliczenia nie mogą być źródłem asocjacji.</target>
+</trans-unit>
+<trans-unit id="s8eb8977c0da31ca1">
+  <source>Add objects via the toolbar above.</source>
+  <target>Dodaj obiekty za pomocą paska narzędzi powyżej.</target>
+</trans-unit>
+<trans-unit id="s04e8dd2408bb5679">
+  <source>Add classes via the toolbar above.</source>
+  <target>Dodaj klasy za pomocą paska narzędzi powyżej.</target>
+</trans-unit>
+<trans-unit id="s0e36638021c00417">
+  <source>Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
+  <target>Nieprawidłowa liczność źródła. Przykładowe formaty: 1, 0..1, *, 1..*.</target>
+</trans-unit>
+<trans-unit id="seada92a73854c87b">
+  <source>Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
+  <target>Nieprawidłowa liczność celu. Przykładowe formaty: 1, 0..1, *, 1..*.</target>
+</trans-unit>
+<trans-unit id="s16ce96d62ac3e2a5">
+  <source>Stereotype</source>
+  <target>Stereotyp</target>
+</trans-unit>
+<trans-unit id="s046ab0452168e910">
+  <source>Link Name</source>
+  <target>Nazwa łącza</target>
+</trans-unit>
+<trans-unit id="s6f96e109d71909b8">
+  <source>Relation Name</source>
+  <target>Nazwa relacji</target>
+</trans-unit>
+<trans-unit id="s5f43af3669b1e098">
+  <source>Source</source>
+  <target>Źródło</target>
+</trans-unit>
+<trans-unit id="sca7fed2bef53cb99">
+  <source>Role</source>
+  <target>Rola</target>
+</trans-unit>
+<trans-unit id="s128cd465defa66f2">
+  <source>Multiplicity</source>
+  <target>Liczność</target>
+</trans-unit>
+<trans-unit id="sff5bb7742c2896c8">
+  <source>Target</source>
+  <target>Cel</target>
+</trans-unit>
+<trans-unit id="s9044cc8b4505dd4d">
+  <source>This relation type has no editable properties.</source>
+  <target>Ten typ relacji nie ma edytowalnych właściwości.</target>
+</trans-unit>
+<trans-unit id="s48945e52e58f4526">
+  <source>Save &amp; Add Association Class</source>
+  <target>Zapisz i dodaj klasę asocjacyjną</target>
+</trans-unit>
+<trans-unit id="sc4377c6be91efd93">
+  <source>No empty class names</source>
+  <target>Brak pustych nazw klas</target>
+</trans-unit>
+<trans-unit id="s105b492e57e1f18e">
+  <source>No empty object names</source>
+  <target>Brak pustych nazw obiektów</target>
+</trans-unit>
+<trans-unit id="sd9db8a3ed02bfbd5">
+  <source>No empty attribute, method, or parameter fields</source>
+  <target>Brak pustych pól atrybutów, metod lub parametrów</target>
+</trans-unit>
+<trans-unit id="s7ef8dbd64456f3ff">
+  <source>Constructors have no return type</source>
+  <target>Konstruktory bez typu zwracanego</target>
+</trans-unit>
+<trans-unit id="sa2c2941b56d35ffe">
+  <source>Unique names</source>
+  <target>Unikalne nazwy</target>
+</trans-unit>
+<trans-unit id="saf72524d673c045d">
+  <source>Naming conventions</source>
+  <target>Konwencje nazewnictwa</target>
+</trans-unit>
+<trans-unit id="s13d990bbf5651da3">
+  <source>Valid modifiers</source>
+  <target>Prawidłowe modyfikatory</target>
+</trans-unit>
+<trans-unit id="sae878a97c2e9baff">
+  <source>Validate type change</source>
+  <target>Sprawdzaj zmianę typu</target>
+</trans-unit>
+<trans-unit id="sd0af364021e619c6">
+  <source>No constructors in objects</source>
+  <target>Brak konstruktorów w obiektach</target>
+</trans-unit>
+<trans-unit id="s56fe4ff93b13f46b">
+  <source>Dependency stereotype syntax</source>
+  <target>Składnia stereotypów zależności</target>
+</trans-unit>
+<trans-unit id="s5579d56cd475b051">
+  <source>Multiplicity syntax</source>
+  <target>Składnia liczności</target>
+</trans-unit>
+<trans-unit id="scd9639bc6e6ee663">
+  <source>Protected visibility</source>
+  <target>Widoczność protected</target>
+</trans-unit>
+<trans-unit id="sa639e7c7649d2a09">
+  <source>Package visibility</source>
+  <target>Widoczność package</target>
+</trans-unit>
+<trans-unit id="s4362b5d32c0022aa">
+  <source>Prevent illegal connections</source>
+  <target>Blokuj niedozwolone połączenia</target>
+</trans-unit>
+<trans-unit id="sf9a0ad3fceaa8e38">
+  <source>Allowed Elements</source>
+  <target>Dozwolone elementy</target>
+</trans-unit>
+<trans-unit id="sd0f00ca73c16d7ea">
+  <source>Object Display Options</source>
+  <target>Opcje wyświetlania obiektów</target>
+</trans-unit>
+<trans-unit id="s0e46d9116fdf0f8a">
+  <source>Show methods</source>
+  <target>Pokaż metody</target>
+</trans-unit>
+<trans-unit id="s03174dbfd7cb1738">
+  <source>Show parameters</source>
+  <target>Pokaż parametry</target>
+</trans-unit>
+<trans-unit id="s74f26e29f71cb2a1">
+  <source>Show modifiers (static, final, …)</source>
+  <target>Pokaż modyfikatory (static, final, …)</target>
+</trans-unit>
+<trans-unit id="s21440422897eb31d">
+  <source>Show visibility (+, -, …)</source>
+  <target>Pokaż widoczność (+, -, …)</target>
+</trans-unit>
+<trans-unit id="s35bf8bb435438a0b">
+  <source>Constraints</source>
+  <target>Ograniczenia</target>
+</trans-unit>
+<trans-unit id="safdfa4cbb8885a78">
+  <source>Maximum entities</source>
+  <target>Maksymalna liczba elementów</target>
+</trans-unit>
+<trans-unit id="s9bf52283be694441">
+  <source>Maximum connections (total)</source>
+  <target>Maksymalna liczba połączeń (łącznie)</target>
+</trans-unit>
+<trans-unit id="sb1f8ad3d3f633361">
+  <source>Maximum connections per pair</source>
+  <target>Maksymalna liczba połączeń na parę</target>
+</trans-unit>
+<trans-unit id="sd61653ebe961b17a">
+  <source>Validation</source>
+  <target>Walidacja</target>
+</trans-unit>
+<trans-unit id="s47b8541d98a5a8fe">
+  <source>Set the validation mode to “Custom” to configure individual rules.</source>
+  <target>Ustaw tryb walidacji na „Niestandardowy”, aby skonfigurować poszczególne reguły.</target>
+</trans-unit>
+<trans-unit id="se2ceb920e821db95">
+  <source>Maximum number of objects reached</source>
+  <target>Osiągnięto maksymalną liczbę obiektów</target>
+</trans-unit>
+<trans-unit id="s730182ad28374cda">
+  <source>Object</source>
+  <target>Obiekt</target>
+</trans-unit>
+<trans-unit id="s5824efbb2f8e83f9">
+  <source>Maximum number of classes reached</source>
+  <target>Osiągnięto maksymalną liczbę klas</target>
+</trans-unit>
+<trans-unit id="s90d53cfba1df4aff">
+  <source>Class</source>
+  <target>Klasa</target>
+</trans-unit>
+<trans-unit id="s98b8b394811dd087">
+  <source>Classes</source>
+  <target>Klasy</target>
+</trans-unit>
+<trans-unit id="s08c7255559a5d113">
+  <source>Abstract Class</source>
+  <target>Klasa abstrakcyjna</target>
+</trans-unit>
+<trans-unit id="s5875d3ecedbc3e76">
+  <source>Parameterized Class</source>
+  <target>Klasa sparametryzowana</target>
+</trans-unit>
+<trans-unit id="s317e9a3094f39880">
+  <source>Interfaces &amp; Metadata</source>
+  <target>Interfejsy i metadane</target>
+</trans-unit>
+<trans-unit id="sf866305516492af0">
+  <source>Interface</source>
+  <target>Interfejs</target>
+</trans-unit>
+<trans-unit id="sdfcdb6b18b929388">
+  <source>Annotation</source>
+  <target>Adnotacja</target>
+</trans-unit>
+<trans-unit id="s1fe1cdb946325ffc">
+  <source>Data Types</source>
+  <target>Typy danych</target>
+</trans-unit>
+<trans-unit id="s8a4ff2bd9c13498c">
+  <source>Record</source>
+  <target>Rekord</target>
+</trans-unit>
+<trans-unit id="sb405f0898c39ca67">
+  <source>Data Type</source>
+  <target>Typ danych</target>
+</trans-unit>
+<trans-unit id="sbee3c98fc74ae7dc">
+  <source>Enumeration</source>
+  <target>Wyliczenie</target>
+</trans-unit>
+<trans-unit id="s9acdd54854c741cb">
+  <source>Runtime</source>
+  <target>Czas wykonania</target>
+</trans-unit>
+<trans-unit id="sfb48487d2e92dfc8">
+  <source>Maximum number of connections reached</source>
+  <target>Osiągnięto maksymalną liczbę połączeń</target>
+</trans-unit>
+<trans-unit id="s3cf89cb47fdde7e9">
+  <source>Link</source>
+  <target>Łącze</target>
+</trans-unit>
+<trans-unit id="s784e3f6a79e77b01">
+  <source>Relation</source>
+  <target>Relacja</target>
+</trans-unit>
+<trans-unit id="s5c18f85cda6e89be">
+  <source>Connections</source>
+  <target>Połączenia</target>
+</trans-unit>
+<trans-unit id="s0ba44cbe325c8db0">
+  <source>Link (Directed)</source>
+  <target>Łącze (skierowane)</target>
+</trans-unit>
+<trans-unit id="sf25da1ebf655fba7">
+  <source>Association (Directed)</source>
+  <target>Asocjacja (skierowana)</target>
+</trans-unit>
+<trans-unit id="s1bf887e001d4618f">
+  <source>Link (Bidirectional)</source>
+  <target>Łącze (dwukierunkowe)</target>
+</trans-unit>
+<trans-unit id="s9c3cefcc2e07e926">
+  <source>Association (Bidirectional)</source>
+  <target>Asocjacja (dwukierunkowa)</target>
+</trans-unit>
+<trans-unit id="sbd894819736f82fd">
+  <source>Link (Undirected)</source>
+  <target>Łącze (nieskierowane)</target>
+</trans-unit>
+<trans-unit id="s0106c15e1468a3d2">
+  <source>Association (Undirected)</source>
+  <target>Asocjacja (nieskierowana)</target>
+</trans-unit>
+<trans-unit id="s807a8ed2c65d9481">
+  <source>Generalization</source>
+  <target>Generalizacja</target>
+</trans-unit>
+<trans-unit id="sf85b2371fb1e044b">
+  <source>Inheritance</source>
+  <target>Dziedziczenie</target>
+</trans-unit>
+<trans-unit id="s9f235f0e05c0cfc3">
+  <source>Realization</source>
+  <target>Realizacja</target>
+</trans-unit>
+<trans-unit id="scbd13dc939a8ace0">
+  <source>Dependencies</source>
+  <target>Zależności</target>
+</trans-unit>
+<trans-unit id="s9fc5ff74e500a434">
+  <source>Dependency</source>
+  <target>Zależność</target>
+</trans-unit>
+<trans-unit id="s2e630cd70eb3d696">
+  <source>Part / Whole</source>
+  <target>Część / całość</target>
+</trans-unit>
+<trans-unit id="s496c60f73bdf5725">
+  <source>Aggregation</source>
+  <target>Agregacja</target>
+</trans-unit>
+<trans-unit id="s089fbb3bfa19c279">
+  <source>Composition</source>
+  <target>Kompozycja</target>
+</trans-unit>
+<trans-unit id="s441f3e13eef87f85">
+  <source>Reset diagram</source>
+  <target>Resetuj diagram</target>
+</trans-unit>
+<trans-unit id="s965c503c3e42fdfe">
+  <source>Enabled</source>
+  <target>Włączone</target>
+</trans-unit>
+<trans-unit id="s946647ed387dbb55">
+  <source>Validation Mode</source>
+  <target>Tryb walidacji</target>
+</trans-unit>
+<trans-unit id="s302cbb19bf9a174a">
+  <source>Off</source>
+  <target>Wyłączony</target>
+</trans-unit>
+<trans-unit id="sf0cab2483f66aa2e">
+  <source>Custom</source>
+  <target>Niestandardowy</target>
+</trans-unit>
+<trans-unit id="sf993bb199fefbe04">
+  <source>All</source>
+  <target>Wszystkie</target>
+</trans-unit>
+<trans-unit id="s13d50e0d6a934e4a">
+  <source>Use Checkpoint</source>
+  <target>Używaj stanu początkowego</target>
+</trans-unit>
+<trans-unit id="s4e9f04b77775b01e">
+  <source>Class Diagram</source>
+  <target>Diagram klas</target>
+</trans-unit>
+<trans-unit id="sa7cf250200ddd54f">
+  <source>Object Diagram</source>
+  <target>Diagram obiektów</target>
+</trans-unit>
+<trans-unit id="sb04eb02d0ee5be2d">
+  <source>Sequence Diagram</source>
+  <target>Diagram sekwencji</target>
+</trans-unit>
+<trans-unit id="s90e1d270ee762bac">
+  <source>This object is already destroyed by another message. A lifeline can only be destroyed once.</source>
+  <target>Ten obiekt jest już niszczony przez inny komunikat. Linię życia można zniszczyć tylko raz.</target>
+</trans-unit>
+<trans-unit id="s1b2f861950998af3">
+  <source>Message cannot be placed here (outside of logical boundaries).</source>
+  <target>Nie można tu umieścić komunikatu (poza granicami logicznymi).</target>
+</trans-unit>
+<trans-unit id="sa4ae1c14318937aa">
+  <source>An object cannot create itself (self-create is not allowed).</source>
+  <target>Obiekt nie może utworzyć samego siebie.</target>
+</trans-unit>
+<trans-unit id="sf7051646ef016d11">
+  <source>Message cannot be placed here (outside of logical boundaries or inside the name box).</source>
+  <target>Nie można tu umieścić komunikatu (poza granicami logicznymi lub w polu nazwy).</target>
+</trans-unit>
+<trans-unit id="s4b5705c599e644d1">
+  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
+  <target>Nazwy obiektów powinny zaczynać się od małej litery (np. mojObiekt).</target>
+</trans-unit>
+<trans-unit id="sf2a73ce47a27b168">
+  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
+  <target>Nazwy klas powinny zaczynać się od wielkiej litery (np. Klient).</target>
+</trans-unit>
+<trans-unit id="s98629add8883a056">
+  <source>Message names, except replies, should start with a lowercase letter.</source>
+  <target>Nazwy komunikatów, z wyjątkiem odpowiedzi, powinny zaczynać się od małej litery.</target>
+</trans-unit>
+<trans-unit id="se7c522560dd345a7">
+  <source>Assignment must not contain spaces.</source>
+  <target>Przypisanie nie może zawierać spacji.</target>
+</trans-unit>
+<trans-unit id="sc25e9b3bfaaf255f">
+  <source>Guard condition must not be empty.</source>
+  <target>Warunek dozoru nie może być pusty.</target>
+</trans-unit>
+<trans-unit id="s01605966c0d9e035">
+  <source>Select sending lifeline</source>
+  <target>Wybierz linię życia nadawcy</target>
+</trans-unit>
+<trans-unit id="s59fea9ff06fb1af6">
+  <source>Select a lifeline</source>
+  <target>Wybierz linię życia</target>
+</trans-unit>
+<trans-unit id="s3f0d7bdbff20310f">
+  <source>Select start lifeline</source>
+  <target>Wybierz początkową linię życia</target>
+</trans-unit>
+<trans-unit id="s01b56a4c39989dbc">
+  <source>Select end lifeline</source>
+  <target>Wybierz końcową linię życia</target>
+</trans-unit>
+<trans-unit id="sf464c12f0ea34fb5">
+  <source>Select receiving lifeline</source>
+  <target>Wybierz linię życia odbiorcy</target>
+</trans-unit>
+<trans-unit id="s3ab2bf3f56a8489e">
+  <source>Add lifelines via the toolbar above.</source>
+  <target>Dodaj linie życia za pomocą paska narzędzi powyżej.</target>
+</trans-unit>
+<trans-unit id="s2f93abbfddb3830d">
+  <source>Object Name</source>
+  <target>Nazwa obiektu</target>
+</trans-unit>
+<trans-unit id="s068d4dd16d9106d0">
+  <source>Icon</source>
+  <target>Ikona</target>
+</trans-unit>
+<trans-unit id="scc72649256137438">
+  <source>Database</source>
+  <target>Baza danych</target>
+</trans-unit>
+<trans-unit id="s5afcaa918bbb91b2">
+  <source>Server</source>
+  <target>Serwer</target>
+</trans-unit>
+<trans-unit id="sca9faebc773bf95d">
+  <source>Delete Object</source>
+  <target>Usuń obiekt</target>
+</trans-unit>
+<trans-unit id="s87dbafb8df0a1593">
+  <source>Assignment (variable)</source>
+  <target>Przypisanie (zmienna)</target>
+</trans-unit>
+<trans-unit id="s2a217b6575bc8407">
+  <source>Message Name</source>
+  <target>Nazwa komunikatu</target>
+</trans-unit>
+<trans-unit id="sad7b4819559667c4">
+  <source>Message Type</source>
+  <target>Typ komunikatu</target>
+</trans-unit>
+<trans-unit id="s382a2aa3984474dd">
+  <source>Create</source>
+  <target>Tworzenie</target>
+</trans-unit>
+<trans-unit id="s3b5e583d8df3f09d">
+  <source>Delete Message</source>
+  <target>Usuń komunikat</target>
+</trans-unit>
+<trans-unit id="sf853fb0eaca414b6">
+  <source>Delete Activation</source>
+  <target>Usuń aktywację</target>
+</trans-unit>
+<trans-unit id="s07a98665df0cc39f">
+  <source>Fragment Type</source>
+  <target>Typ fragmentu</target>
+</trans-unit>
+<trans-unit id="s80c3f125e401ffec">
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+  <target>Warunek <x id="0" equiv-text="${index + 1}"/></target>
+</trans-unit>
+<trans-unit id="s46b57a8cb6af086f">
+  <source>Remove Region</source>
+  <target>Usuń obszar</target>
+</trans-unit>
+<trans-unit id="s9606bae8d6ad3fb0">
+  <source>Add Region</source>
+  <target>Dodaj obszar</target>
+</trans-unit>
+<trans-unit id="scedee0a898de752e">
+  <source>Delete Fragment</source>
+  <target>Usuń fragment</target>
+</trans-unit>
+<trans-unit id="s1a20f258d79b2769">
+  <source>Synchronous Message</source>
+  <target>Komunikat synchroniczny</target>
+</trans-unit>
+<trans-unit id="sc706a6afc18dca4a">
+  <source>Asynchronous Message</source>
+  <target>Komunikat asynchroniczny</target>
+</trans-unit>
+<trans-unit id="s5ada301922609784">
+  <source>Reply Message</source>
+  <target>Komunikat zwrotny</target>
+</trans-unit>
+<trans-unit id="s444b35613afc2346">
+  <source>Create Message</source>
+  <target>Komunikat tworzący</target>
+</trans-unit>
+<trans-unit id="s218ad755220e323e">
+  <source>Destroy Message</source>
+  <target>Komunikat niszczący</target>
+</trans-unit>
+<trans-unit id="sdfaec05519af790c">
+  <source>Found Message</source>
+  <target>Komunikat znaleziony</target>
+</trans-unit>
+<trans-unit id="s18ae3772e6d1fe38">
+  <source>Lost Message</source>
+  <target>Komunikat utracony</target>
+</trans-unit>
+<trans-unit id="se3d3341953f2ae19">
+  <source>Show icons in objects</source>
+  <target>Pokaż ikony w obiektach</target>
+</trans-unit>
+<trans-unit id="s582210166dd46a5b">
+  <source>Optional Fragment</source>
+  <target>Fragment opcjonalny</target>
+</trans-unit>
+<trans-unit id="scead267752fe5b19">
+  <source>Loop Fragment</source>
+  <target>Fragment pętli</target>
+</trans-unit>
+<trans-unit id="sd747465f5798baf8">
+  <source>Alternative Fragment</source>
+  <target>Fragment alternatywny</target>
+</trans-unit>
+<trans-unit id="sb7897d97506d0f78">
+  <source>Maximum lifelines</source>
+  <target>Maksymalna liczba linii życia</target>
+</trans-unit>
+<trans-unit id="sb3777509f9ccf30b">
+  <source>Maximum messages</source>
+  <target>Maksymalna liczba komunikatów</target>
+</trans-unit>
+<trans-unit id="s06efc5a06fc561c0">
+  <source>Maximum fragments</source>
+  <target>Maksymalna liczba fragmentów</target>
+</trans-unit>
+<trans-unit id="scfe09b3cd2dd3178">
+  <source>Maximum activations</source>
+  <target>Maksymalna liczba aktywacji</target>
+</trans-unit>
+<trans-unit id="s013da3bd28572090">
+  <source>No empty guard conditions</source>
+  <target>Brak pustych warunków dozoru</target>
+</trans-unit>
+<trans-unit id="s36d4a0f80d4bd422">
+  <source>Class naming rules</source>
+  <target>Reguły nazewnictwa klas</target>
+</trans-unit>
+<trans-unit id="s72b45470be099ea7">
+  <source>Message naming rules</source>
+  <target>Reguły nazewnictwa komunikatów</target>
+</trans-unit>
+<trans-unit id="saf78d26b435b58a5">
+  <source>Object naming rules</source>
+  <target>Reguły nazewnictwa obiektów</target>
+</trans-unit>
+<trans-unit id="s08cc26889cb0f85f">
+  <source>Prevent overlapping fragments</source>
+  <target>Blokuj nakładające się fragmenty</target>
+</trans-unit>
+<trans-unit id="s0392daf954f9b42c">
+  <source>Maximum number of lifelines reached</source>
+  <target>Osiągnięto maksymalną liczbę linii życia</target>
+</trans-unit>
+<trans-unit id="s03d65710697fd97d">
+  <source>Lifeline</source>
+  <target>Linia życia</target>
+</trans-unit>
+<trans-unit id="sb588f776d513560c">
+  <source>Maximum number of activations reached</source>
+  <target>Osiągnięto maksymalną liczbę aktywacji</target>
+</trans-unit>
+<trans-unit id="sf1674aeb3dc2d55d">
+  <source>Activation</source>
+  <target>Aktywacja</target>
+</trans-unit>
+<trans-unit id="sd44a4da5b63ebc0c">
+  <source>Maximum number of fragments reached</source>
+  <target>Osiągnięto maksymalną liczbę fragmentów</target>
+</trans-unit>
+<trans-unit id="s83acaa586e8aa35d">
+  <source>Fragment</source>
+  <target>Fragment</target>
+</trans-unit>
+<trans-unit id="s09baab5c9c3e25c8">
+  <source>Alternative</source>
+  <target>Alternatywa</target>
+</trans-unit>
+<trans-unit id="scc7a3682dd25ae19">
+  <source>Optional</source>
+  <target>Opcjonalny</target>
+</trans-unit>
+<trans-unit id="s4efee5b48a4593cb">
+  <source>Loop</source>
+  <target>Pętla</target>
+</trans-unit>
+<trans-unit id="sf409280583f3858f">
+  <source>Maximum number of messages reached</source>
+  <target>Osiągnięto maksymalną liczbę komunikatów</target>
+</trans-unit>
+<trans-unit id="s79e8cc71a5975b04">
+  <source>Message</source>
+  <target>Komunikat</target>
+</trans-unit>
+<trans-unit id="s1dd9f63bc66e96ac">
+  <source>Calls &amp; Replies</source>
+  <target>Wywołania i odpowiedzi</target>
+</trans-unit>
+<trans-unit id="sf8e6b469e32f28b6">
+  <source>Synchronous</source>
+  <target>Synchroniczny</target>
+</trans-unit>
+<trans-unit id="s5f999ce323167f71">
+  <source>Asynchronous</source>
+  <target>Asynchroniczny</target>
+</trans-unit>
+<trans-unit id="s25643db2f7ef8544">
+  <source>Reply (Return)</source>
+  <target>Odpowiedź (return)</target>
+</trans-unit>
+<trans-unit id="s40fd76587adaf072">
+  <source>Object Lifecycle</source>
+  <target>Cykl życia obiektu</target>
+</trans-unit>
+<trans-unit id="s6b2b1010e1e6b106">
+  <source>Create (Existing Object)</source>
+  <target>Tworzenie (istniejący obiekt)</target>
+</trans-unit>
+<trans-unit id="s6c0ec6a82424170b">
+  <source>Create (New Object)</source>
+  <target>Tworzenie (nowy obiekt)</target>
+</trans-unit>
+<trans-unit id="sa870fb82764782e5">
+  <source>Destroy</source>
+  <target>Niszczenie</target>
+</trans-unit>
+<trans-unit id="s4b2e141387a48891">
+  <source>Found &amp; Lost</source>
+  <target>Znalezione i utracone</target>
+</trans-unit>
+<trans-unit id="se13ad016463a815f">
+  <source>Found</source>
+  <target>Znaleziony</target>
+</trans-unit>
+<trans-unit id="s4f5ee9b48a97e21b">
+  <source>Lost</source>
+  <target>Utracony</target>
+</trans-unit>
+<trans-unit id="s977bbdf8b6b4ae9a">
+  <source>Do you really want to return to the starting point?</source>
+  <target>Czy na pewno chcesz wrócić do stanu początkowego?</target>
+</trans-unit>
+<trans-unit id="s255857544a9d5ec0">
+  <source>Reset</source>
+  <target>Resetuj</target>
+</trans-unit>
+<trans-unit id="s1aac8d6b7ec53917">
+  <source>Clear diagram</source>
+  <target>Wyczyść diagram</target>
+</trans-unit>
+<trans-unit id="sc29fe67fc77e875b">
+  <source>Do you really want to clear the diagram?</source>
+  <target>Czy na pewno chcesz wyczyścić diagram?</target>
+</trans-unit>
+<trans-unit id="sb4f1dffbb6be6302">
+  <source>Clear</source>
+  <target>Wyczyść</target>
+</trans-unit>
+<trans-unit id="s2ceb11be2290bb1b">
+  <source>Cancel</source>
+  <target>Anuluj</target>
+</trans-unit>
+<trans-unit id="sca4a807887ea03c6">
+  <source>Toggle Fullscreen</source>
+  <target>Przełącz tryb pełnoekranowy</target>
+</trans-unit>
+<trans-unit id="sb05582ce916894da">
+  <source>Zoom Out</source>
+  <target>Pomniejsz</target>
+</trans-unit>
+<trans-unit id="s22fde937cb709859">
+  <source>Zoom In</source>
+  <target>Powiększ</target>
+</trans-unit>
+<trans-unit id="s94877a0b7d473d81">
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
+  <target>Edytuj łącze: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+</trans-unit>
+<trans-unit id="sce14ecd1e1169145">
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
+  <target>Edytuj relację: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+</trans-unit>
+<trans-unit id="hceb6b469c6b23074">
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
+  <target>Wybierz źródło: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/></target>
+</trans-unit>
+<trans-unit id="h57ece0fa758616cc">
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
+  <target>Wybierz cel: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/></target>
+</trans-unit>
+<trans-unit id="s7013794e8f3fcbb8">
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+  <target>Stereotypy zależności muszą być ujęte w <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> lub <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target>
+</trans-unit>
+<trans-unit id="s388101295e5b6a4b">
+  <source>No icon</source>
+  <target>Brak ikony</target>
+</trans-unit>
+<trans-unit id="sa48f81f001b893d2">
+  <source>User</source>
+  <target>Użytkownik</target>
+</trans-unit>
+<trans-unit id="s586d6bd2eca2da93">
+  <source>Users</source>
+  <target>Użytkownicy</target>
+</trans-unit>
+<trans-unit id="s5a1b300572f81f73">
+  <source>Desktop</source>
+  <target>Komputer</target>
+</trans-unit>
+<trans-unit id="s5b764977ceaeb317">
+  <source>Mobile</source>
+  <target>Telefon</target>
+</trans-unit>
+<trans-unit id="s3885dc3c465cb4c2">
+  <source>Globe</source>
+  <target>Globus</target>
+</trans-unit>
+<trans-unit id="s5e7b43fb85d0175e">
+  <source>Cloud</source>
+  <target>Chmura</target>
+</trans-unit>
+<trans-unit id="sfa5f0019a09be6a7">
+  <source>API</source>
+  <target>API</target>
+</trans-unit>
+<trans-unit id="s91dbef7df13dca4e">
+  <source>Gear</source>
+  <target>Koło zębate</target>
+</trans-unit>
+<trans-unit id="s4f27f6b48a68b5c2">
+  <source>Lock</source>
+  <target>Kłódka</target>
+</trans-unit>
+<trans-unit id="s49e765aed0087b0e">
+  <source>Mail</source>
+  <target>Poczta</target>
+</trans-unit>
+<trans-unit id="sd1f81284eeb7b503">
+  <source>File</source>
+  <target>Plik</target>
+</trans-unit>
+<trans-unit id="s5e4c3efb85a89e1d">
+  <source>Clock</source>
+  <target>Zegar</target>
+</trans-unit>
+<trans-unit id="s49d9f0805e17f262">
+  <source>Credit Card</source>
+  <target>Karta kredytowa</target>
+</trans-unit>
+</body>
+</file>
+</xliff>
