@@ -148,7 +148,7 @@ export class ClassToolbar extends LitElementWw{
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
         return html`
-            <div class="toolbar-container" @sl-show=${closeOtherDropdowns}>
+            <div class="toolbar-container" @sl-show=${closeOtherDropdowns} @pointerdown=${closeOtherDropdowns}>
                 <div class="actions">
                     ${isObjectDiagram 
                         ? html`

@@ -116,7 +116,7 @@ export class SequenceToolbar extends LitElementWw {
 
   render() {
     return html`
-      <div class="toolbar-container" @sl-show=${closeOtherDropdowns}>
+      <div class="toolbar-container" @sl-show=${closeOtherDropdowns} @pointerdown=${closeOtherDropdowns}>
         <div class="actions">
             <sl-tooltip
                 content=${msg("Maximum number of lifelines reached")}
