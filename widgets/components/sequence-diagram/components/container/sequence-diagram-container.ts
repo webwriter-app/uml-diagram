@@ -8,7 +8,7 @@ import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import styles from "./sequence-diagram-container.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
-import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
+import { cancelOnOutsideInteraction } from "../../../shared/interaction";
 import { resetDiagramConfirmOptions } from "../../../shared/confirm-dialog";
 
 /** Different types of Interaction Modes the editor can be in */

@@ -1,10 +1,12 @@
 import { css } from "lit";
+import type { SlDropdown } from "@shoelace-style/shoelace";
+
 /**
  * Shared styles for the diagram toolbars.
  * Layout: a row of diagram tabs on top, below it the toolbar row with the add buttons
  * on the left and the reset button on the right. Uses Shoelace defaults for buttons, menus and tooltips.
  */
-export default css`
+export const toolbarStyles = css`
 
     :host {
         display: block;
@@ -57,3 +59,19 @@ export default css`
     }
 
 `;
+
+/**
+ * `sl-show` and `pointerdown` handler for a toolbar: closes all open dropdowns except the one the event came from.
+ * Needed because the native mousedown Shoelace listens for doesn't get past the tooltips around the controls.
+ */
+export function closeOtherDropdowns(e: Event) {
+    if (e.type === "sl-show" && (e.target as Element).tagName !== "SL-DROPDOWN") return;
+
+    const path = e.composedPath();
+    const toolbar = e.currentTarget as Element;
+    for (const dropdown of toolbar.querySelectorAll<SlDropdown>("sl-dropdown")) {
+        if (dropdown.open && !path.includes(dropdown)) {
+            dropdown.hide();
+        }
+    }
+}

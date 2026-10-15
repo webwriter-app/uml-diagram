@@ -1,10 +1,9 @@
 import { LitElementWw } from "@webwriter/lit";
 import { html, svg } from "lit";
-import { keyed } from "lit/directives/keyed.js";
 import { property, query, state } from "lit/decorators.js";
 import { msg, str, localized } from "@lit/localize";
 import interact from 'interactjs';
-import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption, SlAlert } from "@shoelace-style/shoelace";
+import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
 import databaseIcon from '@tabler/icons/outline/database.svg';
 import serverIcon from '@tabler/icons/outline/server.svg';
@@ -12,8 +11,6 @@ import desktopIcon from '@tabler/icons/outline/device-desktop.svg';
 import { repeat } from 'lit/directives/repeat.js';
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import xIcon from "@tabler/icons/outline/x.svg";
-import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
-import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import mobileIcon from "@tabler/icons/outline/device-mobile.svg";
 import noIcon from "@tabler/icons/outline/ban.svg";
@@ -29,13 +26,13 @@ import clockIcon from "@tabler/icons/outline/clock.svg";
 import creditCardIcon from "@tabler/icons/outline/credit-card.svg";
 import { SequenceModel } from "../../models/sequence-model";
 import { SequenceSettings } from "../../models/sequence-settings-model";
-import canvasAlertStyles from "../../../shared/canvas-alert.styles";
+import { CanvasAlert } from "../../../shared/canvas-alert";
 import styles from "./sequence-diagram-editor.styles";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { GlobalSettings, ValidationIssue } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
-import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
+import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/interaction";
 
 /** icon map to ease the use of them */
 const iconMap: Record<string, string> = {
@@ -56,13 +53,6 @@ const iconMap: Record<string, string> = {
     'credit-card': creditCardIcon
 };
 
-/** Interface definition for single validation issues in the sequence diagram */
-export interface SequenceValidationIssue {
-    target: string;                
-    message: string;               
-    settingKey: keyof SequenceSettings; 
-}
-
 /** Leave space below object headers and above lifeline ends. */
 const LIFELINE_PADDING = 20;
 const MIN_LIFELINE_LENGTH = 80 + 2 * LIFELINE_PADDING;
@@ -82,7 +72,7 @@ export class SequenceEditor extends LitElementWw {
             "sl-option": SlOption,
             "zoom-controls": ZoomControls,
             "confirm-dialog": ConfirmDialog,
-            "sl-alert": SlAlert
+            "canvas-alert": CanvasAlert
         };
     }
 
@@ -138,12 +128,9 @@ export class SequenceEditor extends LitElementWw {
     /** Property to store the state of the fullscreen mode */
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
-    @state() private accessor _notice: string | null = null;
-
-    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
-    @state() private accessor _noticeCount = 0;
-
     @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
+    @query("canvas-alert") private accessor _alert!: CanvasAlert;
 
     @query("#canvas") private accessor _canvas!: SVGSVGElement;
 
@@ -185,7 +172,7 @@ export class SequenceEditor extends LitElementWw {
     private _blockDblClick: boolean = false;
 
     /** styles are defined in the editor.styles */
-    static styles = [styles, canvasAlertStyles];
+    static styles = [styles];
 
     // --------------------------------------------------------------------------------------------------------
     // Lifecycle and InteractJS
@@ -691,10 +678,7 @@ export class SequenceEditor extends LitElementWw {
     }
 
     public async showNotice(message: string) {
-        this._notice = message;
-        this._noticeCount++;
-        await this.updateComplete;
-        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+        await this._alert.show(message);
     }
 
     public confirm(options: ConfirmOptions): Promise<boolean> {
@@ -704,9 +688,6 @@ export class SequenceEditor extends LitElementWw {
     /** Reset an empty canvas to its initial view before rendering */
     protected willUpdate(changedProperties: any) {
         super.willUpdate(changedProperties);
-        if (changedProperties.has('interactionMode') && this.interactionMode !== 'idle') {
-            this._notice = null;
-        }
         if (this._isEmpty) {
             this.zoom = 1;
             this.panX = 0;
@@ -1328,9 +1309,9 @@ export class SequenceEditor extends LitElementWw {
     // =========================================================================================
 
     /** searches the diagram and collects all validation rule breaks */
-    private _getAllValidationIssues(): SequenceValidationIssue[] {
+    private _getAllValidationIssues(): ValidationIssue<SequenceSettings>[] {
         if (!this.model) return [];
-        const issues: SequenceValidationIssue[] = [];
+        const issues: ValidationIssue<SequenceSettings>[] = [];
 
         // check objects/lifelines
         this.model.lifelines.forEach(ll => {
@@ -1429,23 +1410,8 @@ export class SequenceEditor extends LitElementWw {
     }
 
     /** Filters the syntax errors made by our active validation rules */
-    private get _activeIssues(): SequenceValidationIssue[] {
-        // if no validation is wanted
-        if (this.globalSettings.validationMode === 'off') {
-            return [];
-        }
-
-        const allIssues = this._getAllValidationIssues();
-
-        // if all validations are wanted
-        if (this.globalSettings.validationMode === 'all') {
-            return allIssues;
-        }
-
-        // if only custom validations are wanted
-        return allIssues.filter(issue => {
-            return (this.settings as any)[issue.settingKey] === true;
-        });
+    private get _activeIssues(): ValidationIssue<SequenceSettings>[] {
+        return this.globalSettings.activeIssues(this._getAllValidationIssues(), this.settings);
     }
 
     /** Returns a set of fragment IDs that overlap with other fragments (nesting is allowed) */
@@ -1610,41 +1576,15 @@ export class SequenceEditor extends LitElementWw {
             : false;
 
         return html`
-            ${this._notice ? keyed(this._noticeCount, html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="danger"
-                        duration="5000"
-                        closable
-                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
-                    >
-                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
-                        <span class="canvas-alert-text">${this._notice}</span>
-                    </sl-alert>
-                </div>
-            `) : this.interactionMode !== 'idle' ? html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="primary"
-                        closable
-                        open
-                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this.dispatchEvent(new CustomEvent('cancel-interaction')); }}
-                    >
-                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
-                        <span>
-                            ${this.interactionMode === 'add-message-source' 
-                                ? msg("Select sending lifeline") 
-                                : this.interactionMode === 'add-activation' 
-                                ? msg("Select a lifeline")
-                                : this.interactionMode === 'creating-fragment-start'
-                                ? msg("Select start lifeline")
-                                : this.interactionMode === 'creating-fragment-end'
-                                ? msg("Select end lifeline")
-                                : msg("Select receiving lifeline")}
-                        </span>
-                    </sl-alert>
-                </div>
-            ` : ''}
+            <canvas-alert
+                .hint=${this.interactionMode === 'idle' ? null
+                    : this.interactionMode === 'add-message-source' ? msg("Select sending lifeline")
+                    : this.interactionMode === 'add-activation' ? msg("Select a lifeline")
+                    : this.interactionMode === 'creating-fragment-start' ? msg("Select start lifeline")
+                    : this.interactionMode === 'creating-fragment-end' ? msg("Select end lifeline")
+                    : msg("Select receiving lifeline")}
+                @hint-closed=${() => this.dispatchEvent(new CustomEvent('cancel-interaction'))}
+            ></canvas-alert>
 
             <svg 
                 id="canvas"
@@ -1908,9 +1848,8 @@ export class SequenceEditor extends LitElementWw {
                     let leftNestingLevel = 0;
                     let rightNestingLevel = 0;
 
-                    const overlappingFragmentIds = this.settings.checkForFragmentOverlap 
-                        && this.globalSettings.validationMode !== 'off'
-                        ? this._getOverlappingFragmentIds() 
+                    const overlappingFragmentIds = this.globalSettings.isRuleActive(this.settings, 'checkForFragmentOverlap')
+                        ? this._getOverlappingFragmentIds()
                         : new Set<string>();
 
                     (this.model.fragments || []).forEach(otherFrag => {

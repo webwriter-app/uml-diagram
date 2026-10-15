@@ -1,5 +1,4 @@
 import { html } from "lit";
-import { keyed } from "lit/directives/keyed.js";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
@@ -8,19 +7,16 @@ import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
 import { RelationDialog, RelationDialogData, relationLabel } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
-import canvasAlertStyles from "../../../shared/canvas-alert.styles";
+import { CanvasAlert } from "../../../shared/canvas-alert";
 import styles from "./uml-editor.styles";
-import { SlButton, SlIcon, SlAlert } from "@shoelace-style/shoelace";
-import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
-import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
+import { SlButton, SlIcon } from "@shoelace-style/shoelace";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
-import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
 import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
 import { straightRoutes } from "./straight-routes";
-import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
+import { Pinch, cancelOnOutsideInteraction, emulateTouchClicks, measurePinch } from "../../../shared/interaction";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -67,12 +63,12 @@ export class UMLEditor extends LitElementWw{
             "uml-class-dialog": ClassDialog,
             "uml-relation-dialog": RelationDialog,
             "confirm-dialog": ConfirmDialog,
-            "sl-alert": SlAlert
+            "canvas-alert": CanvasAlert
         };
     }
 
     /** Styles are set in seperate file (./uml-editor.styles.ts) */
-    static styles = [styles, canvasAlertStyles];
+    static styles = [styles];
 
     /** Reference to the main Drawflow editor DOM element used to initialize and interact with the canvas */
     @query("#drawflowEditorDiv") accessor drawflowEditorDiv!: HTMLElement;
@@ -86,12 +82,9 @@ export class UMLEditor extends LitElementWw{
     /** Stores state of the interaction mode */
     @property() private interactionMode:  InteractionType | 'idle' = 'idle';
 
-    @state() private accessor _notice: string | null = null;
-
-    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
-    @state() private accessor _noticeCount = 0;
-
     @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
+    @query("canvas-alert") private accessor _alert!: CanvasAlert;
 
     /** Stores Id of the relation source node while creating a new relation */
     @state() private relationSourceNodeId: string | null = null;
@@ -705,7 +698,6 @@ export class UMLEditor extends LitElementWw{
         this.editor.node_selected = null;
         this.editor.connection_selected?.classList.remove('selected');
         this.editor.connection_selected = null;
-        this._notice = null;
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = 'first';
@@ -1066,10 +1058,7 @@ export class UMLEditor extends LitElementWw{
     */
 
     public async showNotice(message: string) {
-        this._notice = message;
-        this._noticeCount++;
-        await this.updateComplete;
-        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+        await this._alert.show(message);
     }
 
     public confirm(options: ConfirmOptions): Promise<boolean> {
@@ -1967,14 +1956,7 @@ export class UMLEditor extends LitElementWw{
 
     /** Filters relation validation issues based on the global validation mode */
     private _activeIssues(sourceId: string, targetId: string): RelationValidationIssue[] {
-        const allIssues = this._getAllValidationIssues(sourceId, targetId);
-
-        if (this.globalSettings.validationMode === 'off') return [];
-        if (this.globalSettings.validationMode === 'all') return allIssues;
-
-        return allIssues.filter(issue =>
-            (this.settings as any)[issue.settingKey] === true
-        );
+        return this.globalSettings.activeIssues(this._getAllValidationIssues(sourceId, targetId), this.settings);
     }
 
     // #################################################################################
@@ -1993,35 +1975,12 @@ export class UMLEditor extends LitElementWw{
                 </svg>
             </div>
 
-            ${this._notice ? keyed(this._noticeCount, html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="danger"
-                        duration="5000"
-                        closable
-                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
-                    >
-                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
-                        <span class="canvas-alert-text">${this._notice}</span>
-                    </sl-alert>
-                </div>
-            `) : this.interactionMode !== 'idle' ? html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="primary"
-                        closable
-                        open
-                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._cancelAddRelation(); }}
-                    >
-                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
-                        <span>
-                            ${this.firstOrSecondClass === 'first'
-                                ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
-                                : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
-                        </span>
-                    </sl-alert>
-                </div>
-            ` : ''}
+            <canvas-alert
+                .hint=${this.interactionMode === 'idle' ? null : this.firstOrSecondClass === 'first'
+                    ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
+                    : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
+                @hint-closed=${() => this._cancelAddRelation()}
+            ></canvas-alert>
 
             ${this._isEmpty ? html`
                 <div class="empty-hint">

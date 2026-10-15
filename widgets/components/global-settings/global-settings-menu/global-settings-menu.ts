@@ -8,7 +8,7 @@ import { ClassSettings } from "../../class-object-diagram/models/class-settings-
 import { SequenceSettings } from "../../sequence-diagram/models/sequence-settings-model";
 import { ClassSettingsMenu } from "../../class-object-diagram/components/settings-menu/class-settings-menu";
 import { SequenceDiagramSettingsMenu } from "../../sequence-diagram/components/settings-menu/sequence-diagram-settings-menu";
-import sharedStyles from "../../shared/settings-menu.styles";
+import { settingsMenuStyles } from "../../shared/settings-menu";
 import styles from "./global-settings-menu.styles"
 
 /**
@@ -33,7 +33,7 @@ export class GlobalSettingsMenu extends LitElementWw {
     }
 
     /** Styles are defined in the corresponding .styles file */
-    static styles = [sharedStyles, styles];
+    static styles = [settingsMenuStyles, styles];
 
     /** Settings instances for all diagram types, passed down from the main widget */
     @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
