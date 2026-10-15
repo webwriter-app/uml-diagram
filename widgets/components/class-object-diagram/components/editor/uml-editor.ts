@@ -295,9 +295,6 @@ export class UMLEditor extends LitElementWw{
                 this._handleNodeSelection(nodeId);
             }
         });
-
-        // init update for the container and toolbar about number of elements and so on
-        setTimeout(() => this._serializeAndEmit(), 150);
     }
 
     /** Event handler for doubleclick or rightclick (interaction with elements) */
@@ -364,10 +361,12 @@ export class UMLEditor extends LitElementWw{
         this.editor.clear();
         if (!data) {
             this._updateEmptyState();
+            this._emitCounts();
             return;
         }
         this.editor.import(JSON.parse(data));
         this._updateEmptyState();
+        this._emitCounts();
         
         const exportedData = JSON.parse(data);
         const nodes = exportedData?.drawflow?.Home?.data;
@@ -424,6 +423,13 @@ export class UMLEditor extends LitElementWw{
             },
             bubbles: true,
             composed: true
+        }));
+    }
+
+    /** Report the class and relation counts without saving the diagram */
+    private _emitCounts() {
+        this.dispatchEvent(new CustomEvent('diagram-counts-changed', {
+            detail: { classCount: this._getClassCount(), relationCount: this._getRelationCount() }
         }));
     }
 

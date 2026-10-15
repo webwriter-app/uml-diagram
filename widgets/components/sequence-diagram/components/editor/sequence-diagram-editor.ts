@@ -692,9 +692,19 @@ export class SequenceEditor extends LitElementWw {
         return this._confirmDialog.confirm(options);
     }
 
-    /** Reset an empty canvas to its initial view before rendering */
+    /** Close the drawer if its element was removed (e.g. by undo) and reset an empty canvas to its initial view */
     protected willUpdate(changedProperties: any) {
         super.willUpdate(changedProperties);
+        if (changedProperties.has('model')) {
+            const { lifelines, messages, fragments = [] } = this.model;
+            if (this.editingLifelineId && !lifelines.some(ll => ll.id === this.editingLifelineId)) this.editingLifelineId = null;
+            if (this.editingMessageId && !messages.some(m => m.id === this.editingMessageId)) this.editingMessageId = null;
+            if (this.editingFragmentId && !fragments.some(f => f.id === this.editingFragmentId)) this.editingFragmentId = null;
+            const activation = this.editingActivation;
+            if (activation && !lifelines.find(ll => ll.id === activation.lifelineId)?.activations?.some(a => a.id === activation.id)) {
+                this.editingActivation = null;
+            }
+        }
         if (this._isEmpty) {
             this.zoom = 1;
             this.panX = 0;

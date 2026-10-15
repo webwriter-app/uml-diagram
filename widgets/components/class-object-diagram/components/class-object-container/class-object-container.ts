@@ -87,11 +87,16 @@ export class ClassObjectContainer extends LitElementWw {
         }
     }
 
-    /** Handler for diagram data changes – persists data and updates counts */
-    private _handleDiagramDataChanged(e: CustomEvent) {
+    /** Updates the class and relation counts for the toolbar */
+    private _handleCountsChanged(e: CustomEvent) {
         const { classCount, relationCount } = e.detail;
         if (classCount !== undefined) this.currentClassCount = classCount;
         if (relationCount !== undefined) this.currentRelationCount = relationCount;
+    }
+
+    /** Handler for diagram data changes – persists data and updates counts */
+    private _handleDiagramDataChanged(e: CustomEvent) {
+        this._handleCountsChanged(e);
         setTimeout(() => this.dispatchEvent(new CustomEvent('diagram-data-changed', {
             detail: e.detail,
             bubbles: true,
@@ -137,6 +142,7 @@ export class ClassObjectContainer extends LitElementWw {
                     .savedDiagramData=${this.savedDiagramData}
                     .isFullscreen=${this.isFullscreen}
                     @diagram-data-changed=${this._handleDiagramDataChanged}
+                    @diagram-counts-changed=${this._handleCountsChanged}
                     @dialog-opened=${() => {this._dialogOpen = true;}}
                     @dialog-closed=${() => this._dialogOpen = false}
                 ></uml-editor>
