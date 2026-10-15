@@ -156,7 +156,21 @@ export class UMLEditor extends LitElementWw{
         this.editor.reroute = false; 
         this.editor.zoom = 1;
         this.editor.curvature = 0;
+        this.editor.zoom_min = 0.3;
         this.editor.start();
+
+        // Clamp the zoom steps, which would overshoot the limits from zoom levels set by fitting or pinching
+        const editor = this.editor;
+        editor.zoom_in = () => {
+            if (editor.zoom >= editor.zoom_max) return;
+            editor.zoom = Math.min(editor.zoom + editor.zoom_value, editor.zoom_max);
+            editor.zoom_refresh();
+        };
+        editor.zoom_out = () => {
+            if (editor.zoom <= editor.zoom_min) return;
+            editor.zoom = Math.max(editor.zoom - editor.zoom_value, editor.zoom_min);
+            editor.zoom_refresh();
+        };
 
         // Drawflow's own pinch zoom only compares the horizontal finger distance and zooms in fixed steps around the
         // canvas center; _handlePinchTouch replaces it
@@ -167,7 +181,7 @@ export class UMLEditor extends LitElementWw{
         emulateTouchClicks(div);
 
         // Reload stored diagram
-        this._loadDiagramData(this.savedDiagramData);
+        this._loadDiagramData(this.savedDiagramData, () => this._fitOnceVisible());
 
         // Realtime updates of the diagram while node is moving
         this.drawflowEditorDiv.addEventListener('mousemove', (e) => {
@@ -485,6 +499,57 @@ export class UMLEditor extends LitElementWw{
         // zoom_refresh scales the offset by the zoom change, which is already included here
         editor.zoom = editor.zoom_last_value = zoom;
         editor.zoom_refresh();
+    }
+
+    /** Zoom and pan so that all classes and relations fit into the view, with some padding */
+    private _fitToView() {
+        const editor = this.editor;
+        const { clientWidth: width, clientHeight: height } = this.drawflowEditorDiv;
+        if (width === 0 || height === 0) return;
+
+        // Unscaled canvas coordinates, measured from the transformed canvas' corner
+        const origin = editor.precanvas.getBoundingClientRect();
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        editor.precanvas.querySelectorAll('.drawflow-node, svg.connection > *').forEach((el: Element) => {
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 && r.height === 0) return;
+            minX = Math.min(minX, (r.left - origin.left) / editor.zoom);
+            minY = Math.min(minY, (r.top - origin.top) / editor.zoom);
+            maxX = Math.max(maxX, (r.right - origin.left) / editor.zoom);
+            maxY = Math.max(maxY, (r.bottom - origin.top) / editor.zoom);
+        });
+        if (minX === Infinity) return;
+
+        // Never enlarge beyond 100%
+        const padding = 32;
+        const zoom = Math.max(Math.min(
+            (width - 2 * padding) / (maxX - minX),
+            (height - 2 * padding) / (maxY - minY),
+            1
+        ), editor.zoom_min);
+
+        // Drawflow scales around the canvas center
+        editor.canvas_x = (width / 2 - (minX + maxX) / 2) * zoom;
+        editor.canvas_y = (height / 2 - (minY + maxY) / 2) * zoom;
+        // zoom_refresh scales the offset by the zoom change, which is already included here
+        editor.zoom = editor.zoom_last_value = zoom;
+        editor.zoom_refresh();
+    }
+
+    /** Fit the view once the editor has a size, which it lacks while its tab is hidden */
+    private _fitOnceVisible() {
+        const div = this.drawflowEditorDiv;
+        const fit = () => {
+            this._routeRelations();
+            this._fitToView();
+        };
+        if (div.clientWidth && div.clientHeight) return fit();
+        const observer = new ResizeObserver(() => {
+            if (!div.clientWidth || !div.clientHeight) return;
+            observer.disconnect();
+            fit();
+        });
+        observer.observe(div);
     }
 
     /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */
@@ -1992,12 +2057,13 @@ export class UMLEditor extends LitElementWw{
 
             <zoom-controls
                 .zoomLevel=${this.editor?.zoom ?? 1}
-                .minZoom=${this.editor?.zoom_min ?? 0.5}
+                .minZoom=${this.editor?.zoom_min ?? 0.3}
                 .maxZoom=${this.editor?.zoom_max ?? 1.6}
                 .isFullscreen=${this.isFullscreen}
                 ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${() => this.editor.zoom_in()}
                 @zoom-out=${() => this.editor.zoom_out()}
+                @fit-to-view=${() => this._fitToView()}
             ></zoom-controls>
 
             <uml-class-dialog 

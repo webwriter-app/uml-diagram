@@ -29,8 +29,8 @@ export class CanvasAlert extends LitElementWw {
             transform: translateX(-50%);
             z-index: 999;
             width: max-content;
-            /* leaves room for the zoom controls (about 8rem wide) on both sides */
-            max-width: calc(100% - 2 * (8rem + 2 * var(--sl-spacing-x-small)));
+            /* leaves room for the zoom controls (about 10rem wide) on both sides */
+            max-width: calc(100% - 2 * (10rem + 2 * var(--sl-spacing-x-small)));
         }
 
         sl-alert::part(base) {

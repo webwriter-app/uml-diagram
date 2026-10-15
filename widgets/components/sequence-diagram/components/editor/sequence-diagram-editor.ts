@@ -153,6 +153,9 @@ export class SequenceEditor extends LitElementWw {
     private _lastPointerX: number = 0;
     private _lastPointerY: number = 0;
 
+    /** Whether the initial fit to view is still due */
+    private _fitPending: boolean = true;
+
     /** store the height and width of the svg window */
     private _svgWidth: number = 800;
     private _svgHeight: number = 600;
@@ -186,6 +189,10 @@ export class SequenceEditor extends LitElementWw {
                 this._svgWidth = entry.contentRect.width;
                 this._svgHeight = entry.contentRect.height;
                 this.requestUpdate();
+            }
+            if (this._fitPending && this._svgWidth && this._svgHeight) {
+                this._fitPending = false;
+                this.updateComplete.then(() => this._fitToView());
             }
         });
         resizeObserver.observe(this);
@@ -842,7 +849,33 @@ export class SequenceEditor extends LitElementWw {
 
     /** Zoom out from the center by factor 20% */
     private _zoomOut() {
-        this._zoomByFactor(-0.2); 
+        this._zoomByFactor(-0.2);
+    }
+
+    /** Zoom and pan so that the whole diagram fits into the view, aligned to its top-left corner with some padding */
+    private _fitToView() {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        this._canvas.querySelectorAll<SVGGElement>(':scope > g').forEach(g => {
+            const box = g.getBBox();
+            if (box.width === 0 && box.height === 0) return;
+            minX = Math.min(minX, box.x);
+            minY = Math.min(minY, box.y);
+            maxX = Math.max(maxX, box.x + box.width);
+            maxY = Math.max(maxY, box.y + box.height);
+        });
+        if (minX === Infinity || this._svgWidth === 0 || this._svgHeight === 0) return;
+
+        // Zoom-Limit: 30%, and never enlarge beyond 100%
+        const padding = 32;
+        const zoom = Math.max(0.3, Math.min(
+            (this._svgWidth - 2 * padding) / (maxX - minX),
+            (this._svgHeight - 2 * padding) / (maxY - minY),
+            1
+        ));
+
+        this.panX = minX - padding / zoom;
+        this.panY = minY - padding / zoom;
+        this.zoom = zoom;
     }
 
     // --------------------------------------------------------------------------------------------------------
@@ -2021,6 +2054,7 @@ export class SequenceEditor extends LitElementWw {
                 ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${this._zoomIn}
                 @zoom-out=${this._zoomOut}
+                @fit-to-view=${this._fitToView}
             ></zoom-controls>
 
             <sl-drawer 
