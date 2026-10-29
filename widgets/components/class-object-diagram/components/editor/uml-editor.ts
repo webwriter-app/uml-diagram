@@ -1019,10 +1019,10 @@ export class UMLEditor extends LitElementWw{
         let sourceName = sourceNode.data.name;
         let targetName = targetNode.data.name;
 
-        if (sourceNode.data.isProxy) sourceName = "(Proxy)";
+        if (sourceNode.data.isProxy) sourceName = `(${msg("Proxy")})`;
         if (targetNode.data.isProxy) {
              const parent = this.editor.getNodeFromId(targetNode.data.parentNodeId);
-             targetName = parent ? `${parent.data.name} (Self)` : "Self";
+             targetName = parent ? `${parent.data.name} (${msg("Self")})` : msg("Self");
         }
 
         // crate data package from the collected data to pass it to the dialog
