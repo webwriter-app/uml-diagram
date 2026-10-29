@@ -1,5 +1,15 @@
 {
     ".": {
+        "label": {
+            "_": "UML Diagram",
+            "de": "UML-Diagramm",
+            "fr": "Diagramme UML",
+            "es": "Diagrama UML",
+            "it": "Diagramma UML",
+            "nl": "UML-diagram",
+            "pl": "Diagram UML",
+            "pt-BR": "Diagrama UML"
+        },
         "description": {
             "_": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
             "de": "UML-Klassen-, Objekt- und Sequenzdiagramme erstellen und üben, mit konfigurierbaren Elementen, Grenzen und Validierung.",
@@ -13,7 +23,14 @@
     },
     "./widgets/webwriter-uml-diagram": {
         "label": {
-            "_": "UML Diagram"
+            "_": "UML Diagram",
+            "de": "UML-Diagramm",
+            "fr": "Diagramme UML",
+            "es": "Diagrama UML",
+            "it": "Diagramma UML",
+            "nl": "UML-diagram",
+            "pl": "Diagram UML",
+            "pt-BR": "Diagrama UML"
         }
     },
     "./snippets/library-loan": {
