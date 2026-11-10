@@ -118,19 +118,28 @@ export class WebwriterUmlDiagram extends LitElementWw {
     /** Pending diagram changes by diagram type, applied together after SAVE_DELAY */
     private _pendingSaves = new Map<string, () => void>();
     private _saveTimeout?: ReturnType<typeof setTimeout>;
+    private _skipDataWrite = false;
     private _dataObserver = new MutationObserver(() => this._restoreData());
 
     private _restoreData() {
         const data = readData(this);
-        if (data.classSettings) this.classSettings = Object.assign(ClassSettings.getInitialClassDiagramSettings(), data.classSettings);
-        if (data.objectSettings) this.objectSettings = Object.assign(ClassSettings.getInitialObjectDiagramSettings(), data.objectSettings);
-        if (data.sequenceSettings) this.sequenceSettings = Object.assign(SequenceSettings.getInitialSequenceSettings(), data.sequenceSettings);
-        if (data.globalSettings) this.globalSettings = Object.assign(GlobalSettings.getInitialGlobalSettings(), data.globalSettings);
-        if (data.sequenceModelData) this.sequenceModelData = Object.assign(SequenceModel.getInitialModel(), data.sequenceModelData);
+        let changed = false;
+        const setIfChanged = (current: unknown, value: unknown, set: () => void) => {
+            if (value !== undefined && JSON.stringify(value) !== JSON.stringify(current)) {
+                set();
+                changed = true;
+            }
+        };
+        setIfChanged(this.classSettings, data.classSettings, () => this.classSettings = Object.assign(ClassSettings.getInitialClassDiagramSettings(), data.classSettings));
+        setIfChanged(this.objectSettings, data.objectSettings, () => this.objectSettings = Object.assign(ClassSettings.getInitialObjectDiagramSettings(), data.objectSettings));
+        setIfChanged(this.sequenceSettings, data.sequenceSettings, () => this.sequenceSettings = Object.assign(SequenceSettings.getInitialSequenceSettings(), data.sequenceSettings));
+        setIfChanged(this.globalSettings, data.globalSettings, () => this.globalSettings = Object.assign(GlobalSettings.getInitialGlobalSettings(), data.globalSettings));
+        setIfChanged(this.sequenceModelData, data.sequenceModelData, () => this.sequenceModelData = Object.assign(SequenceModel.getInitialModel(), data.sequenceModelData));
         const classData = data.classDiagramData;
-        if (classData !== undefined) this.classDiagramData = typeof classData === 'string' ? classData : JSON.stringify(classData);
+        if (classData !== undefined) setIfChanged(this.classDiagramData, typeof classData === 'string' ? classData : JSON.stringify(classData), () => this.classDiagramData = typeof classData === 'string' ? classData : JSON.stringify(classData));
         const objectData = data.objectDiagramData;
-        if (objectData !== undefined) this.objectDiagramData = typeof objectData === 'string' ? objectData : JSON.stringify(objectData);
+        if (objectData !== undefined) setIfChanged(this.objectDiagramData, typeof objectData === 'string' ? objectData : JSON.stringify(objectData), () => this.objectDiagramData = typeof objectData === 'string' ? objectData : JSON.stringify(objectData));
+        if (changed) this._skipDataWrite = true;
     }
 
     private _writeData() {
@@ -172,9 +181,11 @@ export class WebwriterUmlDiagram extends LitElementWw {
 
     protected updated(changed: Map<PropertyKey, unknown>) {
         super.updated(changed as any);
-        if (this.hasUpdated && ['classSettings', 'objectSettings', 'sequenceSettings', 'globalSettings', 'sequenceModelData', 'classDiagramData', 'objectDiagramData'].some((key) => changed.has(key))) {
+        const dataChanged = ['classSettings', 'objectSettings', 'sequenceSettings', 'globalSettings', 'sequenceModelData', 'classDiagramData', 'objectDiagramData'].some((key) => changed.has(key));
+        if (this.hasUpdated && dataChanged && !this._skipDataWrite) {
             this._writeData();
         }
+        if (dataChanged) this._skipDataWrite = false;
     }
 
     /**
