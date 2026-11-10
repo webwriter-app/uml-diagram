@@ -123,6 +123,7 @@
 's5c18f85cda6e89be': `Connessioni`,
 's5e4c3efb85a89e1d': `Orologio`,
 's5e7b43fb85d0175e': `Cloud`,
+'s5e8250fb85d64c23': `Chiudi`,
 's5f43af3669b1e098': `Origine`,
 's5f999ce323167f71': `Asincrono`,
 's633876602eda63e7': `Il nome dell'attributo è obbligatorio.`,
@@ -281,5 +282,10 @@
 'sfbcefc193ef97dd5': `Nome dell'istanza`,
 'sfc49bac6b16bbe35': `Aggiungi valore`,
 'sff5bb7742c2896c8': `Destinazione`,
+'s058347bd6f29cf9c': `Diagram to show`,
+'s291a39fba48727be': `Class diagram`,
+'s7a48bce566a50baf': `Object diagram`,
+'s212f185f2dbf21cd': `Sequence diagram`,
+'s4dc5fa690dd0e9f3': `Configure diagrams`,
     };
   

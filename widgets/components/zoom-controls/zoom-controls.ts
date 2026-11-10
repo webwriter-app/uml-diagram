@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SlDivider, SlIconButton, SlTooltip } from "@shoelace-style/shoelace";
 import zoomIn from "@tabler/icons/outline/zoom-in.svg";
 import zoomOut from "@tabler/icons/outline/zoom-out.svg";
@@ -14,8 +13,8 @@ import styles from "./zoom-controls.styles";
  * Emits "zoom-in" and "zoom-out" for the editor to handle, and a bubbling,
  * composed "toggle-fullscreen" that is handled by the main widget.
  */
-@localized()
-export class ZoomControls extends LitElementWw {
+export class ZoomControls extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** Register used Elements */
     static get scopedElements() {
@@ -44,27 +43,27 @@ export class ZoomControls extends LitElementWw {
         const atMax = this.zoomDisabled || this.zoomLevel >= this.maxZoom * 0.999;
 
         return html`
-            <sl-tooltip content=${msg("Toggle Fullscreen")} hoist>
+            <sl-tooltip content=${this.messages.msg("Toggle Fullscreen")} hoist>
                 <sl-icon-button
                     src=${this.isFullscreen ? minimizeIcon : maximizeIcon}
-                    label="${msg("Toggle Fullscreen")}"
+                    label="${this.messages.msg("Toggle Fullscreen")}"
                     @click=${() => this._emit('toggle-fullscreen', true)}
                 ></sl-icon-button>
             </sl-tooltip>
             <sl-divider vertical></sl-divider>
-            <sl-tooltip content=${msg("Zoom Out")} hoist>
+            <sl-tooltip content=${this.messages.msg("Zoom Out")} hoist>
                 <sl-icon-button
                     src=${zoomOut}
-                    label="${msg("Zoom Out")}"
+                    label="${this.messages.msg("Zoom Out")}"
                     ?disabled=${atMin}
                     @click=${() => this._emit('zoom-out')}
                 ></sl-icon-button>
             </sl-tooltip>
             <span class="zoom-level">${Math.round(this.zoomLevel * 100)}%</span>
-            <sl-tooltip content=${msg("Zoom In")} placement="top-end" hoist>
+            <sl-tooltip content=${this.messages.msg("Zoom In")} placement="top-end" hoist>
                 <sl-icon-button
                     src=${zoomIn}
-                    label="${msg("Zoom In")}"
+                    label="${this.messages.msg("Zoom In")}"
                     ?disabled=${atMax}
                     @click=${() => this._emit('zoom-in')}
                 ></sl-icon-button>

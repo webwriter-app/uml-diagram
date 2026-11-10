@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="fr" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
 <trans-unit id="sf752b696087fa3c6">
@@ -795,8 +795,8 @@
   <target>Type de fragment</target>
 </trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
-  <target>Condition <x id="0" equiv-text="${index + 1}"/></target>
+  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
+  <target>Condition <x id="0" equiv-text="${index + 1}" /></target>
 </trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
@@ -1015,24 +1015,20 @@
   <target>Zoom avant</target>
 </trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
-  <target>Modifier le lien : <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
-</trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
+<target>Modifier le lien : <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
-  <target>Modifier la relation : <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
-</trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
+<target>Modifier la relation : <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
-  <target>Sélectionner la source pour <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</target>
-</trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
+<target>Sélectionnez la source de <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
-  <target>Sélectionner la cible pour <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</target>
-</trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
+<target>Sélectionnez la cible de <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
-  <target>Les stéréotypes de dépendance doivent être entourés de <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> ou <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
+  <target>Les stéréotypes de dépendance doivent être entourés de <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> ou <x id="1" equiv-text="${&quot;« »&quot;}" />.</target>
 </trans-unit>
 <trans-unit id="s388101295e5b6a4b">
   <source>No icon</source>
@@ -1090,6 +1086,24 @@
   <source>Credit Card</source>
   <target>Carte bancaire</target>
 </trans-unit>
+<trans-unit id="s5e8250fb85d64c23">
+  <source>Close</source>
+<target>Fermer</target></trans-unit>
+<trans-unit id="s058347bd6f29cf9c">
+  <source>Diagram to show</source>
+<target>Diagramme à afficher</target></trans-unit>
+<trans-unit id="s291a39fba48727be">
+  <source>Class diagram</source>
+<target>Diagramme de classes</target></trans-unit>
+<trans-unit id="s7a48bce566a50baf">
+  <source>Object diagram</source>
+<target>Diagramme d’objets</target></trans-unit>
+<trans-unit id="s212f185f2dbf21cd">
+  <source>Sequence diagram</source>
+<target>Diagramme de séquence</target></trans-unit>
+<trans-unit id="s4dc5fa690dd0e9f3">
+  <source>Configure diagrams</source>
+<target>Configurer les diagrammes</target></trans-unit>
 </body>
 </file>
 </xliff>

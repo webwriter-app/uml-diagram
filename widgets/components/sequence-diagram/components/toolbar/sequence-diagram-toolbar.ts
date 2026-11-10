@@ -1,7 +1,6 @@
-import { LitElementWw } from "@webwriter/lit";
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html, svg } from "lit";
 import { property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SlButton, SlDropdown, SlMenu, SlMenuItem, SlMenuLabel, SlDivider, SlIcon, SlTooltip } from "@shoelace-style/shoelace";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import lifelinePlusIcon from "../../../../../assets/icons/lifeline-plus.svg";
@@ -14,8 +13,8 @@ import toolbarStyles from "../../../shared/toolbar.styles";
 import { closeOtherDropdowns } from "../../../shared/toolbar-dropdowns";
 
 /** Toolbar for the sequence diagram */
-@localized()
-export class SequenceToolbar extends LitElementWw {
+export class SequenceToolbar extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
   /** register all used elements */
   static get scopedElements() {
     return {
@@ -119,7 +118,7 @@ export class SequenceToolbar extends LitElementWw {
       <div class="toolbar-container" @sl-show=${closeOtherDropdowns} @pointerdown=${closeOtherDropdowns}>
         <div class="actions">
             <sl-tooltip
-                content=${msg("Maximum number of lifelines reached")}
+                content=${this.messages.msg("Maximum number of lifelines reached")}
                 ?disabled=${this.model?.lifelines?.length < this.settings.maxNumberOfLifelines}
                 placement="bottom-start"
                 hoist
@@ -130,13 +129,13 @@ export class SequenceToolbar extends LitElementWw {
                     ?disabled=${(this.model?.lifelines?.length) >= this.settings.maxNumberOfLifelines}
                 >
                     <sl-icon slot="prefix" src=${lifelinePlusIcon}></sl-icon>
-                    ${msg("Lifeline")}
+                    ${this.messages.msg("Lifeline")}
                 </sl-button>
             </sl-tooltip>
 
             ${this.settings.activationExists ? html`
                 <sl-tooltip
-                    content=${msg("Maximum number of activations reached")}
+                    content=${this.messages.msg("Maximum number of activations reached")}
                     ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) < this.settings.maxNumberOfActivations}
                     placement="bottom-start"
                     hoist
@@ -147,13 +146,13 @@ export class SequenceToolbar extends LitElementWw {
                         ?disabled=${this.model.lifelines.reduce((sum, ll) => sum + (ll.activations?.length || 0), 0) >= this.settings.maxNumberOfActivations}
                     >
                         <sl-icon slot="prefix" src=${activationPlusIcon}></sl-icon>
-                        ${msg("Activation")}
+                        ${this.messages.msg("Activation")}
                     </sl-button>
                 </sl-tooltip>
             ` : ''}
 
             <sl-tooltip
-                content=${msg("Maximum number of fragments reached")}
+                content=${this.messages.msg("Maximum number of fragments reached")}
                 ?disabled=${this.model?.fragments?.length < this.settings.maxNumberOfFragments}
                 placement="bottom-start"
                 hoist
@@ -166,24 +165,24 @@ export class SequenceToolbar extends LitElementWw {
                         ?disabled=${(this.model?.fragments?.length) >= this.settings.maxNumberOfFragments}
                     >
                         <sl-icon slot="prefix" src=${fragmentPlusIcon}></sl-icon>
-                        ${msg("Fragment")}
+                        ${this.messages.msg("Fragment")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="min-width: 200px;">
                         ${this.settings.alternativeFragmentExists ? html`
                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddFragmentMode('alt')}>
-                                ${msg("Alternative")} (alt)
+                                ${this.messages.msg("Alternative")} (alt)
                             </sl-menu-item>
                         ` : ''}
 
                         ${this.settings.optionalFragmentExists ? html`
                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddFragmentMode('opt')}>
-                                ${msg("Optional")} (opt)
+                                ${this.messages.msg("Optional")} (opt)
                             </sl-menu-item>
                         ` : ''}
 
                         ${this.settings.loopFragmentExists ? html`
                             <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddFragmentMode('loop')}>
-                                ${msg("Loop")} (loop)
+                                ${this.messages.msg("Loop")} (loop)
                             </sl-menu-item>
                         ` : ''}
                     </sl-menu>
@@ -191,7 +190,7 @@ export class SequenceToolbar extends LitElementWw {
             </sl-tooltip>
             
             <sl-tooltip
-                content=${msg("Maximum number of messages reached")}
+                content=${this.messages.msg("Maximum number of messages reached")}
                 ?disabled=${this.model?.messages?.length < this.settings.maxNumberOfMessages}
                 placement="bottom-start"
                 hoist
@@ -204,75 +203,75 @@ export class SequenceToolbar extends LitElementWw {
                         ?disabled=${(this.model?.messages?.length) >= this.settings.maxNumberOfMessages}
                     >
                         <sl-icon slot="prefix" src=${connectionPlusIcon}></sl-icon>
-                        ${msg("Message")}
+                        ${this.messages.msg("Message")}
                     </sl-button>
                     <sl-menu class="toolbar-menu" style="min-width: 250px;">
                         ${(this.settings.synchronousMessageExists || this.settings.asynchronousMessageExists || this.settings.replyMessageExists) ? html`
-                            <sl-menu-label>${msg("Calls & Replies")}</sl-menu-label>
+                            <sl-menu-label>${this.messages.msg("Calls & Replies")}</sl-menu-label>
 
                             ${this.settings.synchronousMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('sync')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('sync')}</div>
-                                    ${msg("Synchronous")}
+                                    ${this.messages.msg("Synchronous")}
                                 </sl-menu-item>
                             ` : ''}
 
                             ${this.settings.asynchronousMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('async')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('async')}</div>
-                                    ${msg("Asynchronous")}
+                                    ${this.messages.msg("Asynchronous")}
                                 </sl-menu-item>
                             ` : ''}
 
                             ${this.settings.replyMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('reply')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('reply')}</div>
-                                    ${msg("Reply (Return)")}
+                                    ${this.messages.msg("Reply (Return)")}
                                 </sl-menu-item>
                             ` : ''}
                         ` : ''}
 
                         ${(this.settings.createMessageExists || this.settings.destroyMessageExists) ? html`
                             <sl-divider></sl-divider>
-                            <sl-menu-label>${msg("Object Lifecycle")}</sl-menu-label>
+                            <sl-menu-label>${this.messages.msg("Object Lifecycle")}</sl-menu-label>
 
                             ${this.settings.createMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('create-existing')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('create-existing')}</div>
-                                    ${msg("Create (Existing Object)")}
+                                    ${this.messages.msg("Create (Existing Object)")}
                                 </sl-menu-item>
                             ` : ''}
 
                             ${this.settings.createMessageExists && (this.model?.lifelines?.length) < this.settings.maxNumberOfLifelines ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('create-new')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('create-new')}</div>
-                                    ${msg("Create (New Object)")}
+                                    ${this.messages.msg("Create (New Object)")}
                                 </sl-menu-item>
                             ` : ''}
 
                             ${this.settings.destroyMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('destroy')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('destroy')}</div>
-                                    ${msg("Destroy")}
+                                    ${this.messages.msg("Destroy")}
                                 </sl-menu-item>
                             ` : ''}
                         ` : ''}
 
                         ${(this.settings.foundMessageExists || this.settings.lostMessageExists) ? html`
                             <sl-divider></sl-divider>
-                            <sl-menu-label>${msg("Found & Lost")}</sl-menu-label>
+                            <sl-menu-label>${this.messages.msg("Found & Lost")}</sl-menu-label>
 
                             ${this.settings.foundMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('found')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('found')}</div>
-                                    ${msg("Found")}
+                                    ${this.messages.msg("Found")}
                                 </sl-menu-item>
                             ` : ''}
 
                             ${this.settings.lostMessageExists ? html`
                                 <sl-menu-item class="toolbar-menu-item" @click=${() => this._handleAddMessageMode('lost')}>
                                     <div slot="prefix" style="display: flex; align-items: center;">${this._renderMessageIcon('lost')}</div>
-                                    ${msg("Lost")}
+                                    ${this.messages.msg("Lost")}
                                 </sl-menu-item>
                             ` : ''}
                         ` : ''}
@@ -281,9 +280,9 @@ export class SequenceToolbar extends LitElementWw {
             </sl-tooltip>
         </div>
 
-        <sl-tooltip content=${msg("Reset diagram")} placement="bottom-end" hoist>
+        <sl-tooltip content=${this.messages.msg("Reset diagram")} placement="bottom-end" hoist>
             <sl-button class="clear-btn" size="small" @click=${this._handleClear}>
-                <sl-icon src=${trashIcon} label=${msg("Reset diagram")}></sl-icon>
+                <sl-icon src=${trashIcon} label=${this.messages.msg("Reset diagram")}></sl-icon>
             </sl-button>
         </sl-tooltip>
       </div>

@@ -1,8 +1,8 @@
-import { LitElementWw } from "@webwriter/lit";
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html, svg } from "lit";
 import { keyed } from "lit/directives/keyed.js";
 import { property, query, state } from "lit/decorators.js";
-import { msg, str, localized } from "@lit/localize";
+import { str } from "@lit/localize";
 import interact from 'interactjs';
 import { SlButton, SlDrawer, SlInput, SlIcon, SlSelect, SlOption, SlAlert } from "@shoelace-style/shoelace";
 import userIcon from '@tabler/icons/outline/user.svg';
@@ -68,8 +68,8 @@ const LIFELINE_PADDING = 20;
 const MIN_LIFELINE_LENGTH = 80 + 2 * LIFELINE_PADDING;
 
 /** Interactive editor for the Sequence Diagram */
-@localized()
-export class SequenceEditor extends LitElementWw {
+export class SequenceEditor extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** register used elements */
     static get scopedElements() {
@@ -974,7 +974,7 @@ export class SequenceEditor extends LitElementWw {
                 const bounds = this._getMessageBounds(id, 'external', mappedType);
                 
                 if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                    this.showNotice(msg("Message cannot be placed here (outside of logical boundaries)."));
+                    this.showNotice(this.messages.msg("Message cannot be placed here (outside of logical boundaries)."));
                     this.dispatchEvent(new CustomEvent('cancel-interaction'));
                     return;
                 }
@@ -990,7 +990,7 @@ export class SequenceEditor extends LitElementWw {
             const source = this.messageSourceId === 'external' ? 'external' : this.messageSourceId!;
             
             if (mappedType === 'create' && source === id) {
-                this.showNotice(msg("An object cannot create itself (self-create is not allowed)."));
+                this.showNotice(this.messages.msg("An object cannot create itself (self-create is not allowed)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -998,7 +998,7 @@ export class SequenceEditor extends LitElementWw {
             const bounds = this._getMessageBounds(source, id, mappedType);
             
             if (svgP.y < bounds.minY || svgP.y > bounds.maxY) {
-                this.showNotice(msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
+                this.showNotice(this.messages.msg("Message cannot be placed here (outside of logical boundaries or inside the name box)."));
                 this.dispatchEvent(new CustomEvent('cancel-interaction'));
                 return;
             }
@@ -1132,22 +1132,22 @@ export class SequenceEditor extends LitElementWw {
     /** built per call so the labels follow the current locale */
     private _lifelineIconOptions() {
         return [
-            { value: 'none', label: msg("No icon"), src: noIcon },
-            { value: 'user', label: msg("User"), src: iconMap['user'] },
-            { value: 'users', label: msg("Users"), src: iconMap['users'] },
-            { value: 'device-desktop', label: msg("Desktop"), src: iconMap['device-desktop'] },
-            { value: 'device-mobile', label: msg("Mobile"), src: iconMap['device-mobile'] },
-            { value: 'world', label: msg("Globe"), src: iconMap['world'] },
-            { value: 'server', label: msg("Server"), src: iconMap['server'] },
-            { value: 'cloud', label: msg("Cloud"), src: iconMap['cloud'] },
-            { value: 'database', label: msg("Database"), src: iconMap['database'] },
-            { value: 'api', label: msg("API"), src: iconMap['api'] },
-            { value: 'settings', label: msg("Gear"), src: iconMap['settings'] },
-            { value: 'lock', label: msg("Lock"), src: iconMap['lock'] },
-            { value: 'mail', label: msg("Mail"), src: iconMap['mail'] },
-            { value: 'file', label: msg("File"), src: iconMap['file'] },
-            { value: 'clock', label: msg("Clock"), src: iconMap['clock'] },
-            { value: 'credit-card', label: msg("Credit Card"), src: iconMap['credit-card'] },
+            { value: 'none', label: this.messages.msg("No icon"), src: noIcon },
+            { value: 'user', label: this.messages.msg("User"), src: iconMap['user'] },
+            { value: 'users', label: this.messages.msg("Users"), src: iconMap['users'] },
+            { value: 'device-desktop', label: this.messages.msg("Desktop"), src: iconMap['device-desktop'] },
+            { value: 'device-mobile', label: this.messages.msg("Mobile"), src: iconMap['device-mobile'] },
+            { value: 'world', label: this.messages.msg("Globe"), src: iconMap['world'] },
+            { value: 'server', label: this.messages.msg("Server"), src: iconMap['server'] },
+            { value: 'cloud', label: this.messages.msg("Cloud"), src: iconMap['cloud'] },
+            { value: 'database', label: this.messages.msg("Database"), src: iconMap['database'] },
+            { value: 'api', label: this.messages.msg("API"), src: iconMap['api'] },
+            { value: 'settings', label: this.messages.msg("Gear"), src: iconMap['settings'] },
+            { value: 'lock', label: this.messages.msg("Lock"), src: iconMap['lock'] },
+            { value: 'mail', label: this.messages.msg("Mail"), src: iconMap['mail'] },
+            { value: 'file', label: this.messages.msg("File"), src: iconMap['file'] },
+            { value: 'clock', label: this.messages.msg("Clock"), src: iconMap['clock'] },
+            { value: 'credit-card', label: this.messages.msg("Credit Card"), src: iconMap['credit-card'] },
         ];
     }
 
@@ -1338,14 +1338,14 @@ export class SequenceEditor extends LitElementWw {
             if (!ll.name || ll.name.trim() === '') {
                 issues.push({
                     target: `ll-${ll.id}-name`,
-                    message: msg("Object name is required."),
+                    message: this.messages.msg("Object name is required."),
                     settingKey: 'checkForEmptyObjectNames'
                 });
             }
             if (!ll.className || ll.className.trim() === '') {
                 issues.push({
                     target: `ll-${ll.id}-classname`,
-                    message: msg("Class name is required."),
+                    message: this.messages.msg("Class name is required."),
                     settingKey: 'checkForEmptyClassNames'
                 });
             }
@@ -1354,7 +1354,7 @@ export class SequenceEditor extends LitElementWw {
             if (ll.name && /^[A-ZÄÖÜ]/.test(ll.name.trim())) {
                 issues.push({
                     target: `ll-${ll.id}-name`,
-                    message: msg("Object names should start with a lowercase letter (e.g. myObject)."),
+                    message: this.messages.msg("Object names should start with a lowercase letter (e.g. myObject)."),
                     settingKey: 'checkForFirstLetterOfObject'
                 });
             }
@@ -1363,7 +1363,7 @@ export class SequenceEditor extends LitElementWw {
             if (ll.name && /\s/.test(ll.name.trim())) {
                 issues.push({
                     target: `ll-${ll.id}-name`,
-                    message: msg('Object names must not contain spaces.'),
+                    message: this.messages.msg('Object names must not contain spaces.'),
                     settingKey: 'checkForFirstLetterOfObject'
                 });
             }
@@ -1372,7 +1372,7 @@ export class SequenceEditor extends LitElementWw {
             if (ll.className && /^[a-zäöü]/.test(ll.className.trim())) {
                 issues.push({
                     target: `ll-${ll.id}-classname`,
-                    message: msg("Class names should start with an uppercase letter (e.g. Customer)."),
+                    message: this.messages.msg("Class names should start with an uppercase letter (e.g. Customer)."),
                     settingKey: 'checkForFirstLetterOfClass'
                 });
             }
@@ -1381,7 +1381,7 @@ export class SequenceEditor extends LitElementWw {
             if (ll.className && /\s/.test(ll.className.trim())) {
                 issues.push({
                     target: `ll-${ll.id}-classname`,
-                    message: msg('Class names must not contain spaces.'),
+                    message: this.messages.msg('Class names must not contain spaces.'),
                     settingKey: 'checkForFirstLetterOfClass'
                 });
             }
@@ -1393,7 +1393,7 @@ export class SequenceEditor extends LitElementWw {
             if (m.name && m.type !== 'reply' && !m.name.trim().startsWith('<') && /^[A-ZÄÖÜ]/.test(m.name.trim())) {
                 issues.push({
                     target: `msg-${m.id}-name`,
-                    message: msg("Message names, except replies, should start with a lowercase letter."),
+                    message: this.messages.msg("Message names, except replies, should start with a lowercase letter."),
                     settingKey: 'checkForFirstLetterOfMessages'
                 });
             }
@@ -1402,7 +1402,7 @@ export class SequenceEditor extends LitElementWw {
             if (m.assignment && /\s/.test(m.assignment.trim())) {
                 issues.push({
                     target: `msg-${m.id}-assignment`,
-                    message: msg('Assignment must not contain spaces.'),
+                    message: this.messages.msg('Assignment must not contain spaces.'),
                     settingKey: 'checkForFirstLetterOfMessages'
                 });
             }
@@ -1418,7 +1418,7 @@ export class SequenceEditor extends LitElementWw {
                 if (guardText === '' || guardText === '[condition]' || guardText === '[]') {
                     issues.push({
                         target: `frag-${frag.id}-op-${op.id}-guard`,
-                        message: msg("Guard condition must not be empty."),
+                        message: this.messages.msg("Guard condition must not be empty."),
                         settingKey: 'checkForEmptyGuards'
                     });
                 }
@@ -1633,14 +1633,14 @@ export class SequenceEditor extends LitElementWw {
                         <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
                         <span>
                             ${this.interactionMode === 'add-message-source' 
-                                ? msg("Select sending lifeline") 
+                                ? this.messages.msg("Select sending lifeline")
                                 : this.interactionMode === 'add-activation' 
-                                ? msg("Select a lifeline")
+                                ? this.messages.msg("Select a lifeline")
                                 : this.interactionMode === 'creating-fragment-start'
-                                ? msg("Select start lifeline")
+                                ? this.messages.msg("Select start lifeline")
                                 : this.interactionMode === 'creating-fragment-end'
-                                ? msg("Select end lifeline")
-                                : msg("Select receiving lifeline")}
+                                ? this.messages.msg("Select end lifeline")
+                                : this.messages.msg("Select receiving lifeline")}
                         </span>
                     </sl-alert>
                 </div>
@@ -2070,7 +2070,7 @@ export class SequenceEditor extends LitElementWw {
             </svg>
 
             ${this._isEmpty ? html`
-                <div class="empty-hint">${msg("Add lifelines via the toolbar above.")}</div>
+                <div class="empty-hint">${this.messages.msg("Add lifelines via the toolbar above.")}</div>
             ` : ''}
 
             <zoom-controls
@@ -2086,7 +2086,7 @@ export class SequenceEditor extends LitElementWw {
 
             <sl-drawer 
                 contained
-                label="${editingLifeline ? msg("Lifeline") : editingMessage ? msg("Message") : this.editingActivation ? msg("Activation") : msg("Fragment")}"
+                label="${editingLifeline ? this.messages.msg("Lifeline") : editingMessage ? this.messages.msg("Message") : this.editingActivation ? this.messages.msg("Activation") : this.messages.msg("Fragment")}"
                 .placement=${this.drawerPlacement}
                 .open=${this.editingLifelineId !== null || this.editingMessageId !== null || this.editingActivation !== null || this.editingFragmentId !== null}
                 @sl-show=${(e: Event) => { if (e.target === e.currentTarget) this._drawerShown = true; }}
@@ -2104,14 +2104,14 @@ export class SequenceEditor extends LitElementWw {
                 ${editingLifeline ? html`
                     <div class="drawer-content">
                         <sl-input 
-                            label="${msg("Stereotype")}" 
+                            label="${this.messages.msg("Stereotype")}"
                             value="${editingLifeline.stereotype || ''}" 
                             @sl-input=${(e: any) => this._handleLifelineUpdate('stereotype', e.target.value)}
                         ></sl-input>
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Object Name")}"
+                                label="${this.messages.msg("Object Name")}"
                                 value="${editingLifeline.name || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('name', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('name', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-name`); }}
@@ -2128,7 +2128,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Class Name")}"
+                                label="${this.messages.msg("Class Name")}"
                                 value="${editingLifeline.className || ''}" 
                                 @sl-input=${(e: any) => this._handleLifelineUpdate('className', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleLifelineUpdate('className', e.target.value.trim()); this._handleBlur(`ll-${editingLifeline.id}-classname`); }}
@@ -2145,7 +2145,7 @@ export class SequenceEditor extends LitElementWw {
 
                         ${this.settings.iconsInObjectBoxExists ? html`
                             <div class="icon-picker">
-                                <div class="icon-picker-label" id="icon-picker-label">${msg("Icon")}</div>
+                                <div class="icon-picker-label" id="icon-picker-label">${this.messages.msg("Icon")}</div>
                                 <div class="icon-picker-grid" role="group" aria-labelledby="icon-picker-label">
                                     ${this._lifelineIconOptions().map(option => html`
                                         <sl-button
@@ -2163,7 +2163,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <sl-button variant="danger" outline @click=${this._handleDeleteLifelineClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
-                            ${msg("Delete Object")}
+                            ${this.messages.msg("Delete Object")}
                         </sl-button>
                     </div>
                 ` : ''}
@@ -2172,7 +2172,7 @@ export class SequenceEditor extends LitElementWw {
                     <div class="drawer-content">
                         
                         <sl-input 
-                            label="${msg("Assignment (variable)")}" 
+                            label="${this.messages.msg("Assignment (variable)")}"
                             value="${editingMessage.assignment || ''}" 
                             @sl-input=${(e: any) => this._handleMessageUpdate('assignment', e.target.value)}
                             @sl-blur=${(e: any) => { this._handleMessageUpdate('assignment', e.target.value.trim()); this._handleBlur(`msg-${editingMessage.id}-assignment`); }}
@@ -2188,7 +2188,7 @@ export class SequenceEditor extends LitElementWw {
 
                         <div style="display: flex; flex-direction: column;">
                             <sl-input 
-                                label="${msg("Message Name")}" 
+                                label="${this.messages.msg("Message Name")}"
                                 value="${editingMessage.name || ''}" 
                                 @sl-input=${(e: any) => this._handleMessageUpdate('name', e.target.value)}
                                 @sl-blur=${(e: any) => { this._handleMessageUpdate('name', e.target.value.trim()); this._handleBlur(`msg-${editingMessage.id}-name`); }}
@@ -2205,32 +2205,32 @@ export class SequenceEditor extends LitElementWw {
 
                         ${!isStructuralMessage ? html`
                             <sl-select 
-                                label="${msg("Message Type")}" 
+                                label="${this.messages.msg("Message Type")}"
                                 value="${editingMessage.type}"
                                 @sl-change=${(e: any) => this._handleMessageUpdate('type', e.target.value)}
                             >
                                 ${this.settings.synchronousMessageExists || editingMessage.type === 'sync' ? html`
-                                    <sl-option value="sync">${msg("Synchronous")}</sl-option>
+                                    <sl-option value="sync">${this.messages.msg("Synchronous")}</sl-option>
                                 ` : ''}
 
                                 ${this.settings.asynchronousMessageExists || editingMessage.type === 'async' ? html`
-                                    <sl-option value="async">${msg("Asynchronous")}</sl-option>
+                                    <sl-option value="async">${this.messages.msg("Asynchronous")}</sl-option>
                                 ` : ''}
 
                                 ${this.settings.replyMessageExists || editingMessage.type === 'reply' ? html`
-                                    <sl-option value="reply">${msg("Reply (Return)")}</sl-option>
+                                    <sl-option value="reply">${this.messages.msg("Reply (Return)")}</sl-option>
                                 ` : ''}
                             </sl-select>
                         ` : html`
-                            <sl-input label="${msg("Message Type")}" value=${editingMessage.type === 'create' ? msg("Create")
-                                : editingMessage.type === 'destroy' ? msg("Destroy")
-                                : editingMessage.type === 'found' ? msg("Found")
-                                : msg("Lost")} disabled></sl-input>
+                            <sl-input label="${this.messages.msg("Message Type")}" value=${editingMessage.type === 'create' ? this.messages.msg("Create")
+                                : editingMessage.type === 'destroy' ? this.messages.msg("Destroy")
+                                : editingMessage.type === 'found' ? this.messages.msg("Found")
+                                : this.messages.msg("Lost")} disabled></sl-input>
                         `}
 
                         <sl-button variant="danger" outline @click=${this._handleDeleteMessageClick}>
                             <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
-                            ${msg("Delete Message")}
+                            ${this.messages.msg("Delete Message")}
                         </sl-button>
                     </div>
                 ` : ''}
@@ -2246,7 +2246,7 @@ export class SequenceEditor extends LitElementWw {
                                 slot="prefix" 
                                 src=${trashIcon}
                             ></sl-icon>
-                            ${msg("Delete Activation")}
+                            ${this.messages.msg("Delete Activation")}
                         </sl-button>
                     </div>
                 ` : ''}
@@ -2259,20 +2259,20 @@ export class SequenceEditor extends LitElementWw {
                         <div class="drawer-content">
                             
                             <sl-select 
-                                label=${msg("Fragment Type")} 
+                                label=${this.messages.msg("Fragment Type")}
                                 value="${frag.type}"
                                 @sl-change=${(e: any) => this._handleFragmentUpdate('type', e.target.value)}
                             >
                                 ${this.settings.optionalFragmentExists || frag.type === 'opt' ? html`
-                                    <sl-option value="opt">${msg("Optional")} (opt)</sl-option>
+                                    <sl-option value="opt">${this.messages.msg("Optional")} (opt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.alternativeFragmentExists || frag.type === 'alt' ? html`
-                                    <sl-option value="alt">${msg("Alternative")} (alt)</sl-option>
+                                    <sl-option value="alt">${this.messages.msg("Alternative")} (alt)</sl-option>
                                 ` : ''}
                                 
                                 ${this.settings.loopFragmentExists || frag.type === 'loop' ? html`
-                                    <sl-option value="loop">${msg("Loop")} (loop)</sl-option>
+                                    <sl-option value="loop">${this.messages.msg("Loop")} (loop)</sl-option>
                                 ` : ''}
                             </sl-select>
 
@@ -2280,7 +2280,7 @@ export class SequenceEditor extends LitElementWw {
                                 <div class="operand-row">
                                     <div class="operand-input-wrapper">
                                         <sl-input 
-                                            label=${msg(str`Condition ${index + 1}`)}
+                                            label=${this.messages.msg(str`Condition ${index + 1}`)}
                                             value="${op.guard}"
                                             @sl-change=${(e: any) => this._handleFragmentOperandUpdate(op.id, e.target.value)}
                                             @sl-blur=${() => this._handleBlur(`frag-${frag.id}-op-${op.id}-guard`)}
@@ -2299,8 +2299,8 @@ export class SequenceEditor extends LitElementWw {
                                         outline
                                         ?disabled=${frag.operands.length <= 1}
                                         @click=${() => this._handleRemoveFragmentOperand(op.id)}
-                                        title="${msg("Remove Region")}"
-                                        aria-label=${msg("Remove Region")}
+                                        title="${this.messages.msg("Remove Region")}"
+                                        aria-label=${this.messages.msg("Remove Region")}
                                     >
                                         <sl-icon src=${xIcon}></sl-icon>
                                     </sl-button>
@@ -2317,7 +2317,7 @@ export class SequenceEditor extends LitElementWw {
                                             slot="prefix" 
                                             src=${plusIcon}
                                         ></sl-icon>
-                                        ${msg("Add Region")}
+                                        ${this.messages.msg("Add Region")}
                                     </sl-button>
                                 </div>
                             ` : ''}
@@ -2331,7 +2331,7 @@ export class SequenceEditor extends LitElementWw {
                                     slot="prefix" 
                                     src=${trashIcon}
                                 ></sl-icon>
-                                ${msg("Delete Fragment")}
+                                ${this.messages.msg("Delete Fragment")}
                             </sl-button>
                         </div>
                     `;

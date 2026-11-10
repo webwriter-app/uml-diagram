@@ -1,5 +1,6 @@
+import { localizeElement, LocalizedElement } from "../localization/localizer";
 import { html } from "lit";
-import { LitElementWw, type OptionDeclaration } from "@webwriter/lit";
+import { type OptionDeclaration } from "@webwriter/lit";
 import { customElement, property, state } from "lit/decorators.js";
 import '@shoelace-style/shoelace/dist/themes/light.css';
 import { ClassObjectContainer } from "./components/class-object-diagram/components/class-object-container/class-object-container";
@@ -11,8 +12,6 @@ import { GlobalSettingsMenu } from "./components/global-settings/global-settings
 import { SequenceModel } from "./components/sequence-diagram/models/sequence-model";
 import { DiagramTabs, visibleDiagramTypes } from "./components/diagram-tabs/diagram-tabs";
 import styles from "./webwriter-uml-diagram.styles";
-import { localized, msg } from "@lit/localize";
-import LOCALIZE from "../localization/generated";
 import { readData, writeData } from "./data-state";
 
 /**
@@ -21,34 +20,33 @@ import { readData, writeData } from "./data-state";
  * starting diagram that learners can reset to. Learners model their solution directly in the widget.
  * @slot data - Direct application/json block stores diagram settings and authored models.
  */
-@localized()
 @customElement("webwriter-uml-diagram")
-export class WebwriterUmlDiagram extends LitElementWw {
-    static options: Record<string, OptionDeclaration> = {
-        diagramType: {
-            type: "select",
-            label: { _: "Diagram to show", de: "Anzuzeigendes Diagramm" },
-            options: [
-                { value: "class-diagram", label: { _: "Class diagram", de: "Klassendiagramm" } },
-                { value: "object-diagram", label: { _: "Object diagram", de: "Objektdiagramm" } },
-                { value: "sequence-diagram", label: { _: "Sequence diagram", de: "Sequenzdiagramm" } },
-            ],
-        },
-    };
-    static actions = {
-        openSettings: { label: { _: "Configure diagrams", de: "Diagramme konfigurieren" }, icon: "Settings", intent: "default" },
-    };
-    readonly options = WebwriterUmlDiagram.options;
-    readonly actions = WebwriterUmlDiagram.actions;
+export class WebwriterUmlDiagram extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
+    get options(): Record<string, OptionDeclaration> {
+        return {
+          diagramType: {
+              type: "select",
+              label: { _: this.messages.msg("Diagram to show") },
+              options: [
+                  { value: "class-diagram", label: { _: this.messages.msg("Class diagram") } },
+                  { value: "object-diagram", label: { _: this.messages.msg("Object diagram") } },
+                  { value: "sequence-diagram", label: { _: this.messages.msg("Sequence diagram") } },
+              ],
+          },
+      };
+    }
+    get actions() {
+        return {
+          openSettings: { label: { _: this.messages.msg("Configure diagrams") }, icon: "Settings", intent: "default" },
+      };
+    }
 
     @state() private accessor settingsOpen = false;
 
     openSettings() {
         this.settingsOpen = true;
     }
-
-    /** @internal Localization config; WebWriter uses it to set the locale of the widget */
-    public localize = LOCALIZE;
 
     /** @internal Register used Elements */
     static get scopedElements() {
@@ -379,7 +377,7 @@ export class WebwriterUmlDiagram extends LitElementWw {
             </div>
 
             <dialog style="max-width: min(56rem, 90vw); max-height: 85vh; overflow: auto" ?open=${this.settingsOpen} @close=${() => this.settingsOpen = false}>
-                <button type="button" @click=${() => this.settingsOpen = false}>${msg("Close")}</button>
+                <button type="button" @click=${() => this.settingsOpen = false}>${this.messages.msg("Close")}</button>
                 <global-settings-menu
                     .globalSettings=${this.globalSettings}
                     .classSettings=${this.classSettings}

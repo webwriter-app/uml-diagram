@@ -1,8 +1,7 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html } from "lit";
 import { keyed } from "lit/directives/keyed.js";
-import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { ClassModel } from "../../models/class-model";
 import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
@@ -55,8 +54,8 @@ interface RelationValidationIssue {
 }
 
 /** Interactive editor for the Class and Object Diagram */
-@localized()
-export class UMLEditor extends LitElementWw{
+export class UMLEditor extends LocalizedElement{
+    protected readonly messages = localizeElement(this);
 
     /** Register used Elements */
     static get scopedElements() {
@@ -749,7 +748,7 @@ export class UMLEditor extends LitElementWw{
             // check max relations constraint
             const currentRelations = this._getRelationsCountBetween(this.relationSourceNodeId, nodeId);
             if (currentRelations >= this.settings.maxNumberRelationsBetweenTwoClasses) {
-                this.handleWrongSelection(msg("Maximum number of connections per pair reached"));
+                this.handleWrongSelection(this.messages.msg("Maximum number of connections per pair reached"));
                 return;
             }
 
@@ -1648,7 +1647,7 @@ export class UMLEditor extends LitElementWw{
 
         // check for constraints
         if (this._getClassCount() >= this.settings.maxClasses) {
-            this.showNotice(msg("Maximum number of classes reached"));
+            this.showNotice(this.messages.msg("Maximum number of classes reached"));
             return;
         }
 
@@ -1808,8 +1807,8 @@ export class UMLEditor extends LitElementWw{
             if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
                 issues.push({
                     message: this.interactionMode === 'inheritance'
-                        ? msg("A class cannot inherit from itself.")
-                        : msg("A class cannot realize itself."),
+                        ? this.messages.msg("A class cannot inherit from itself.")
+                        : this.messages.msg("A class cannot realize itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1820,44 +1819,44 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance') {
             if (sType === 'enum' || sType === 'record') {
                 issues.push({
-                    message: msg("Enumerations and records cannot extend other classes."),
+                    message: this.messages.msg("Enumerations and records cannot extend other classes."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'annotation') {
                 issues.push({
-                    message: msg("Annotations cannot extend other classes."),
+                    message: this.messages.msg("Annotations cannot extend other classes."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (tType === 'annotation') {
                 issues.push({
-                    message: msg("Annotations cannot be extended."),
+                    message: this.messages.msg("Annotations cannot be extended."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'object' || tType === 'object') {
                 issues.push({
-                    message: msg("Objects cannot participate in inheritance relations."),
+                    message: this.messages.msg("Objects cannot participate in inheritance relations."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'interface' && tType !== 'interface') {
                 issues.push({
-                    message: msg("Interfaces can only extend other interfaces."),
+                    message: this.messages.msg("Interfaces can only extend other interfaces."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType !== 'interface' && tType === 'interface') {
                 issues.push({
-                    message: msg("Classes cannot extend interfaces. Use realization to implement an interface."),
+                    message: this.messages.msg("Classes cannot extend interfaces. Use realization to implement an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             // duplicate inheritance from the same class
             if (this._hasExistingRelation(sourceId, targetId, 'inheritance')) {
                 issues.push({
-                    message: msg("This class already inherits from the selected class."),
+                    message: this.messages.msg("This class already inherits from the selected class."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1867,25 +1866,25 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'realization') {
             if (tType !== 'interface') {
                 issues.push({
-                    message: msg("Only interfaces can be realization targets."),
+                    message: this.messages.msg("Only interfaces can be realization targets."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'interface') {
                 issues.push({
-                    message: msg("Interfaces cannot realize other elements. Use inheritance to extend an interface."),
+                    message: this.messages.msg("Interfaces cannot realize other elements. Use inheritance to extend an interface."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'annotation') {
                 issues.push({
-                    message: msg("Annotations cannot implement interfaces."),
+                    message: this.messages.msg("Annotations cannot implement interfaces."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (sType === 'object' || tType === 'object') {
                 issues.push({
-                    message: msg("Objects cannot participate in realization relations."),
+                    message: this.messages.msg("Objects cannot participate in realization relations."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1895,7 +1894,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'inheritance' || this.interactionMode === 'realization') {
             if (this._detectCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("Inheritance cycles are not allowed."),
+                    message: this.messages.msg("Inheritance cycles are not allowed."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1908,13 +1907,13 @@ export class UMLEditor extends LitElementWw{
 
             if (invalidSourceTypes.includes(sType)) {
                 issues.push({
-                    message: msg("Selected class type cannot own compositions or aggregations."),
+                    message: this.messages.msg("Selected class type cannot own compositions or aggregations."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (invalidTargetTypes.includes(tType)) {
                 issues.push({
-                    message: msg("Selected class type cannot be part of a composition or aggregation."),
+                    message: this.messages.msg("Selected class type cannot be part of a composition or aggregation."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1924,13 +1923,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'composition') {
             if (this._hasCompositionOwner(targetId)) {
                 issues.push({
-                    message: msg("This class is already part of a composition. A class can only have one owner."),
+                    message: this.messages.msg("This class is already part of a composition. A class can only have one owner."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (this._detectCompositionCycle(sourceId, targetId)) {
                 issues.push({
-                    message: msg("A class cannot directly or indirectly own itself."),
+                    message: this.messages.msg("A class cannot directly or indirectly own itself."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1940,13 +1939,13 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association-bidirectional') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("Data types and enumerations cannot be the source of a bidirectional association."),
+                    message: this.messages.msg("Data types and enumerations cannot be the source of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
             if (tType === 'datatype' || tType === 'enum') {
                 issues.push({
-                    message: msg("Data types and enumerations cannot be the target of a bidirectional association."),
+                    message: this.messages.msg("Data types and enumerations cannot be the target of a bidirectional association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -1956,7 +1955,7 @@ export class UMLEditor extends LitElementWw{
         if (this.interactionMode === 'association') {
             if (sType === 'datatype' || sType === 'enum') {
                 issues.push({
-                    message: msg("Data types and enumerations cannot be the source of an association."),
+                    message: this.messages.msg("Data types and enumerations cannot be the source of an association."),
                     settingKey: 'checkRelationalLogic'
                 });
             }
@@ -2016,8 +2015,8 @@ export class UMLEditor extends LitElementWw{
                         <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
                         <span>
                             ${this.firstOrSecondClass === 'first'
-                                ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
-                                : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
+                                ? this.messages.msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}</strong>.`)
+                                : this.messages.msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}</strong>.`)}
                         </span>
                     </sl-alert>
                 </div>
@@ -2026,8 +2025,8 @@ export class UMLEditor extends LitElementWw{
             ${this._isEmpty ? html`
                 <div class="empty-hint">
                     ${this.diagramType === 'object-diagram'
-                        ? msg("Add objects via the toolbar above.")
-                        : msg("Add classes via the toolbar above.")}
+                        ? this.messages.msg("Add objects via the toolbar above.")
+                        : this.messages.msg("Add classes via the toolbar above.")}
                 </div>
             ` : ''}
 

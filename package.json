@@ -23,7 +23,12 @@
     "object-diagram",
     "sequence-diagram",
     "modeling",
-    "object-oriented programming"
+    "object-oriented programming",
+    "widget-lang-en-US",
+    "widget-lang-en-GB",
+    "widget-lang-en-CA",
+    "widget-lang-en-AU",
+    "widget-lang-en-IN"
   ],
   "license": "MIT",
   "author": "moritz.sander@rwth-aachen.de",
@@ -56,5 +61,6 @@
     "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
     "./custom-elements.json": "./custom-elements.json"
   },
-  "customElements": "custom-elements.json"
+  "customElements": "custom-elements.json",
+  "editingConfig": {}
 }

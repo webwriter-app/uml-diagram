@@ -8,12 +8,39 @@
             "it": "Creare ed esercitarsi con diagrammi UML delle classi, degli oggetti e di sequenza con elementi, limiti e validazione configurabili.",
             "nl": "UML-klasse-, object- en sequentiediagrammen maken en oefenen met configureerbare elementen, limieten en validatie.",
             "pl": "Twórz i ćwicz diagramy UML klas, obiektów i sekwencji z konfigurowalnymi elementami, limitami i walidacją.",
-            "pt-BR": "Crie e pratique diagramas UML de classes, objetos e sequência com elementos, limites e validação configuráveis."
+            "pt-BR": "Crie e pratique diagramas UML de classes, objetos e sequência com elementos, limites e validação configuráveis.",
+            "en": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "en-US": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "en-GB": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "en-CA": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "en-AU": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "en-IN": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation."
+        },
+        "label": {
+            "_": "Uml Diagram",
+            "en": "Uml Diagram",
+            "en-US": "Uml Diagram",
+            "en-GB": "Uml Diagram",
+            "en-CA": "Uml Diagram",
+            "en-AU": "Uml Diagram",
+            "en-IN": "Uml Diagram",
+            "fr": "Diagramme UML",
+            "de": "UML-Diagramm",
+            "es": "Diagrama UML"
         }
     },
     "./widgets/webwriter-uml-diagram": {
         "label": {
-            "_": "UML Diagram"
+            "_": "UML Diagram",
+            "en": "UML Diagram",
+            "en-US": "UML Diagram",
+            "en-GB": "UML Diagram",
+            "en-CA": "UML Diagram",
+            "en-AU": "UML Diagram",
+            "en-IN": "UML Diagram",
+            "fr": "Diagramme UML",
+            "de": "UML-Diagramm",
+            "es": "Diagrama UML"
         }
     },
     "./snippets/library-loan": {
@@ -25,7 +52,13 @@
             "it": "Prestito di libri",
             "nl": "Boek lenen",
             "pl": "Wypożyczenie książki",
-            "pt-BR": "Empréstimo de livros"
+            "pt-BR": "Empréstimo de livros",
+            "en": "Library Loan",
+            "en-US": "Library Loan",
+            "en-GB": "Library Loan",
+            "en-CA": "Library Loan",
+            "en-AU": "Library Loan",
+            "en-IN": "Library Loan"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -37,7 +70,13 @@
             "it": "Negozio online",
             "nl": "Webwinkel",
             "pl": "Sklep internetowy",
-            "pt-BR": "Loja online"
+            "pt-BR": "Loja online",
+            "en": "Online Shop",
+            "en-US": "Online Shop",
+            "en-GB": "Online Shop",
+            "en-CA": "Online Shop",
+            "en-AU": "Online Shop",
+            "en-IN": "Online Shop"
         }
     }
 }

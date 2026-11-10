@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { GlobalSettings } from "../global-settings/global-settings-model";
 import styles from "./diagram-tabs.styles";
 
@@ -22,8 +21,8 @@ export function visibleDiagramTypes(globalSettings: GlobalSettings, active: stri
  * Row of tabs to switch between the enabled diagram types, shown on top of the widget.
  * Emits a "select-diagram" event with the chosen diagram type in `detail.type`.
  */
-@localized()
-export class DiagramTabs extends LitElementWw {
+export class DiagramTabs extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** Styles are defined in the corresponding .styles file */
     static styles = [styles];
@@ -44,9 +43,9 @@ export class DiagramTabs extends LitElementWw {
 
     render() {
         const labels: Record<string, string> = {
-            "class-diagram": msg("Class Diagram"),
-            "object-diagram": msg("Object Diagram"),
-            "sequence-diagram": msg("Sequence Diagram"),
+            "class-diagram": this.messages.msg("Class Diagram"),
+            "object-diagram": this.messages.msg("Object Diagram"),
+            "sequence-diagram": this.messages.msg("Sequence Diagram"),
         };
 
         return visibleDiagramTypes(this.globalSettings, this.active).map(type => html`
