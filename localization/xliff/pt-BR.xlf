@@ -1015,21 +1015,17 @@
   <target>Aumentar zoom</target>
 </trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></source>
-  <target>Editar vínculo: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></target>
-</trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
+<target>Editar ligação: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></source>
-  <target>Editar relação: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></target>
-</trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
+<target>Editar relação: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</source>
-  <target>Selecione a origem para <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</target>
-</trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
+<target>Selecione a origem de <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</source>
-  <target>Selecione o destino para <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</target>
-</trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
+<target>Selecione o destino de <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
   <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
   <target>Estereótipos de dependência devem estar entre <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> ou <x id="1" equiv-text="${&quot;« »&quot;}" />.</target>
@@ -1093,6 +1089,21 @@
 <trans-unit id="s5e8250fb85d64c23">
   <source>Close</source>
 <target>Fechar</target></trans-unit>
+<trans-unit id="s058347bd6f29cf9c">
+  <source>Diagram to show</source>
+<target>Diagrama a exibir</target></trans-unit>
+<trans-unit id="s291a39fba48727be">
+  <source>Class diagram</source>
+<target>Diagrama de classes</target></trans-unit>
+<trans-unit id="s7a48bce566a50baf">
+  <source>Object diagram</source>
+<target>Diagrama de objetos</target></trans-unit>
+<trans-unit id="s212f185f2dbf21cd">
+  <source>Sequence diagram</source>
+<target>Diagrama de sequência</target></trans-unit>
+<trans-unit id="s4dc5fa690dd0e9f3">
+  <source>Configure diagrams</source>
+<target>Configurar diagramas</target></trans-unit>
 </body>
 </file>
 </xliff>

@@ -14,7 +14,12 @@
             "en-GB": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
             "en-CA": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
             "en-AU": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
-            "en-IN": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation."
+            "en-IN": "Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.",
+            "ar": "أنشئ مخططات الفئات والكائنات والتسلسل بلغة UML وتدرّب عليها مع عناصر وحدود وقواعد تحقق قابلة للضبط.",
+            "bg": "Създавайте и упражнявайте UML диаграми на класове, обекти и последователности с настройваеми елементи, ограничения и проверка.",
+            "zh": "创建和练习 UML 类图、对象图和时序图，可配置元素、限制和验证规则。",
+            "zh-Hans": "创建和练习 UML 类图、对象图和时序图，可配置元素、限制和验证规则。",
+            "zh-Hant": "建立並練習 UML 類別圖、物件圖與循序圖，可設定元素、限制及驗證規則。"
         },
         "label": {
             "_": "Uml Diagram",
@@ -26,7 +31,16 @@
             "en-IN": "Uml Diagram",
             "fr": "Diagramme UML",
             "de": "UML-Diagramm",
-            "es": "Diagrama UML"
+            "es": "Diagrama UML",
+            "ar": "مخطط UML",
+            "bg": "UML диаграма",
+            "zh": "UML 图",
+            "zh-Hans": "UML 图",
+            "zh-Hant": "UML 圖",
+            "nl": "UML-diagram",
+            "it": "Diagramma UML",
+            "pl": "Diagram UML",
+            "pt-BR": "Diagrama UML"
         }
     },
     "./widgets/webwriter-uml-diagram": {
@@ -40,7 +54,16 @@
             "en-IN": "UML Diagram",
             "fr": "Diagramme UML",
             "de": "UML-Diagramm",
-            "es": "Diagrama UML"
+            "es": "Diagrama UML",
+            "ar": "مخطط UML",
+            "bg": "UML диаграма",
+            "zh": "UML 图",
+            "zh-Hans": "UML 图",
+            "zh-Hant": "UML 圖",
+            "nl": "UML-diagram",
+            "it": "Diagramma UML",
+            "pl": "Diagram UML",
+            "pt-BR": "Diagrama UML"
         }
     },
     "./snippets/library-loan": {
@@ -58,7 +81,12 @@
             "en-GB": "Library Loan",
             "en-CA": "Library Loan",
             "en-AU": "Library Loan",
-            "en-IN": "Library Loan"
+            "en-IN": "Library Loan",
+            "ar": "إعارة الكتب",
+            "bg": "Заемане на книги",
+            "zh": "图书馆借阅",
+            "zh-Hans": "图书馆借阅",
+            "zh-Hant": "圖書館借閱"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -76,7 +104,12 @@
             "en-GB": "Online Shop",
             "en-CA": "Online Shop",
             "en-AU": "Online Shop",
-            "en-IN": "Online Shop"
+            "en-IN": "Online Shop",
+            "ar": "متجر إلكتروني",
+            "bg": "Онлайн магазин",
+            "zh": "网上商店",
+            "zh-Hans": "网上商店",
+            "zh-Hant": "網路商店"
         }
     }
 }

@@ -61,6 +61,5 @@
     "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
     "./custom-elements.json": "./custom-elements.json"
   },
-  "customElements": "custom-elements.json",
-  "editingConfig": {}
+  "customElements": "custom-elements.json"
 }
