@@ -1,7 +1,7 @@
+import { msg as sourceMsg, type MsgFn } from "@lit/localize";
+import { localizeElement, LocalizedElement } from "../../../localization/localizer";
 import { css, html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { query, state } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SlButton, SlDialog } from "@shoelace-style/shoelace";
 
 export interface ConfirmOptions {
@@ -11,7 +11,7 @@ export interface ConfirmOptions {
 }
 
 /** Confirmation for the toolbar's reset button, which either returns to the checkpoint or clears the diagram */
-export function resetDiagramConfirmOptions(toCheckpoint: boolean): ConfirmOptions {
+export function resetDiagramConfirmOptions(toCheckpoint: boolean, msg: MsgFn = sourceMsg): ConfirmOptions {
     return toCheckpoint
         ? { label: msg("Reset diagram"), message: msg("Do you really want to return to the starting point?"), confirmLabel: msg("Reset") }
         : { label: msg("Clear diagram"), message: msg("Do you really want to clear the diagram?"), confirmLabel: msg("Clear") };
@@ -21,8 +21,8 @@ export function resetDiagramConfirmOptions(toCheckpoint: boolean): ConfirmOption
  * In-widget replacement for the browser's confirm() box, shown over the editor canvas.
  * Emits bubbling, composed "dialog-opened" and "dialog-closed" events like the other dialogs.
  */
-@localized()
-export class ConfirmDialog extends LitElementWw {
+export class ConfirmDialog extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     static get scopedElements() {
         return {
@@ -84,7 +84,7 @@ export class ConfirmDialog extends LitElementWw {
                 @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this.dispatchEvent(new CustomEvent('dialog-closed', { bubbles: true, composed: true })); }}
             >
                 ${this._options.message}
-                <sl-button slot="footer" @click=${() => this._close(false)}>${msg("Cancel")}</sl-button>
+                <sl-button slot="footer" @click=${() => this._close(false)}>${this.messages.msg("Cancel")}</sl-button>
                 <sl-button slot="footer" variant="danger" @click=${() => this._close(true)}>${this._options.confirmLabel}</sl-button>
             </sl-dialog>
         `;

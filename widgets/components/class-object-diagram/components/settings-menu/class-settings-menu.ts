@@ -1,15 +1,14 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SlInput, SlSwitch, SlDivider } from "@shoelace-style/shoelace";
 import { ClassSettings } from "../../models/class-settings-model";
 import styles from "../../../shared/settings-menu.styles";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
 
 /** Settings menu component for the Class and Object Diagram */
-@localized()
-export class ClassSettingsMenu extends LitElementWw {
+export class ClassSettingsMenu extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** styles are shared with the sequence diagram settings menu */
     static styles = [styles];
@@ -74,22 +73,22 @@ export class ClassSettingsMenu extends LitElementWw {
     private _getLabel(key: string): string {
         const labels: Record<string, string> = {
             // In Class/Object Dialog
-            checkEmptyClassNames: msg("No empty class names"),
-            checkEmptyObjectNames: msg("No empty object names"),
-            checkEmptyAttrMethParamFields: msg("No empty attribute, method, or parameter fields"),
-            checkConstructorReturnType: msg("Constructors have no return type"),
-            checkUniqueNames: msg("Unique names"),
-            checkNamingConventions: msg("Naming conventions"),
-            checkModifiers: msg("Valid modifiers"),
-            checkClassConnections: msg("Validate type change"),
-            checkNoConstructorsInObjects: msg("No constructors in objects"),
+            checkEmptyClassNames: this.messages.msg("No empty class names"),
+            checkEmptyObjectNames: this.messages.msg("No empty object names"),
+            checkEmptyAttrMethParamFields: this.messages.msg("No empty attribute, method, or parameter fields"),
+            checkConstructorReturnType: this.messages.msg("Constructors have no return type"),
+            checkUniqueNames: this.messages.msg("Unique names"),
+            checkNamingConventions: this.messages.msg("Naming conventions"),
+            checkModifiers: this.messages.msg("Valid modifiers"),
+            checkClassConnections: this.messages.msg("Validate type change"),
+            checkNoConstructorsInObjects: this.messages.msg("No constructors in objects"),
             // In Relation/Link Dialog
-            checkDependencyStereotypeSyntax: msg("Dependency stereotype syntax"),
-            checkRelationMultiplicitySyntax: msg("Multiplicity syntax"),
-            protectedExists: msg("Protected visibility"),
-            packageExists: msg("Package visibility"),
+            checkDependencyStereotypeSyntax: this.messages.msg("Dependency stereotype syntax"),
+            checkRelationMultiplicitySyntax: this.messages.msg("Multiplicity syntax"),
+            protectedExists: this.messages.msg("Protected visibility"),
+            packageExists: this.messages.msg("Package visibility"),
             // In the Editor
-            checkRelationalLogic: msg("Prevent illegal connections"),
+            checkRelationalLogic: this.messages.msg("Prevent illegal connections"),
         };
         return labels[key] || key;
     }
@@ -133,36 +132,36 @@ export class ClassSettingsMenu extends LitElementWw {
 
         return html`
             <section class="section">
-                <h3 class="section-heading">${msg("Allowed Elements")}</h3>
+                <h3 class="section-heading">${this.messages.msg("Allowed Elements")}</h3>
 
                 ${!isObjectDiagram ? html`
-                    <sl-switch size="small" ?checked=${this.settings.abstractExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'abstractExists')}>${msg("Abstract Class")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.parameterizedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'parameterizedExists')}>${msg("Parameterized Class")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.interfaceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'interfaceExists')}>${msg("Interface")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.annotationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'annotationExists')}>${msg("Annotation")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.recordExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'recordExists')}>${msg("Record")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.enumExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'enumExists')}>${msg("Enumeration")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.dataTypeExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dataTypeExists')}>${msg("Data Type")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.objectExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'objectExists')}>${msg("Object")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.abstractExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'abstractExists')}>${this.messages.msg("Abstract Class")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.parameterizedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'parameterizedExists')}>${this.messages.msg("Parameterized Class")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.interfaceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'interfaceExists')}>${this.messages.msg("Interface")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.annotationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'annotationExists')}>${this.messages.msg("Annotation")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.recordExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'recordExists')}>${this.messages.msg("Record")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.enumExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'enumExists')}>${this.messages.msg("Enumeration")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.dataTypeExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dataTypeExists')}>${this.messages.msg("Data Type")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.objectExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'objectExists')}>${this.messages.msg("Object")}</sl-switch>
                     <sl-divider></sl-divider>
                 ` : ''}
 
                 <sl-switch size="small" ?checked=${this.settings.associationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationExists')}>
-                    ${isObjectDiagram ? msg("Link (Directed)") : msg("Association (Directed)")}
+                    ${isObjectDiagram ? this.messages.msg("Link (Directed)") : this.messages.msg("Association (Directed)")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.associationBidirectionalExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationBidirectionalExists')}>
-                    ${isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)")}
+                    ${isObjectDiagram ? this.messages.msg("Link (Bidirectional)") : this.messages.msg("Association (Bidirectional)")}
                 </sl-switch>
                 <sl-switch size="small" ?checked=${this.settings.associationUndirectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'associationUndirectedExists')}>
-                    ${isObjectDiagram ? msg("Link (Undirected)") : msg("Association (Undirected)")}
+                    ${isObjectDiagram ? this.messages.msg("Link (Undirected)") : this.messages.msg("Association (Undirected)")}
                 </sl-switch>
-                <sl-switch size="small" ?checked=${this.settings.compositionExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'compositionExists')}>${msg("Composition")}</sl-switch>
-                <sl-switch size="small" ?checked=${this.settings.aggregationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'aggregationExists')}>${msg("Aggregation")}</sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.compositionExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'compositionExists')}>${this.messages.msg("Composition")}</sl-switch>
+                <sl-switch size="small" ?checked=${this.settings.aggregationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'aggregationExists')}>${this.messages.msg("Aggregation")}</sl-switch>
 
                 ${!isObjectDiagram ? html`
-                    <sl-switch size="small" ?checked=${this.settings.inheritanceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'inheritanceExists')}>${msg("Inheritance")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.dependencyExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dependencyExists')}>${msg("Dependency")}</sl-switch>
-                    <sl-switch size="small" ?checked=${this.settings.realizationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'realizationExists')}>${msg("Realization")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.inheritanceExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'inheritanceExists')}>${this.messages.msg("Inheritance")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.dependencyExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'dependencyExists')}>${this.messages.msg("Dependency")}</sl-switch>
+                    <sl-switch size="small" ?checked=${this.settings.realizationExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'realizationExists')}>${this.messages.msg("Realization")}</sl-switch>
                     <sl-divider></sl-divider>
                     <sl-switch size="small" ?checked=${this.settings.protectedExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'protectedExists')}>protected (#)</sl-switch>
                     <sl-switch size="small" ?checked=${this.settings.packageExists} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'packageExists')}>package (~)</sl-switch>
@@ -171,27 +170,27 @@ export class ClassSettingsMenu extends LitElementWw {
 
             ${(isObjectDiagram || this.settings.objectExists) ? html`
                 <section class="section">
-                    <h3 class="section-heading">${msg("Object Display Options")}</h3>
+                    <h3 class="section-heading">${this.messages.msg("Object Display Options")}</h3>
                     <sl-switch size="small" ?checked=${this.settings.showMethodsInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showMethodsInObjects')}>
-                        ${msg("Show methods")}
+                        ${this.messages.msg("Show methods")}
                     </sl-switch>
                     <sl-switch size="small" ?checked=${this.settings.showParametersInObjects} ?disabled=${!this.settings.showMethodsInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showParametersInObjects')}>
-                        ${msg("Show parameters")}
+                        ${this.messages.msg("Show parameters")}
                     </sl-switch>
                     <sl-switch size="small" ?checked=${this.settings.showModifiersInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showModifiersInObjects')}>
-                        ${msg("Show modifiers (static, final, …)")}
+                        ${this.messages.msg("Show modifiers (static, final, …)")}
                     </sl-switch>
                     <sl-switch size="small" ?checked=${this.settings.showVisibilityInObjects} @sl-change=${(e: Event) => this._handleSwitchChange(e, 'showVisibilityInObjects')}>
-                        ${msg("Show visibility (+, -, …)")}
+                        ${this.messages.msg("Show visibility (+, -, …)")}
                     </sl-switch>
                 </section>
             ` : ''}
 
             <section class="section">
-                <h3 class="section-heading">${msg("Constraints")}</h3>
+                <h3 class="section-heading">${this.messages.msg("Constraints")}</h3>
                 <sl-input
                     type="number"
-                    label=${msg("Maximum entities")}
+                    label=${this.messages.msg("Maximum entities")}
                     size="small"
                     min="0"
                     .value=${this.settings.maxClasses.toString()}
@@ -199,7 +198,7 @@ export class ClassSettingsMenu extends LitElementWw {
                 ></sl-input>
                 <sl-input
                     type="number"
-                    label=${msg("Maximum connections (total)")}
+                    label=${this.messages.msg("Maximum connections (total)")}
                     size="small"
                     min="0"
                     .value=${this.settings.maxRelations.toString()}
@@ -207,7 +206,7 @@ export class ClassSettingsMenu extends LitElementWw {
                 ></sl-input>
                 <sl-input
                     type="number"
-                    label=${msg("Maximum connections per pair")}
+                    label=${this.messages.msg("Maximum connections per pair")}
                     size="small"
                     min="0"
                     .value=${this.settings.maxNumberRelationsBetweenTwoClasses.toString()}
@@ -216,9 +215,9 @@ export class ClassSettingsMenu extends LitElementWw {
             </section>
 
             <section class="section">
-                <h3 class="section-heading">${msg("Validation")}</h3>
+                <h3 class="section-heading">${this.messages.msg("Validation")}</h3>
                 ${validationDisabled ? html`
-                    <p class="help-text">${msg("Set the validation mode to “Custom” to configure individual rules.")}</p>
+                    <p class="help-text">${this.messages.msg("Set the validation mode to “Custom” to configure individual rules.")}</p>
                 ` : ''}
 
                 ${renderValidationSwitches(entityValidationKeys)}

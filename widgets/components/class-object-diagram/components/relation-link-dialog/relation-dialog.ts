@@ -1,7 +1,7 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html, svg } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
-import { msg, str, localized } from "@lit/localize";
+import { str, msg as sourceMsg, type MsgFn } from "@lit/localize";
 import { live } from 'lit/directives/live.js';
 import { SlButton, SlDialog, SlInput, SlIcon, SlDivider } from "@shoelace-style/shoelace";
 import styles from "./relation-dialog.styles";
@@ -12,7 +12,7 @@ import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 
 /** Resolve display labels at call time so they follow the active locale. */
-export function relationLabel(type: string, isObjectDiagram: boolean): string {
+export function relationLabel(type: string, isObjectDiagram: boolean, msg: MsgFn = sourceMsg): string {
     const labels: Record<string, string> = {
         association: isObjectDiagram ? msg("Link (Directed)") : msg("Association (Directed)"),
         "association-bidirectional": isObjectDiagram ? msg("Link (Bidirectional)") : msg("Association (Bidirectional)"),
@@ -52,8 +52,8 @@ export interface RelationDialogData {
  * Dialog component for editing relation properties and to add association classes incl a live visual preview 
  * of the connection 
  */
-@localized()
-export class RelationDialog extends LitElementWw {
+export class RelationDialog extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** Styles defined in relation-dialog.styles.ts */
     static styles = [styles];
@@ -259,14 +259,14 @@ export class RelationDialog extends LitElementWw {
         if (!this._isValidMultiplicity(sMult)) {
             issues.push({
                 target: 'sourceMultiplicity',
-                message: msg("Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*."),
+                message: this.messages.msg("Invalid source multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
         if (!this._isValidMultiplicity(tMult)) {
             issues.push({
                 target: 'targetMultiplicity',
-                message: msg("Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*."),
+                message: this.messages.msg("Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*."),
                 settingKey: 'checkRelationMultiplicitySyntax'
             });
         }
@@ -277,7 +277,7 @@ export class RelationDialog extends LitElementWw {
             if (!stereotypeRegex.test(name.trim())) {
                 issues.push({
                     target: 'name',
-                    message: msg(str`Dependency stereotypes must be wrapped in ${"<< >>"} or ${"« »"}.`),
+                    message: this.messages.msg(str`Dependency stereotypes must be wrapped in ${"<< >>"} or ${"« »"}.`),
                     settingKey: 'checkDependencyStereotypeSyntax'
                 });
             }
@@ -415,14 +415,14 @@ export class RelationDialog extends LitElementWw {
 
         const isObjectDiagram = this.diagramType === 'object-diagram';
 
-        const nameLabel = type === 'dependency' ? msg("Stereotype") : (isObjectDiagram ? msg("Link Name") : msg("Relation Name"));
+        const nameLabel = type === 'dependency' ? this.messages.msg("Stereotype") : (isObjectDiagram ? this.messages.msg("Link Name") : this.messages.msg("Relation Name"));
 
         return html`
             <sl-dialog 
                 id="relation-dialog" 
                 label=${isObjectDiagram
-                    ? msg(str`Edit link: ${relationLabel(type, isObjectDiagram)}`)
-                    : msg(str`Edit relation: ${relationLabel(type, isObjectDiagram)}`)}
+                    ? this.messages.msg(str`Edit link: ${relationLabel(type, isObjectDiagram, this.messages.msg)}`)
+                    : this.messages.msg(str`Edit relation: ${relationLabel(type, isObjectDiagram, this.messages.msg)}`)}
                 @sl-request-close=${(e: CustomEvent) => {
                     if (e.detail.source === 'overlay') e.preventDefault();
                 }}
@@ -456,10 +456,10 @@ export class RelationDialog extends LitElementWw {
                         <div style="display: flex; gap: 15px;">
                             
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Source")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${this.messages.msg("Source")}</span>
                                 <sl-input 
                                     autocomplete="off"
-                                    label="${msg('Role')}" 
+                                    label="${this.messages.msg('Role')}"
                                     .value=${live(this._dialogData.data.sourceRole)}
                                     @sl-input=${(e: any) => this._handleInputChange('sourceRole', e)}
                                 ></sl-input>
@@ -467,7 +467,7 @@ export class RelationDialog extends LitElementWw {
                                     <sl-input 
                                         autocomplete="off"
                                         class=${this._focusedField !== 'sourceMultiplicity' && this._touchedFields.has('sourceMultiplicity') && this._activeIssues.find(i => i.target === 'sourceMultiplicity') ? 'has-error' : ''}
-                                        label="${msg('Multiplicity')}" 
+                                        label="${this.messages.msg('Multiplicity')}"
                                         .value=${live(this._dialogData.data.sourceMultiplicity)}
                                         @sl-input=${(e: any) => this._handleInputChange('sourceMultiplicity', e)}
                                         @sl-blur=${(e: any) => { this._handleInputChange('sourceMultiplicity', { target: { value: e.target.value.trim() } }); this._handleBlur('sourceMultiplicity'); }}
@@ -485,10 +485,10 @@ export class RelationDialog extends LitElementWw {
                             <sl-divider vertical style="height: auto;"></sl-divider>
 
                             <div style="flex: 1; display: flex; flex-direction: column; gap: 5px;">
-                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${msg("Target")}</span>
+                                <span style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-600);">${this.messages.msg("Target")}</span>
                                 <sl-input 
                                     autocomplete="off"
-                                    label="${msg('Role')}" 
+                                    label="${this.messages.msg('Role')}"
                                     .value=${live(this._dialogData.data.targetRole)}
                                     @sl-input=${(e: any) => this._handleInputChange('targetRole', e)}
                                 ></sl-input>
@@ -496,7 +496,7 @@ export class RelationDialog extends LitElementWw {
                                     <sl-input 
                                         autocomplete="off"
                                         class=${this._focusedField !== 'targetMultiplicity' && this._touchedFields.has('targetMultiplicity') && this._activeIssues.find(i => i.target === 'targetMultiplicity') ? 'has-error' : ''}
-                                        label="${msg('Multiplicity')}" 
+                                        label="${this.messages.msg('Multiplicity')}"
                                         .value=${live(this._dialogData.data.targetMultiplicity)}
                                         @sl-input=${(e: any) => this._handleInputChange('targetMultiplicity', e)}
                                         @sl-blur=${(e: any) => { this._handleInputChange('targetMultiplicity', { target: { value: e.target.value.trim() } }); this._handleBlur('targetMultiplicity'); }}
@@ -516,7 +516,7 @@ export class RelationDialog extends LitElementWw {
 
                     ${(!showName && !showProperties) ? html`
                         <p style="color: var(--sl-color-neutral-500); font-style: italic; text-align: center;">
-                            ${msg("This relation type has no editable properties.")}
+                            ${this.messages.msg("This relation type has no editable properties.")}
                         </p>
                     ` : ''}
 
@@ -525,7 +525,7 @@ export class RelationDialog extends LitElementWw {
                 <div slot="footer" class="footer-container">
                     <sl-button variant="danger" outline @click=${this._delete}>
                         <sl-icon slot="prefix" src=${trashIcon}></sl-icon>
-                        ${msg("Delete")}
+                        ${this.messages.msg("Delete")}
                     </sl-button>
 
                     <div style="display: flex; gap: 10px;">
@@ -533,12 +533,12 @@ export class RelationDialog extends LitElementWw {
                         ${((type === 'association' || type === 'association-bidirectional' || type === 'association-undirected') && !isObjectDiagram) ? html`
                             <sl-button @click=${this._saveAndAddClass}>
                                 <sl-icon slot="prefix" src=${plusIcon}></sl-icon>
-                                ${msg("Save & Add Association Class")}
+                                ${this.messages.msg("Save & Add Association Class")}
                             </sl-button>
                         ` : ''}
                         
                         <sl-button variant="primary" @click=${this._save}>
-                            ${msg("Save")}
+                            ${this.messages.msg("Save")}
                         </sl-button>
                     </div>
                 </div>

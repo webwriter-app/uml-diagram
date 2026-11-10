@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html, PropertyValues } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { state, property, query } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SequenceToolbar } from "../toolbar/sequence-diagram-toolbar";
 import { SequenceEditor } from "../editor/sequence-diagram-editor";
 import { SequenceModel } from "../../models/sequence-model"; 
@@ -15,8 +14,8 @@ import { resetDiagramConfirmOptions } from "../../../shared/confirm-dialog";
 export type InteractionMode = 'idle' | 'add-message-source' | 'add-message-target' | 'add-activation' | 'creating-fragment-start' | 'creating-fragment-end';
 
 /** Controller for the sequence diagram whitch connects the toolbar and the editor */
-@localized()
-export class SequenceDiagramContainer extends LitElementWw {
+export class SequenceDiagramContainer extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** register all used elements */
     static get scopedElements() {
@@ -81,7 +80,7 @@ export class SequenceDiagramContainer extends LitElementWw {
     /** clear the diagram and cancel all interaction mode */
     private async _handleClearDiagram() {
         const toCheckpoint = !!(this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined);
-        if (!await this._editor.confirm(resetDiagramConfirmOptions(toCheckpoint))) return;
+        if (!await this._editor.confirm(resetDiagramConfirmOptions(toCheckpoint, this.messages.msg))) return;
         if (toCheckpoint) {
             const checkpointModel = typeof this.checkpoint === 'string' 
                 ? Object.assign(new SequenceModel(), JSON.parse(this.checkpoint))
@@ -449,7 +448,7 @@ export class SequenceDiagramContainer extends LitElementWw {
                 m => m.type === 'destroy' && m.targetId === targetId
             );
             if (isAlreadyDestroyed) {
-                this._editor.showNotice(msg("This object is already destroyed by another message. A lifeline can only be destroyed once."));
+                this._editor.showNotice(this.messages.msg("This object is already destroyed by another message. A lifeline can only be destroyed once."));
                 this._cancelInteractionMode();
                 return; 
             }

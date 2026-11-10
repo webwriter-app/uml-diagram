@@ -9,8 +9,8 @@
     /* eslint-disable @typescript-eslint/no-explicit-any */
 
     export const templates = {
-      'h57ece0fa758616cc': html`Sélectionner la cible pour <strong>${0}</strong>.`,
-'hceb6b469c6b23074': html`Sélectionner la source pour <strong>${0}</strong>.`,
+      'h57ece0fa758616cc': html`Sélectionnez la cible de <strong>${0}</strong>.`,
+'hceb6b469c6b23074': html`Sélectionnez la source de <strong>${0}</strong>.`,
 's0106c15e1468a3d2': `Association (non orientée)`,
 's013da3bd28572090': `Pas de conditions de garde vides`,
 's01605966c0d9e035': `Sélectionner la ligne de vie émettrice`,
@@ -21,6 +21,7 @@
 's03d65710697fd97d': `Ligne de vie`,
 's046ab0452168e910': `Nom du lien`,
 's04e8dd2408bb5679': `Ajouter des classes via la barre d'outils ci-dessus.`,
+'s058347bd6f29cf9c': `Diagramme à afficher`,
 's068d4dd16d9106d0': `Icône`,
 's06efc5a06fc561c0': `Nombre maximal de fragments`,
 's07a98665df0cc39f': `Type de fragment`,
@@ -50,6 +51,7 @@
 's1dd9f63bc66e96ac': `Appels et réponses`,
 's1de38819c1d0c545': `Nombre maximal de connexions par paire atteint`,
 's1fe1cdb946325ffc': `Types de données`,
+'s212f185f2dbf21cd': `Diagramme de séquence`,
 's21440422897eb31d': `Afficher la visibilité (+, -, …)`,
 's218ad755220e323e': `Message de destruction`,
 's220a5d7255e5ddd3': `Abstraite`,
@@ -58,6 +60,7 @@
 's255857544a9d5ec0': `Réinitialiser`,
 's25643db2f7ef8544': `Réponse (return)`,
 's25f8ef11d9d27e69': `Les énumérations et les records ne peuvent pas étendre d'autres classes.`,
+'s291a39fba48727be': `Diagramme de classes`,
 's2a217b6575bc8407': `Nom du message`,
 's2a9fd53c400e3ce4': `Les types de données et les énumérations ne peuvent pas être la source d'une association.`,
 's2b295702e7140ab7': `Le nom de la classe est obligatoire.`,
@@ -98,6 +101,7 @@
 's4b2e141387a48891': `Trouvés et perdus`,
 's4b43ba347d4af4c7': `Les classes ne peuvent pas étendre d'interfaces. Utiliser une réalisation pour implémenter une interface.`,
 's4b5705c599e644d1': `Les noms d'objets doivent commencer par une minuscule (p. ex. monObjet).`,
+'s4dc5fa690dd0e9f3': `Configurer les diagrammes`,
 's4e9f04b77775b01e': `Diagramme de classes`,
 's4efee5b48a4593cb': `Boucle`,
 's4f27f6b48a68b5c2': `Cadenas`,
@@ -123,6 +127,7 @@
 's5c18f85cda6e89be': `Connexions`,
 's5e4c3efb85a89e1d': `Horloge`,
 's5e7b43fb85d0175e': `Nuage`,
+'s5e8250fb85d64c23': `Fermer`,
 's5f43af3669b1e098': `Source`,
 's5f999ce323167f71': `Asynchrone`,
 's633876602eda63e7': `Le nom de l'attribut est obligatoire.`,
@@ -145,6 +150,7 @@
 's79c23de608bf327c': `Le type de classe sélectionné ne peut pas être la cible d'une réalisation. Seules les interfaces sont des cibles valides.`,
 's79d527d97ba1c163': `Ajouter un paramètre`,
 's79e8cc71a5975b04': `Message`,
+'s7a48bce566a50baf': `Diagramme d’objets`,
 's7d02f7fdf88760d7': `Les noms de paramètres ne doivent pas contenir d'espaces.`,
 's7ef8dbd64456f3ff': `Pas de type de retour pour les constructeurs`,
 's7f139035aaa81544': `Les objets ne peuvent pas être la cible de relations d'héritage ou de réalisation.`,
@@ -282,4 +288,3 @@
 'sfc49bac6b16bbe35': `Ajouter une valeur`,
 'sff5bb7742c2896c8': `Cible`,
     };
-  

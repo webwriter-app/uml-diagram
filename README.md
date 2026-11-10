@@ -42,14 +42,7 @@ npm install @webwriter/uml-diagram
 ## Fields
 | Name (Attribute Name) | Type | Description | Default | Reflects |
 | :-------------------: | :--: | :---------: | :-----: | :------: |
-| `classSettings` (`class-settings`) | `ClassSettings` | Class diagram settings as JSON: available class and relation types, limits and validation rules | - | ✓ |
-| `objectSettings` (`object-settings`) | `ClassSettings` | Object diagram settings as JSON: available elements, displayed details, limits and validation rules | - | ✓ |
-| `sequenceSettings` (`sequence-settings`) | `SequenceSettings` | Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules | - | ✓ |
-| `globalSettings` (`global-settings`) | `GlobalSettings` | Global settings as JSON: enabled diagram types, checkpoint reset and validation mode | - | ✓ |
 | `diagramType` (`diagram-type`) | `string` | Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram` | `"class-diagram"` | ✓ |
-| `sequenceModelData` (`sequence-model-data`) | `SequenceModel` | Sequence diagram content as JSON (lifelines, messages and fragments) | - | ✓ |
-| `classDiagramData` (`class-diagram-data`) | `string` | Class diagram content as JSON | `''` | ✓ |
-| `objectDiagramData` (`object-diagram-data`) | `string` | Object diagram content as JSON | `''` | ✓ |
 
 *Fields including [properties](https://developer.mozilla.org/en-US/docs/Glossary/Property/JavaScript) and [attributes](https://developer.mozilla.org/en-US/docs/Glossary/Attribute) define the current state of the widget and offer customization options.*
 

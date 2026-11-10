@@ -1,6 +1,7 @@
+import { localizeElement, LocalizedElement } from "../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
-import { customElement, property } from "lit/decorators.js";
+import { type OptionDeclaration } from "@webwriter/lit";
+import { customElement, property, state } from "lit/decorators.js";
 import '@shoelace-style/shoelace/dist/themes/light.css';
 import { ClassObjectContainer } from "./components/class-object-diagram/components/class-object-container/class-object-container";
 import { ClassSettings } from "./components/class-object-diagram/models/class-settings-model";
@@ -11,20 +12,41 @@ import { GlobalSettingsMenu } from "./components/global-settings/global-settings
 import { SequenceModel } from "./components/sequence-diagram/models/sequence-model";
 import { DiagramTabs, visibleDiagramTypes } from "./components/diagram-tabs/diagram-tabs";
 import styles from "./webwriter-uml-diagram.styles";
-import { localized } from "@lit/localize";
-import LOCALIZE from "../localization/generated";
+import { readData, writeData } from "./data-state";
 
 /**
  * Interactive editor for UML class, object and sequence diagrams.
  * Authors configure the available diagram types, elements, limits and validation rules and can provide a
  * starting diagram that learners can reset to. Learners model their solution directly in the widget.
+ * @slot data - Direct application/json block stores diagram settings and authored models.
  */
-@localized()
 @customElement("webwriter-uml-diagram")
-export class WebwriterUmlDiagram extends LitElementWw {
+export class WebwriterUmlDiagram extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
+    get options(): Record<string, OptionDeclaration> {
+        return {
+          diagramType: {
+              type: "select",
+              label: { _: this.messages.msg("Diagram to show") },
+              options: [
+                  { value: "class-diagram", label: { _: this.messages.msg("Class diagram") } },
+                  { value: "object-diagram", label: { _: this.messages.msg("Object diagram") } },
+                  { value: "sequence-diagram", label: { _: this.messages.msg("Sequence diagram") } },
+              ],
+          },
+      };
+    }
+    get actions() {
+        return {
+          openSettings: { label: { _: this.messages.msg("Configure diagrams") }, icon: "Settings", intent: "default" },
+      };
+    }
 
-    /** @internal Localization config; WebWriter uses it to set the locale of the widget */
-    public localize = LOCALIZE;
+    @state() private accessor settingsOpen = false;
+
+    openSettings() {
+        this.settingsOpen = true;
+    }
 
     /** @internal Register used Elements */
     static get scopedElements() {
@@ -48,91 +70,33 @@ export class WebwriterUmlDiagram extends LitElementWw {
     /** Create References & States */
 
     /** Class diagram settings as JSON: available class and relation types, limits and validation rules */
-    @property({
-        attribute: 'class-settings',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string) => {
-                if (!value) return ClassSettings.getInitialClassDiagramSettings();
-                try { return Object.assign(new ClassSettings(), JSON.parse(value)); }
-                catch { return ClassSettings.getInitialClassDiagramSettings(); }
-            },
-            toAttribute: (value: ClassSettings) => JSON.stringify(value)
-        }
-    })
+    @property({ attribute: false })
     accessor classSettings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
 
     /** Object diagram settings as JSON: available elements, displayed details, limits and validation rules */
-    @property({
-        attribute: 'object-settings',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string) => {
-                if (!value) return ClassSettings.getInitialObjectDiagramSettings();
-                try { return Object.assign(new ClassSettings(), JSON.parse(value)); }
-                catch { return ClassSettings.getInitialObjectDiagramSettings(); }
-            },
-            toAttribute: (value: ClassSettings) => JSON.stringify(value)
-        }
-    })
+    @property({ attribute: false })
     accessor objectSettings: ClassSettings = ClassSettings.getInitialObjectDiagramSettings();
 
     /** Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules */
-    @property({
-        attribute: 'sequence-settings',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string) => {
-                if (!value) return SequenceSettings.getInitialSequenceSettings();
-                try { 
-                    const initial = SequenceSettings.getInitialSequenceSettings();
-                    return Object.assign(initial, JSON.parse(value));
-                }
-                catch { return SequenceSettings.getInitialSequenceSettings(); }
-            },
-            toAttribute: (value: SequenceSettings) => JSON.stringify(value)
-        }
-    })
+    @property({ attribute: false })
     accessor sequenceSettings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
 
     /** Global settings as JSON: enabled diagram types, checkpoint reset and validation mode */
-    @property({
-        attribute: 'global-settings',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string) => {
-                if (!value) return GlobalSettings.getInitialGlobalSettings();
-                try { return Object.assign(new GlobalSettings(), JSON.parse(value)); }
-                catch { return GlobalSettings.getInitialGlobalSettings(); }
-            },
-            toAttribute: (value: GlobalSettings) => JSON.stringify(value)
-        }
-    })
+    @property({ attribute: false })
     accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
 
     /** Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram` */
     @property({ attribute: 'diagram-type', reflect: true }) accessor diagramType: string = "class-diagram";
 
     /** Sequence diagram content as JSON (lifelines, messages and fragments) */
-    @property({
-        attribute: 'sequence-model-data',
-        reflect: true,
-        converter: {
-            fromAttribute: (value: string) => {
-                if (!value) return SequenceModel.getInitialModel();
-                try { return Object.assign(new SequenceModel(), JSON.parse(value)); }
-                catch { return SequenceModel.getInitialModel(); }
-            },
-            toAttribute: (value: SequenceModel) => JSON.stringify(value)
-        }
-    })
+    @property({ attribute: false })
     accessor sequenceModelData: SequenceModel = SequenceModel.getInitialModel();
 
     /** Class diagram content as JSON */
-    @property({ attribute: 'class-diagram-data', reflect: true }) accessor classDiagramData: string = '';
+    @property({ attribute: false }) accessor classDiagramData: string = '';
 
     /** Object diagram content as JSON */
-    @property({ attribute: 'object-diagram-data', reflect: true }) accessor objectDiagramData: string = '';
+    @property({ attribute: false }) accessor objectDiagramData: string = '';
 
     /**
      * Checkpoints learners can return to: the diagrams as saved by the author, i.e. as loaded.
@@ -152,24 +116,74 @@ export class WebwriterUmlDiagram extends LitElementWw {
     /** Pending diagram changes by diagram type, applied together after SAVE_DELAY */
     private _pendingSaves = new Map<string, () => void>();
     private _saveTimeout?: ReturnType<typeof setTimeout>;
+    private _skipDataWrite = false;
+    private _dataObserver = new MutationObserver(() => this._restoreData());
+
+    private _restoreData() {
+        const data = readData(this);
+        let changed = false;
+        const setIfChanged = (current: unknown, value: unknown, set: () => void) => {
+            if (value !== undefined && JSON.stringify(value) !== JSON.stringify(current)) {
+                set();
+                changed = true;
+            }
+        };
+        setIfChanged(this.classSettings, data.classSettings, () => this.classSettings = Object.assign(ClassSettings.getInitialClassDiagramSettings(), data.classSettings));
+        setIfChanged(this.objectSettings, data.objectSettings, () => this.objectSettings = Object.assign(ClassSettings.getInitialObjectDiagramSettings(), data.objectSettings));
+        setIfChanged(this.sequenceSettings, data.sequenceSettings, () => this.sequenceSettings = Object.assign(SequenceSettings.getInitialSequenceSettings(), data.sequenceSettings));
+        setIfChanged(this.globalSettings, data.globalSettings, () => this.globalSettings = Object.assign(GlobalSettings.getInitialGlobalSettings(), data.globalSettings));
+        setIfChanged(this.sequenceModelData, data.sequenceModelData, () => this.sequenceModelData = Object.assign(SequenceModel.getInitialModel(), data.sequenceModelData));
+        const classData = data.classDiagramData;
+        if (classData !== undefined) setIfChanged(this.classDiagramData, typeof classData === 'string' ? classData : JSON.stringify(classData), () => this.classDiagramData = typeof classData === 'string' ? classData : JSON.stringify(classData));
+        const objectData = data.objectDiagramData;
+        if (objectData !== undefined) setIfChanged(this.objectDiagramData, typeof objectData === 'string' ? objectData : JSON.stringify(objectData), () => this.objectDiagramData = typeof objectData === 'string' ? objectData : JSON.stringify(objectData));
+        if (changed) this._skipDataWrite = true;
+    }
+
+    private _writeData() {
+        const parse = (value: string) => {
+            try { return JSON.parse(value); } catch { return value; }
+        };
+        writeData(this, {
+            classSettings: this.classSettings,
+            objectSettings: this.objectSettings,
+            sequenceSettings: this.sequenceSettings,
+            globalSettings: this.globalSettings,
+            sequenceModelData: this.sequenceModelData,
+            classDiagramData: parse(this.classDiagramData),
+            objectDiagramData: parse(this.objectDiagramData),
+        });
+    }
 
     protected willUpdate() {
         if (!this.hasUpdated) {
-            this._classDiagramCheckpoint = this.getAttribute('class-diagram-data') ?? '';
-            this._objectDiagramCheckpoint = this.getAttribute('object-diagram-data') ?? '';
-            this._sequenceDiagramCheckpoint = this.getAttribute('sequence-model-data') ?? '';
+            this._classDiagramCheckpoint = this.classDiagramData;
+            this._objectDiagramCheckpoint = this.objectDiagramData;
+            this._sequenceDiagramCheckpoint = JSON.stringify(this.sequenceModelData);
         }
     }
 
     connectedCallback() {
         super.connectedCallback();
+        this._restoreData();
+        this._dataObserver.observe(this, { childList: true, subtree: true });
         this.ownerDocument.addEventListener('mousedown', this._clearProseMirrorNodeSelection);
     }
 
     disconnectedCallback() {
         this._flushSaves();
+        this._dataObserver.disconnect();
         this.ownerDocument.removeEventListener('mousedown', this._clearProseMirrorNodeSelection);
         super.disconnectedCallback();
+    }
+
+    protected updated(changed: Map<PropertyKey, unknown>) {
+        super.updated(changed as any);
+        const dataChanged = ['classSettings', 'objectSettings', 'sequenceSettings', 'globalSettings', 'sequenceModelData', 'classDiagramData', 'objectDiagramData'].some((key) => changed.has(key));
+        if (this.hasUpdated && dataChanged && !this._skipDataWrite) {
+            this._writeData();
+        }
+        if (dataChanged) this._skipDataWrite = false;
     }
 
     /**
@@ -362,14 +376,16 @@ export class WebwriterUmlDiagram extends LitElementWw {
                 </div>
             </div>
 
-            <global-settings-menu
-                part="options"
-                .globalSettings=${this.globalSettings}
-                .classSettings=${this.classSettings}
-                .objectSettings=${this.objectSettings}
-                .sequenceSettings=${this.sequenceSettings}
-                @settings-changed=${this._handleSettingsUpdate}
-            ></global-settings-menu>
+            <dialog style="max-width: min(56rem, 90vw); max-height: 85vh; overflow: auto" ?open=${this.settingsOpen} @close=${() => this.settingsOpen = false}>
+                <button type="button" @click=${() => this.settingsOpen = false}>${this.messages.msg("Close")}</button>
+                <global-settings-menu
+                    .globalSettings=${this.globalSettings}
+                    .classSettings=${this.classSettings}
+                    .objectSettings=${this.objectSettings}
+                    .sequenceSettings=${this.sequenceSettings}
+                    @settings-changed=${this._handleSettingsUpdate}
+                ></global-settings-menu>
+            </dialog>
         `;
     }
 }

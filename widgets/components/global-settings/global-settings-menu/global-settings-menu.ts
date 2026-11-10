@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { SlDetails, SlSwitch, SlDivider, SlSelect, SlOption } from "@shoelace-style/shoelace";
 import { GlobalSettings } from "../global-settings-model";
 import { ClassSettings } from "../../class-object-diagram/models/class-settings-model";
@@ -16,8 +15,8 @@ import styles from "./global-settings-menu.styles"
  * Shows the general settings at the top, followed by one expandable section per diagram type
  * with its enable switch and the diagram specific settings menu.
  */
-@localized()
-export class GlobalSettingsMenu extends LitElementWw {
+export class GlobalSettingsMenu extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** Register used Elements */
     static get scopedElements() {
@@ -109,7 +108,7 @@ export class GlobalSettingsMenu extends LitElementWw {
                 <div slot="summary" class="diagram-summary">
                     <sl-switch
                         size="small"
-                        aria-label=${msg("Enabled")}
+                        aria-label=${this.messages.msg("Enabled")}
                         ?checked=${enabled}
                         ?disabled=${isLastEnabled}
                         @click=${keepFromHeader}
@@ -128,25 +127,25 @@ export class GlobalSettingsMenu extends LitElementWw {
             <section class="section">
                 <sl-select
                     size="small"
-                    label=${msg("Validation Mode")}
+                    label=${this.messages.msg("Validation Mode")}
                     .value=${this.globalSettings.validationMode}
                     @sl-change=${this._handleValidationModeChange}
                 >
-                    <sl-option value="off">${msg("Off")}</sl-option>
-                    <sl-option value="custom">${msg("Custom")}</sl-option>
-                    <sl-option value="all">${msg("All")}</sl-option>
+                    <sl-option value="off">${this.messages.msg("Off")}</sl-option>
+                    <sl-option value="custom">${this.messages.msg("Custom")}</sl-option>
+                    <sl-option value="all">${this.messages.msg("All")}</sl-option>
                 </sl-select>
                 <sl-switch
                     size="small"
                     ?checked=${this.globalSettings.useCheckpoint}
                     @sl-change=${(e: Event) => this._handleGlobalSwitchChange(e, 'useCheckpoint')}
                 >
-                    ${msg("Use Checkpoint")}
+                    ${this.messages.msg("Use Checkpoint")}
                 </sl-switch>
             </section>
 
             <div class="diagram-sections">
-                ${this._renderDiagramSection(msg("Class Diagram"), 'classDiagramEnabled', html`
+                ${this._renderDiagramSection(this.messages.msg("Class Diagram"), 'classDiagramEnabled', html`
                     <class-settings-menu
                         .settings=${this.classSettings}
                         .globalSettings=${this.globalSettings}
@@ -154,7 +153,7 @@ export class GlobalSettingsMenu extends LitElementWw {
                     ></class-settings-menu>
                 `)}
 
-                ${this._renderDiagramSection(msg("Object Diagram"), 'objectDiagramEnabled', html`
+                ${this._renderDiagramSection(this.messages.msg("Object Diagram"), 'objectDiagramEnabled', html`
                     <class-settings-menu
                         .settings=${this.objectSettings}
                         .globalSettings=${this.globalSettings}
@@ -162,7 +161,7 @@ export class GlobalSettingsMenu extends LitElementWw {
                     ></class-settings-menu>
                 `)}
 
-                ${this._renderDiagramSection(msg("Sequence Diagram"), 'sequenceDiagramEnabled', html`
+                ${this._renderDiagramSection(this.messages.msg("Sequence Diagram"), 'sequenceDiagramEnabled', html`
                     <sequence-diagram-settings-menu
                         .settings=${this.sequenceSettings}
                         .globalSettings=${this.globalSettings}

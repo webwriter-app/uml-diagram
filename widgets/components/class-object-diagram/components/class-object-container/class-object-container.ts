@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { property, query, state } from "lit/decorators.js";
-import { localized } from "@lit/localize";
 import { ClassToolbar } from "../toolbar/class-toolbar";
 import { UMLEditor } from "../editor/uml-editor";
 import { ClassSettings } from "../../models/class-settings-model";
@@ -10,8 +9,8 @@ import { GlobalSettings } from "../../../global-settings/global-settings-model";
 import { resetDiagramConfirmOptions } from "../../../shared/confirm-dialog";
 
 /** Container for the Class or Object Diagram (middleman to manage interaction) */
-@localized()
-export class ClassObjectContainer extends LitElementWw {
+export class ClassObjectContainer extends LocalizedElement {
+    protected readonly messages = localizeElement(this);
 
     /** Register used Elements */
     static get scopedElements() {
@@ -103,7 +102,7 @@ export class ClassObjectContainer extends LitElementWw {
     private async _handleClear() {
         if (!this.editor) return;
         const toCheckpoint = !!(this.globalSettings.useCheckpoint && this.checkpoint && this.contentEditable === undefined);
-        if (!await this.editor.confirm(resetDiagramConfirmOptions(toCheckpoint))) return;
+        if (!await this.editor.confirm(resetDiagramConfirmOptions(toCheckpoint, this.messages.msg))) return;
         if (toCheckpoint) {
             this.editor.loadCheckpoint(this.checkpoint);
         } else {

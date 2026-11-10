@@ -123,6 +123,7 @@
 's5c18f85cda6e89be': `Conexões`,
 's5e4c3efb85a89e1d': `Relógio`,
 's5e7b43fb85d0175e': `Nuvem`,
+'s5e8250fb85d64c23': `Fechar`,
 's5f43af3669b1e098': `Origem`,
 's5f999ce323167f71': `Assíncrona`,
 's633876602eda63e7': `O nome do atributo é obrigatório.`,
@@ -281,5 +282,9 @@
 'sfbcefc193ef97dd5': `Nome da instância`,
 'sfc49bac6b16bbe35': `Adicionar valor`,
 'sff5bb7742c2896c8': `Destino`,
+'s058347bd6f29cf9c': `Diagram to show`,
+'s291a39fba48727be': `Class diagram`,
+'s7a48bce566a50baf': `Object diagram`,
+'s212f185f2dbf21cd': `Sequence diagram`,
+'s4dc5fa690dd0e9f3': `Configure diagrams`,
     };
-  

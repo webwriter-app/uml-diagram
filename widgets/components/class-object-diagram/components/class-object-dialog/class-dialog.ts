@@ -1,7 +1,6 @@
+import { localizeElement, LocalizedElement } from "../../../../../localization/localizer";
 import { html } from "lit";
-import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
-import { msg, localized } from "@lit/localize";
 import { ClassModel, ClassAttribute, ClassMethod } from "../../models/class-model";
 import { live } from 'lit/directives/live.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -28,8 +27,8 @@ export interface RelationConstraint {
 }
 
 /** Defines a dialog for editing classes/objects */
-@localized()
-export class ClassDialog extends LitElementWw{
+export class ClassDialog extends LocalizedElement{
+    protected readonly messages = localizeElement(this);
 
     /** Styles are set in seperate file (./class-dialog.styles.ts) */
     static styles = [styles];
@@ -427,7 +426,7 @@ export class ClassDialog extends LitElementWw{
         if (isObject && (!d.objectName || d.objectName.trim() === '')) {
             issues.push({
                 target: 'objectname',
-                message: msg('Object name is required.'),
+                message: this.messages.msg('Object name is required.'),
                 settingKey: 'checkEmptyObjectNames'
             });
         }
@@ -436,7 +435,7 @@ export class ClassDialog extends LitElementWw{
         if (!d.name || d.name.trim() === '') {
             issues.push({
                 target: 'classname',
-                message: msg('Class name is required.'),
+                message: this.messages.msg('Class name is required.'),
                 settingKey: 'checkEmptyClassNames'
             });
         }
@@ -445,7 +444,7 @@ export class ClassDialog extends LitElementWw{
         if (d.name && d.name.trim() !== '' && this._existingNames.includes(d.name)) {
             issues.push({
                 target: 'classname',
-                message: msg('This name is already used by another class.'),
+                message: this.messages.msg('This name is already used by another class.'),
                 settingKey: 'checkUniqueNames'
             });
         }
@@ -454,7 +453,7 @@ export class ClassDialog extends LitElementWw{
         if (isObject && d.objectName && /^[A-Z]/.test(d.objectName.trim())) {
             issues.push({
                 target: 'objectname',
-                message: msg('Object names should start with a lowercase letter.'),
+                message: this.messages.msg('Object names should start with a lowercase letter.'),
                 settingKey: 'checkNamingConventions'
             });
         }
@@ -463,7 +462,7 @@ export class ClassDialog extends LitElementWw{
         if (isObject && d.objectName && /\s/.test(d.objectName.trim())) {
             issues.push({
                 target: 'objectname',
-                message: msg('Object names must not contain spaces.'),
+                message: this.messages.msg('Object names must not contain spaces.'),
                 settingKey: 'checkNamingConventions'
             });
         }
@@ -472,7 +471,7 @@ export class ClassDialog extends LitElementWw{
         if (d.name && /^[a-z]/.test(d.name.trim())) {
             issues.push({
                 target: 'classname',
-                message: msg('Class names should start with an uppercase letter.'),
+                message: this.messages.msg('Class names should start with an uppercase letter.'),
                 settingKey: 'checkNamingConventions'
             });
         }
@@ -481,7 +480,7 @@ export class ClassDialog extends LitElementWw{
         if (d.name && /\s/.test(d.name.trim())) {
             issues.push({
                 target: 'classname',
-                message: msg('Class names must not contain spaces.'),
+                message: this.messages.msg('Class names must not contain spaces.'),
                 settingKey: 'checkNamingConventions'
             });
         }
@@ -493,7 +492,7 @@ export class ClassDialog extends LitElementWw{
             if (!attr.name || attr.name.trim() === '') {
                 issues.push({
                     target: `attr-${index}-name`,
-                    message: msg('Attribute name is required.'),
+                    message: this.messages.msg('Attribute name is required.'),
                     settingKey: 'checkEmptyAttrMethParamFields'
                 });
             }
@@ -502,7 +501,7 @@ export class ClassDialog extends LitElementWw{
             if (!attr.type || attr.type.trim() === '') {
                 issues.push({
                     target: `attr-${index}-type`,
-                    message: msg('Attribute type is required.'),
+                    message: this.messages.msg('Attribute type is required.'),
                     settingKey: 'checkEmptyAttrMethParamFields'
                 });
             }
@@ -512,7 +511,7 @@ export class ClassDialog extends LitElementWw{
             if (duplicate) {
                 issues.push({
                     target: `attr-${index}-name`,
-                    message: msg('Duplicate attribute name.'),
+                    message: this.messages.msg('Duplicate attribute name.'),
                     settingKey: 'checkUniqueNames'
                 });
             }
@@ -521,7 +520,7 @@ export class ClassDialog extends LitElementWw{
             if (attr.name && /^[A-Z]/.test(attr.name.trim())) {
                 issues.push({
                     target: `attr-${index}-name`,
-                    message: msg('Attribute names should start with a lowercase letter.'),
+                    message: this.messages.msg('Attribute names should start with a lowercase letter.'),
                     settingKey: 'checkNamingConventions'
                 });
             }
@@ -530,7 +529,7 @@ export class ClassDialog extends LitElementWw{
             if (attr.name && /\s/.test(attr.name.trim())) {
                 issues.push({
                     target: `attr-${index}-name`,
-                    message: msg('Attribute names must not contain spaces.'),
+                    message: this.messages.msg('Attribute names must not contain spaces.'),
                     settingKey: 'checkNamingConventions'
                 });
             }
@@ -539,7 +538,7 @@ export class ClassDialog extends LitElementWw{
             if ((d.type === 'interface' || d.type === 'annotation') && (attr.visibility === 'private' || attr.visibility === 'protected' || attr.visibility === 'package')) {
                 issues.push({
                     target: `attr-${index}-vis`,
-                    message: msg('Attributes in interfaces and annotations must be public.'),
+                    message: this.messages.msg('Attributes in interfaces and annotations must be public.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -548,7 +547,7 @@ export class ClassDialog extends LitElementWw{
             if (d.type === 'interface' && (!attr.isStatic || !attr.isFinal)) {
                 issues.push({
                     target: `attr-${index}-modifiers`,
-                    message: msg('Interface attributes must be static and final.'),
+                    message: this.messages.msg('Interface attributes must be static and final.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -557,7 +556,7 @@ export class ClassDialog extends LitElementWw{
             if (attr.isParam && d.type !== 'param-class') {
                 issues.push({
                     target: `attr-${index}-modifiers`,
-                    message: msg('Parameter attributes are only valid in parameterized classes.'),
+                    message: this.messages.msg('Parameter attributes are only valid in parameterized classes.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -571,7 +570,7 @@ export class ClassDialog extends LitElementWw{
             if (!meth.name || meth.name.trim() === '') {
                 issues.push({
                     target: `meth-${index}-name`,
-                    message: msg('Method name is required.'),
+                    message: this.messages.msg('Method name is required.'),
                     settingKey: 'checkEmptyAttrMethParamFields'
                 });
             }
@@ -580,7 +579,7 @@ export class ClassDialog extends LitElementWw{
             if (!isConstr && (!meth.returnType || meth.returnType.trim() === '')) {
                 issues.push({
                     target: `meth-${index}-return`,
-                    message: msg('Return type is required.'),
+                    message: this.messages.msg('Return type is required.'),
                     settingKey: 'checkEmptyAttrMethParamFields'
                 });
             }
@@ -589,7 +588,7 @@ export class ClassDialog extends LitElementWw{
             if (isConstr && meth.returnType && meth.returnType.trim() !== '') {
                 issues.push({
                     target: `meth-${index}-return`,
-                    message: msg('Constructors must not have a return type.'),
+                    message: this.messages.msg('Constructors must not have a return type.'),
                     settingKey: 'checkConstructorReturnType'
                 });
             }
@@ -598,7 +597,7 @@ export class ClassDialog extends LitElementWw{
             if (isObject && isConstr) {
                 issues.push({
                     target: `meth-${index}-name`,
-                    message: msg('Objects do not have constructors.'),
+                    message: this.messages.msg('Objects do not have constructors.'),
                     settingKey: 'checkNoConstructorsInObjects'
                 });
             }
@@ -609,14 +608,14 @@ export class ClassDialog extends LitElementWw{
                     // looks like a constructor but written with wrong capitalization
                     issues.push({
                         target: `meth-${index}-name`,
-                        message: msg('This looks like a constructor but does not match the class name capitalization.'),
+                        message: this.messages.msg('This looks like a constructor but does not match the class name capitalization.'),
                         settingKey: 'checkNamingConventions'
                     });
                 } else if (!isConstr && /^[A-Z]/.test(meth.name.trim())) {
                     // regular method starting with uppercase
                     issues.push({
                         target: `meth-${index}-name`,
-                        message: msg('Method names should start with a lowercase letter.'),
+                        message: this.messages.msg('Method names should start with a lowercase letter.'),
                         settingKey: 'checkNamingConventions'
                     });
                 }
@@ -626,7 +625,7 @@ export class ClassDialog extends LitElementWw{
             if (meth.name && /\s/.test(meth.name.trim())) {
                 issues.push({
                     target: `meth-${index}-name`,
-                    message: msg('Method names must not contain spaces.'),
+                    message: this.messages.msg('Method names must not contain spaces.'),
                     settingKey: 'checkNamingConventions'
                 });
             }
@@ -635,7 +634,7 @@ export class ClassDialog extends LitElementWw{
             if ((d.type === 'interface' || d.type === 'annotation') && (meth.visibility === 'private' || meth.visibility === 'protected' || meth.visibility === 'package')) {
                 issues.push({
                     target: `meth-${index}-vis`,
-                    message: msg('Methods in interfaces and annotations must be public.'),
+                    message: this.messages.msg('Methods in interfaces and annotations must be public.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -644,7 +643,7 @@ export class ClassDialog extends LitElementWw{
             if (d.type === 'abstract' && meth.isFinal) {
                 issues.push({
                     target: `meth-${index}-modifiers`,
-                    message: msg('Abstract methods cannot be final.'),
+                    message: this.messages.msg('Abstract methods cannot be final.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -653,7 +652,7 @@ export class ClassDialog extends LitElementWw{
             if (d.type === 'abstract' && meth.isStatic) {
                 issues.push({
                     target: `meth-${index}-modifiers`,
-                    message: msg('Abstract methods cannot be static.'),
+                    message: this.messages.msg('Abstract methods cannot be static.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -662,7 +661,7 @@ export class ClassDialog extends LitElementWw{
             if (isConstr && (meth.isStatic || meth.isFinal)) {
                 issues.push({
                     target: `meth-${index}-modifiers`,
-                    message: msg('Constructors cannot be static or final.'),
+                    message: this.messages.msg('Constructors cannot be static or final.'),
                     settingKey: 'checkModifiers'
                 });
             }
@@ -674,7 +673,7 @@ export class ClassDialog extends LitElementWw{
                 if (!param.name || param.name.trim() === '') {
                     issues.push({
                         target: `meth-${index}-param-${pIndex}-name`,
-                        message: msg('Parameter name is required.'),
+                        message: this.messages.msg('Parameter name is required.'),
                         settingKey: 'checkEmptyAttrMethParamFields'
                     });
                 }
@@ -683,7 +682,7 @@ export class ClassDialog extends LitElementWw{
                 if (!param.type || param.type.trim() === '') {
                     issues.push({
                         target: `meth-${index}-param-${pIndex}-type`,
-                        message: msg('Parameter type is required.'),
+                        message: this.messages.msg('Parameter type is required.'),
                         settingKey: 'checkEmptyAttrMethParamFields'
                     });
                 }
@@ -693,7 +692,7 @@ export class ClassDialog extends LitElementWw{
                 if (dupParam) {
                     issues.push({
                         target: `meth-${index}-param-${pIndex}-name`,
-                        message: msg('Duplicate parameter name.'),
+                        message: this.messages.msg('Duplicate parameter name.'),
                         settingKey: 'checkUniqueNames'
                     });
                 }
@@ -702,7 +701,7 @@ export class ClassDialog extends LitElementWw{
                 if (param.name && /^[A-Z]/.test(param.name.trim())) {
                     issues.push({
                         target: `meth-${index}-param-${pIndex}-name`,
-                        message: msg('Parameter names should start with a lowercase letter.'),
+                        message: this.messages.msg('Parameter names should start with a lowercase letter.'),
                         settingKey: 'checkNamingConventions'
                     });
                 }
@@ -711,7 +710,7 @@ export class ClassDialog extends LitElementWw{
                 if (param.name && /\s/.test(param.name.trim())) {
                     issues.push({
                         target: `meth-${index}-param-${pIndex}-name`,
-                        message: msg('Parameter names must not contain spaces.'),
+                        message: this.messages.msg('Parameter names must not contain spaces.'),
                         settingKey: 'checkNamingConventions'
                     });
                 }
@@ -726,30 +725,30 @@ export class ClassDialog extends LitElementWw{
                 if (c.type === 'inheritance') {
                     if (c.direction === 'source') {
                         if (d.type === 'enum' || d.type === 'record') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot extend other classes."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot extend other classes."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type === 'interface' && c.otherNodeType !== 'interface') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type can only extend other interfaces."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type can only extend other interfaces."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type !== 'interface' && c.otherNodeType === 'interface') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot extend an interface. Use Realization instead."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot extend an interface. Use Realization instead."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type === 'annotation') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot extend other classes."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot extend other classes."), settingKey: 'checkClassConnections' });
                         }
                     }
                     if (c.direction === 'target') {
                         if (d.type === 'interface' && c.otherNodeType !== 'interface') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot be extended by a class. Use Realization instead."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot be extended by a class. Use Realization instead."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type !== 'interface' && c.otherNodeType === 'interface') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type can only be extended by other interfaces."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type can only be extended by other interfaces."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type === 'enum' || d.type === 'record') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot be a parent class."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot be a parent class."), settingKey: 'checkClassConnections' });
                         }
                         if (d.type === 'annotation') {
-                            issues.push({ target: 'classtype', message: msg("Selected class type cannot be a parent class."), settingKey: 'checkClassConnections' });
+                            issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot be a parent class."), settingKey: 'checkClassConnections' });
                         }
                     }
                 }
@@ -757,10 +756,10 @@ export class ClassDialog extends LitElementWw{
                 // realization rules
                 if (c.type === 'realization') {
                     if (c.direction === 'source' && (d.type === 'interface' || d.type === 'annotation')) {
-                        issues.push({ target: 'classtype', message: msg("Selected class type cannot implement interfaces. Use Inheritance instead."), settingKey: 'checkClassConnections' });
+                        issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot implement interfaces. Use Inheritance instead."), settingKey: 'checkClassConnections' });
                     }
                     if (c.direction === 'target' && d.type !== 'interface') {
-                        issues.push({ target: 'classtype', message: msg("Selected class type cannot be a realization target. Only interfaces are valid targets."), settingKey: 'checkClassConnections' });
+                        issues.push({ target: 'classtype', message: this.messages.msg("Selected class type cannot be a realization target. Only interfaces are valid targets."), settingKey: 'checkClassConnections' });
                     }
                 }
 
@@ -771,14 +770,14 @@ export class ClassDialog extends LitElementWw{
                     if (c.direction === 'source' && invalidSourceTypes.includes(d.type)) {
                         issues.push({
                             target: 'classtype',
-                            message: msg("Selected class type cannot own compositions or aggregations."),
+                            message: this.messages.msg("Selected class type cannot own compositions or aggregations."),
                             settingKey: 'checkClassConnections'
                         });
                     }
                     if (c.direction === 'target' && invalidTargetTypes.includes(d.type)) {
                         issues.push({
                             target: 'classtype',
-                            message: msg("Selected class type cannot be part of a composition or aggregation."),
+                            message: this.messages.msg("Selected class type cannot be part of a composition or aggregation."),
                             settingKey: 'checkClassConnections'
                         });
                     }
@@ -789,7 +788,7 @@ export class ClassDialog extends LitElementWw{
                     if (d.type === 'datatype' || d.type === 'enum') {
                         issues.push({
                             target: 'classtype',
-                            message: msg("Selected class type cannot participate in bidirectional associations."),
+                            message: this.messages.msg("Selected class type cannot participate in bidirectional associations."),
                             settingKey: 'checkClassConnections'
                         });
                     }
@@ -800,7 +799,7 @@ export class ClassDialog extends LitElementWw{
                     if (d.type === 'datatype' || d.type === 'enum') {
                         issues.push({
                             target: 'classtype',
-                            message: msg("Selected class type cannot be the source of an association."),
+                            message: this.messages.msg("Selected class type cannot be the source of an association."),
                             settingKey: 'checkClassConnections'
                         });
                     }
@@ -813,14 +812,14 @@ export class ClassDialog extends LitElementWw{
                         if (c.direction === 'source') {
                             issues.push({
                                 target: 'classtype',
-                                message: msg("Objects cannot be the source of inheritance or realization relations."),
+                                message: this.messages.msg("Objects cannot be the source of inheritance or realization relations."),
                                 settingKey: 'checkClassConnections'
                             });
                         }
                         if (c.direction === 'target') {
                             issues.push({
                                 target: 'classtype',
-                                message: msg("Objects cannot be the target of inheritance or realization relations."),
+                                message: this.messages.msg("Objects cannot be the target of inheritance or realization relations."),
                                 settingKey: 'checkClassConnections'
                             });
                         }
@@ -895,7 +894,7 @@ export class ClassDialog extends LitElementWw{
                 }}
             >
             <span slot="label">
-                ${isObjectDiagram ? msg("Object Editor") : msg("Class Editor")}
+                ${isObjectDiagram ? this.messages.msg("Object Editor") : this.messages.msg("Class Editor")}
             </span>
 
                 <div style="display: flex; flex-direction: column; gap: var(--sl-spacing-medium);">
@@ -916,7 +915,7 @@ export class ClassDialog extends LitElementWw{
                                     @sl-focus=${() => this._handleFocus(`objectname`)}
                                 >
                                     <span slot="label">
-                                        ${msg("Instance Name")}
+                                        ${this.messages.msg("Instance Name")}
                                     </span>
                                 </sl-input>
 
@@ -940,7 +939,7 @@ export class ClassDialog extends LitElementWw{
                                 class=${shouldShowError('classname') ? 'has-error' : ''}
                             >
                                 <span slot="label">
-                                    ${isObj ? msg("Class Name") : msg("Name")}
+                                    ${isObj ? this.messages.msg("Class Name") : this.messages.msg("Name")}
                                 </span>
                             </sl-input>
                             
@@ -964,17 +963,17 @@ export class ClassDialog extends LitElementWw{
                                     class=${shouldShowError('classtype') ? 'has-error' : ''}
                                 >
                                     <span slot="label">
-                                        ${msg("Type")}
+                                        ${this.messages.msg("Type")}
                                     </span>
-                                    ${this.settings.standardExists ? html`<sl-option value="standard">${msg("Standard")}</sl-option>` : ''}
-                                    ${this.settings.abstractExists ? html`<sl-option value="abstract">${msg("Abstract")}</sl-option>` : ''}
-                                    ${this.settings.interfaceExists ? html`<sl-option value="interface">${msg("Interface")}</sl-option>` : ''}
-                                    ${this.settings.enumExists ? html`<sl-option value="enum">${msg("Enumeration")}</sl-option>` : ''}
-                                    ${this.settings.objectExists ? html`<sl-option value="object">${msg("Object")}</sl-option>` : ''}
-                                    ${this.settings.parameterizedExists ? html`<sl-option value="param-class">${msg("Parameterized")}</sl-option>` : ''}
-                                    ${this.settings.recordExists ? html`<sl-option value="record">${msg("Record")}</sl-option>` : ''}
-                                    ${this.settings.annotationExists ? html`<sl-option value="annotation">${msg("Annotation")}</sl-option>` : ''}
-                                    ${this.settings.dataTypeExists ? html`<sl-option value="datatype">${msg("Data Type")}</sl-option>` : ''}
+                                    ${this.settings.standardExists ? html`<sl-option value="standard">${this.messages.msg("Standard")}</sl-option>` : ''}
+                                    ${this.settings.abstractExists ? html`<sl-option value="abstract">${this.messages.msg("Abstract")}</sl-option>` : ''}
+                                    ${this.settings.interfaceExists ? html`<sl-option value="interface">${this.messages.msg("Interface")}</sl-option>` : ''}
+                                    ${this.settings.enumExists ? html`<sl-option value="enum">${this.messages.msg("Enumeration")}</sl-option>` : ''}
+                                    ${this.settings.objectExists ? html`<sl-option value="object">${this.messages.msg("Object")}</sl-option>` : ''}
+                                    ${this.settings.parameterizedExists ? html`<sl-option value="param-class">${this.messages.msg("Parameterized")}</sl-option>` : ''}
+                                    ${this.settings.recordExists ? html`<sl-option value="record">${this.messages.msg("Record")}</sl-option>` : ''}
+                                    ${this.settings.annotationExists ? html`<sl-option value="annotation">${this.messages.msg("Annotation")}</sl-option>` : ''}
+                                    ${this.settings.dataTypeExists ? html`<sl-option value="datatype">${this.messages.msg("Data Type")}</sl-option>` : ''}
                                 </sl-select>
 
                                 ${shouldShowError('classtype') ? html`
@@ -993,7 +992,7 @@ export class ClassDialog extends LitElementWw{
                     ${showAttributes ? html`
                         <div class="dialog-section">
                             <strong style="font-size: var(--sl-font-size-medium);">
-                                ${msg("Attributes")}
+                                ${this.messages.msg("Attributes")}
                             </strong>
                             <div 
                                 id="attributes-list" 
@@ -1031,7 +1030,7 @@ export class ClassDialog extends LitElementWw{
                                                             @sl-change=${(e: any) => this._updateAttribute(i, 'isParam', e.target.checked)}
                                                         >
                                                             <span style="font-size: var(--sl-font-size-medium);">
-                                                                ${msg("parameterized")}
+                                                                ${this.messages.msg("parameterized")}
                                                             </span>
                                                         </sl-switch>
                                                     ` : ''}
@@ -1043,8 +1042,8 @@ export class ClassDialog extends LitElementWw{
                                                 variant="danger" 
                                                 outline 
                                                 @click=${() => this._removeAttribute(i)}
-                                                title=${msg("Delete")}
-                                                aria-label=${msg("Delete")}
+                                                title=${this.messages.msg("Delete")}
+                                                aria-label=${this.messages.msg("Delete")}
                                             >
                                                 <sl-icon src=${xIcon}></sl-icon>
                                             </sl-button>
@@ -1082,7 +1081,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder=${msg("Name")}
+                                                placeholder=${this.messages.msg("Name")}
                                                 style="flex: 1;"
                                                 .value=${live(attr.name)} 
                                                 @sl-input=${(e: any) => this._updateAttribute(i, 'name', e.target.value)}
@@ -1093,7 +1092,7 @@ export class ClassDialog extends LitElementWw{
 
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder=${isObj ? msg("Value") : msg("Type")}
+                                                placeholder=${isObj ? this.messages.msg("Value") : this.messages.msg("Type")}
                                                 style="flex: 1;"
                                                 .value=${live(attr.type)}
                                                 @sl-input=${(e: any) => this._updateAttribute(i, 'type', e.target.value)}
@@ -1130,7 +1129,7 @@ export class ClassDialog extends LitElementWw{
                                     slot="prefix" 
                                     src=${plusIcon}>
                                 </sl-icon> 
-                                ${msg("Add Attribute")}
+                                ${this.messages.msg("Add Attribute")}
                             </sl-button>
                         </div>
                     ` : ''}
@@ -1138,13 +1137,13 @@ export class ClassDialog extends LitElementWw{
                     ${isEnum ? html`
                         <div class="dialog-section">
                             <strong style="font-size: var(--sl-font-size-medium);">
-                                ${msg("Enumeration Values")}
+                                ${this.messages.msg("Enumeration Values")}
                             </strong>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
                                 ${repeat(this._editingNodeData.enumValues, (val, i) => `enum-${i}`, (val, i) => html`
                                     <div style="display: flex; gap: 5px; align-items: center;">
                                         <sl-input 
-                                            placeholder=${msg("Value")}
+                                            placeholder=${this.messages.msg("Value")}
                                             style="flex: 1;"
                                             .value=${live(val)} 
                                             @sl-input=${(e: any) => this._updateEnumValue(i, e.target.value)}
@@ -1153,7 +1152,7 @@ export class ClassDialog extends LitElementWw{
                                             size="small" 
                                             variant="danger" 
                                             outline @click=${() => this._removeEnumValue(i)}
-                                            aria-label=${msg("Delete Value")}
+                                            aria-label=${this.messages.msg("Delete Value")}
                                         >
                                             <sl-icon src=${xIcon}></sl-icon>
                                         </sl-button>
@@ -1168,7 +1167,7 @@ export class ClassDialog extends LitElementWw{
                                     slot="prefix" 
                                     src=${plusIcon}>
                                 </sl-icon> 
-                                ${msg("Add Value")}
+                                ${this.messages.msg("Add Value")}
                             </sl-button>
                         </div>
                     ` : ''}
@@ -1176,7 +1175,7 @@ export class ClassDialog extends LitElementWw{
                     ${showMeths ? html`
                         <div class="dialog-section">
                             <strong style="font-size: var(--sl-font-size-medium);">
-                                ${msg("Methods")}
+                                ${this.messages.msg("Methods")}
                             </strong>
                             <div 
                                 id="methods-list" 
@@ -1215,8 +1214,8 @@ export class ClassDialog extends LitElementWw{
                                                 variant="danger" 
                                                 outline 
                                                 @click=${() => this._removeMethod(i)}
-                                                title=${msg("Delete")}
-                                                aria-label=${msg("Delete")}
+                                                title=${this.messages.msg("Delete")}
+                                                aria-label=${this.messages.msg("Delete")}
                                             >
                                                 <sl-icon src=${xIcon}></sl-icon>
                                             </sl-button>
@@ -1255,7 +1254,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder=${msg("Name")}
+                                                placeholder=${this.messages.msg("Name")}
                                                 style="flex: 1;" 
                                                 .value=${live(meth.name)} 
                                                 @sl-input=${(e: any) => this._updateMethod(i, 'name', e.target.value)}
@@ -1266,7 +1265,7 @@ export class ClassDialog extends LitElementWw{
                                             
                                             <sl-input 
                                                 autocomplete="off"
-                                                placeholder=${msg("Return type")}
+                                                placeholder=${this.messages.msg("Return type")}
                                                 style="flex: 1;" 
                                                 .value=${live(meth.returnType)} 
                                                 @sl-input=${(e: any) => this._updateMethod(i, 'returnType', e.target.value)}
@@ -1296,7 +1295,7 @@ export class ClassDialog extends LitElementWw{
                                             <div class="parameter-section" style="display: flex; flex-direction: row; gap: 15px; align-items: flex-start;">
                                                 
                                                 <div style="font-size: var(--sl-font-size-small); font-weight: bold; color: var(--sl-color-neutral-500); margin-top: 6px; flex-shrink: 0;">
-                                                    ${msg("Parameters:")}
+                                                    ${this.messages.msg("Parameters:")}
                                                 </div>
 
                                                 <div style="flex: 1; display: flex; flex-direction: column; gap: 8px;">
@@ -1308,7 +1307,7 @@ export class ClassDialog extends LitElementWw{
                                                                 
                                                                 <sl-input 
                                                                     autocomplete="off"
-                                                                    placeholder=${msg("Name")}
+                                                                    placeholder=${this.messages.msg("Name")}
                                                                     size="small" 
                                                                     style="flex: 1;" 
                                                                     .value=${live(p.name)} 
@@ -1320,7 +1319,7 @@ export class ClassDialog extends LitElementWw{
 
                                                                 <sl-input 
                                                                     autocomplete="off"
-                                                                    placeholder=${msg("Type")}
+                                                                    placeholder=${this.messages.msg("Type")}
                                                                     size="small" 
                                                                     style="flex: 1;" 
                                                                     .value=${live(p.type)} 
@@ -1335,8 +1334,8 @@ export class ClassDialog extends LitElementWw{
                                                                     variant="danger" 
                                                                     outline 
                                                                     @click=${() => this._removeParameter(i, pi)}
-                                                                    title=${msg("Delete Parameter")}
-                                                                    aria-label=${msg("Delete Parameter")}
+                                                                    title=${this.messages.msg("Delete Parameter")}
+                                                                    aria-label=${this.messages.msg("Delete Parameter")}
                                                                 >
                                                                     <sl-icon src=${xIcon}></sl-icon>
                                                                 </sl-button>
@@ -1366,7 +1365,7 @@ export class ClassDialog extends LitElementWw{
                                                         @click=${() => this._addParameter(i)} 
                                                         style="width: 100%;"
                                                     >
-                                                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon> ${msg("Add Parameter")}
+                                                        <sl-icon slot="prefix" src=${plusIcon}></sl-icon> ${this.messages.msg("Add Parameter")}
                                                     </sl-button>
 
                                                 </div>
@@ -1383,7 +1382,7 @@ export class ClassDialog extends LitElementWw{
                                     slot="prefix" 
                                     src=${plusIcon}>
                                 </sl-icon> 
-                                ${msg("Add Method")}
+                                ${this.messages.msg("Add Method")}
                             </sl-button>
                         </div>
                     ` : ''}
@@ -1402,14 +1401,14 @@ export class ClassDialog extends LitElementWw{
                             slot="prefix" 
                             src=${trashIcon}>
                         </sl-icon>
-                        ${msg("Delete")}
+                        ${this.messages.msg("Delete")}
                     </sl-button>
 
                     <sl-button 
                         variant="primary" 
                         @click=${this._save}
                     >
-                        ${msg("Save")}
+                        ${this.messages.msg("Save")}
                     </sl-button>
                 </div>
             </sl-dialog>

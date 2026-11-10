@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="pl" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
 <trans-unit id="sf752b696087fa3c6">
@@ -795,8 +795,8 @@
   <target>Typ fragmentu</target>
 </trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
-  <target>Warunek <x id="0" equiv-text="${index + 1}"/></target>
+  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
+  <target>Warunek <x id="0" equiv-text="${index + 1}" /></target>
 </trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
@@ -1015,24 +1015,24 @@
   <target>Powiększ</target>
 </trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
-  <target>Edytuj łącze: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></source>
+  <target>Edytuj łącze: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></target>
 </trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></source>
-  <target>Edytuj relację: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}"/></target>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></source>
+  <target>Edytuj relację: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram)}" /></target>
 </trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
-  <target>Wybierz źródło: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/></target>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</source>
+  <target>Wybierz źródło: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" /></target>
 </trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/>.</source>
-  <target>Wybierz cel: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;"/></target>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" />.</source>
+  <target>Wybierz cel: <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}&lt;/strong&gt;" /></target>
 </trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
-  <target>Stereotypy zależności muszą być ujęte w <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> lub <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
+  <target>Stereotypy zależności muszą być ujęte w <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> lub <x id="1" equiv-text="${&quot;« »&quot;}" />.</target>
 </trans-unit>
 <trans-unit id="s388101295e5b6a4b">
   <source>No icon</source>
@@ -1090,6 +1090,9 @@
   <source>Credit Card</source>
   <target>Karta kredytowa</target>
 </trans-unit>
+<trans-unit id="s5e8250fb85d64c23">
+  <source>Close</source>
+<target>Zamknij</target></trans-unit>
 </body>
 </file>
 </xliff>
