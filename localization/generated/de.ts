@@ -288,4 +288,3 @@
 'sfc49bac6b16bbe35': `Wert hinzufügen`,
 'sff5bb7742c2896c8': `Ziel`,
     };
-  

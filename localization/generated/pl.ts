@@ -288,4 +288,3 @@
 's212f185f2dbf21cd': `Sequence diagram`,
 's4dc5fa690dd0e9f3': `Configure diagrams`,
     };
-  
