@@ -17,9 +17,7 @@
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
-              "attribute": "class-settings",
-              "reflects": true
+              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -27,9 +25,7 @@
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
-              "attribute": "object-settings",
-              "reflects": true
+              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -37,9 +33,7 @@
               "type": {
                 "text": "SequenceSettings"
               },
-              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
-              "attribute": "sequence-settings",
-              "reflects": true
+              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -47,9 +41,7 @@
               "type": {
                 "text": "GlobalSettings"
               },
-              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
-              "attribute": "global-settings",
-              "reflects": true
+              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -68,9 +60,7 @@
               "type": {
                 "text": "SequenceModel"
               },
-              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
-              "attribute": "sequence-model-data",
-              "reflects": true
+              "description": "Sequence diagram content as JSON (lifelines, messages and fragments); persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -79,9 +69,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Class diagram content as JSON",
-              "attribute": "class-diagram-data",
-              "reflects": true
+              "description": "Class diagram content as JSON; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -90,9 +78,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Object diagram content as JSON",
-              "attribute": "object-diagram-data",
-              "reflects": true
+              "description": "Object diagram content as JSON; persisted together in the direct JSON data block."
             },
             {
               "kind": "field",
@@ -246,38 +232,6 @@
           ],
           "attributes": [
             {
-              "name": "class-settings",
-              "type": {
-                "text": "ClassSettings"
-              },
-              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
-              "fieldName": "classSettings"
-            },
-            {
-              "name": "object-settings",
-              "type": {
-                "text": "ClassSettings"
-              },
-              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
-              "fieldName": "objectSettings"
-            },
-            {
-              "name": "sequence-settings",
-              "type": {
-                "text": "SequenceSettings"
-              },
-              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
-              "fieldName": "sequenceSettings"
-            },
-            {
-              "name": "global-settings",
-              "type": {
-                "text": "GlobalSettings"
-              },
-              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
-              "fieldName": "globalSettings"
-            },
-            {
               "name": "diagram-type",
               "type": {
                 "text": "string"
@@ -285,32 +239,6 @@
               "default": "\"class-diagram\"",
               "description": "Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram`",
               "fieldName": "diagramType"
-            },
-            {
-              "name": "sequence-model-data",
-              "type": {
-                "text": "SequenceModel"
-              },
-              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
-              "fieldName": "sequenceModelData"
-            },
-            {
-              "name": "class-diagram-data",
-              "type": {
-                "text": "string"
-              },
-              "default": "''",
-              "description": "Class diagram content as JSON",
-              "fieldName": "classDiagramData"
-            },
-            {
-              "name": "object-diagram-data",
-              "type": {
-                "text": "string"
-              },
-              "default": "''",
-              "description": "Object diagram content as JSON",
-              "fieldName": "objectDiagramData"
             }
           ],
           "superclass": {
@@ -320,7 +248,8 @@
           "tagName": "webwriter-uml-diagram",
           "customElement": true,
           "modulePath": "widgets/webwriter-uml-diagram.ts",
-          "definitionPath": "widgets/webwriter-uml-diagram.ts"
+          "definitionPath": "widgets/webwriter-uml-diagram.ts",
+          "properties": []
         }
       ],
       "exports": [
