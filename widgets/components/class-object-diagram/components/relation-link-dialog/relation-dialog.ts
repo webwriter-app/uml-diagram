@@ -8,7 +8,7 @@ import styles from "./relation-dialog.styles";
 import { ClassSettings } from "../../models/class-settings-model";
 import trashIcon from "@tabler/icons/outline/trash.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
+import { GlobalSettings, ValidationIssue } from "../../../global-settings/global-settings-model";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 
 /** Resolve display labels at call time so they follow the active locale. */
@@ -24,13 +24,6 @@ export function relationLabel(type: string, isObjectDiagram: boolean): string {
         composition: msg("Composition"),
     };
     return labels[type] ?? (isObjectDiagram ? msg("Link") : msg("Relation"));
-}
-
-/** Interface for the structure of Validation Issues */
-interface ValidationIssue {
-    target: string;
-    message: string;
-    settingKey: keyof ClassSettings;
 }
 
 /** Interface for the data passed to the dialog */
@@ -246,8 +239,8 @@ export class RelationDialog extends LitElementWw {
     }
 
     /** Collects all possible validation issues for the current relation */
-    private _getAllValidationIssues(): ValidationIssue[] {
-        const issues: ValidationIssue[] = [];
+    private _getAllValidationIssues(): ValidationIssue<ClassSettings>[] {
+        const issues: ValidationIssue<ClassSettings>[] = [];
         if (!this._dialogData) return issues;
 
         const sMult = this._dialogData.data.sourceMultiplicity;
@@ -287,15 +280,8 @@ export class RelationDialog extends LitElementWw {
     }
 
     /** Filters validation issues based on the global validation mode */
-    private get _activeIssues(): ValidationIssue[] {
-        const allIssues = this._getAllValidationIssues();
-
-        if (this.globalSettings.validationMode === 'off') return [];
-        if (this.globalSettings.validationMode === 'all') return allIssues;
-
-        return allIssues.filter(issue =>
-            (this.settings as any)[issue.settingKey] === true
-        );
+    private get _activeIssues(): ValidationIssue<ClassSettings>[] {
+        return this.globalSettings.activeIssues(this._getAllValidationIssues(), this.settings);
     }
 
     // --------------------------------------------------------------------------------------------------------

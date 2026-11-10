@@ -11,14 +11,7 @@ import styles from "./class-dialog.styles";
 import xIcon from "@tabler/icons/outline/x.svg";
 import plusIcon from "@tabler/icons/outline/plus.svg";
 import trashIcon from "@tabler/icons/outline/trash.svg";
-import { GlobalSettings } from "../../../global-settings/global-settings-model";
-
-/** Interface definition for single validation issues */
-interface ValidationIssue {
-    target: string;                
-    message: string;               
-    settingKey: keyof ClassSettings; 
-}
+import { GlobalSettings, ValidationIssue } from "../../../global-settings/global-settings-model";
 
 /** Interface to check if relation rules are broken */
 export interface RelationConstraint {
@@ -410,10 +403,10 @@ export class ClassDialog extends LitElementWw{
     }
 
     /** Checks for all validation rules if they are broken (also if not active in settings)  */
-    private _getAllValidationIssues(): ValidationIssue[] {
+    private _getAllValidationIssues(): ValidationIssue<ClassSettings>[] {
         if (!this._editingNodeData) return [];
         const d = this._editingNodeData;
-        const issues: ValidationIssue[] = [];
+        const issues: ValidationIssue<ClassSettings>[] = [];
         const isObject = d.type === 'object';
 
         // helper to check if a method name matches the class name (= constructor)
@@ -833,23 +826,8 @@ export class ClassDialog extends LitElementWw{
     }
 
     /** Filter validation issues only for the active validation rules */
-    private get _activeIssues(): ValidationIssue[] {
-        const allIssues = this._getAllValidationIssues();
-        
-        // 'off' = no validation rules active
-        if (this.globalSettings.validationMode === 'off') {
-            return [];
-        }
-        
-        // 'all' = all validation rules active regardless of individual settings
-        if (this.globalSettings.validationMode === 'all') {
-            return allIssues;
-        }
-        
-        // 'custom' = only rules enabled in individual settings
-        return allIssues.filter(issue => {
-            return (this.settings as any)[issue.settingKey] === true;
-        });
+    private get _activeIssues(): ValidationIssue<ClassSettings>[] {
+        return this.globalSettings.activeIssues(this._getAllValidationIssues(), this.settings);
     }
 
     // --------------------------------------------------------------------------------------------------------

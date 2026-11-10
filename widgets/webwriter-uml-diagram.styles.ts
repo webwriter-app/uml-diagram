@@ -13,8 +13,9 @@ export default css`
     }
 
     /* Stacks the tabs and the frame; a separate element because the host's display
-       is overridden by the editor */
+       is overridden by the editor. Sets one font for all diagrams instead of inheriting the document's. */
     .root {
+        font-family: var(--sl-font-sans);
         display: flex;
         flex-direction: column;
         height: 100%;

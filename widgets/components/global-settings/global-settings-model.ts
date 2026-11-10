@@ -1,3 +1,10 @@
+/** A violated validation rule of a diagram with settings `S`, shown at the field `target` */
+export interface ValidationIssue<S> {
+    target: string;
+    message: string;
+    settingKey: keyof S;
+}
+
 /**
  * This Datatype defines additional global settings that apply for the whole 
  * widget (not only for single diagram types)
@@ -43,5 +50,15 @@ export class GlobalSettings {
         globalSettings.validationMode = 'off';
         
         return globalSettings;
+    }
+
+    /** Whether the validation rule `key` of a diagram's `settings` applies under the validation mode */
+    public isRuleActive<S>(settings: S, key: keyof S): boolean {
+        return this.validationMode === 'all' || (this.validationMode === 'custom' && settings[key] === true);
+    }
+
+    /** The validation issues whose rule applies under the validation mode */
+    public activeIssues<S, T extends { settingKey: keyof S }>(issues: T[], settings: S): T[] {
+        return issues.filter(issue => this.isRuleActive(settings, issue.settingKey));
     }
 }

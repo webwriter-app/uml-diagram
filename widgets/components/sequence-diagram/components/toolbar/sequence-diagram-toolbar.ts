@@ -10,8 +10,7 @@ import fragmentPlusIcon from "../../../../../assets/icons/fragment-plus.svg";
 import connectionPlusIcon from "../../../../../assets/icons/connection-plus.svg";
 import { SequenceSettings } from "../../models/sequence-settings-model";
 import { SequenceModel } from "../../models/sequence-model";
-import toolbarStyles from "../../../shared/toolbar.styles";
-import { closeOtherDropdowns } from "../../../shared/toolbar-dropdowns";
+import { toolbarStyles, closeOtherDropdowns } from "../../../shared/toolbar";
 
 /** Toolbar for the sequence diagram */
 @localized()

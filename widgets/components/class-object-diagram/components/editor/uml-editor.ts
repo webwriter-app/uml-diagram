@@ -1,5 +1,4 @@
 import { html } from "lit";
-import { keyed } from "lit/directives/keyed.js";
 import { LitElementWw } from "@webwriter/lit";
 import { query, state, property } from "lit/decorators.js";
 import { msg, localized } from "@lit/localize";
@@ -8,19 +7,16 @@ import { ClassDialog } from "../class-object-dialog/class-dialog";
 import { ClassSettings } from "../../models/class-settings-model";
 import { RelationDialog, RelationDialogData, relationLabel } from "../relation-link-dialog/relation-dialog";
 import Drawflow from 'drawflow'
-import canvasAlertStyles from "../../../shared/canvas-alert.styles";
+import { CanvasAlert } from "../../../shared/canvas-alert";
 import styles from "./uml-editor.styles";
-import { SlButton, SlIcon, SlAlert } from "@shoelace-style/shoelace";
-import alertCircleIcon from "@tabler/icons/outline/alert-circle.svg";
-import infoCircleIcon from "@tabler/icons/outline/info-circle.svg";
+import { SlButton, SlIcon } from "@shoelace-style/shoelace";
 import { ZoomControls } from "../../../zoom-controls/zoom-controls";
 import { GlobalSettings } from "../../../global-settings/global-settings-model";
-import { cancelOnOutsideInteraction } from "../../../shared/cancel-on-outside-interaction";
 import { arrowMarkers } from "../../../shared/arrow-markers";
 import { ConfirmDialog, ConfirmOptions } from "../../../shared/confirm-dialog";
 import { Point, Box, RelationEnds, routeMidpoint, routeToPath } from "./route-geometry";
 import { straightRoutes } from "./straight-routes";
-import { Pinch, emulateTouchClicks, measurePinch } from "../../../shared/touch-gestures";
+import { Pinch, cancelOnOutsideInteraction, emulateTouchClicks, measurePinch } from "../../../shared/interaction";
 
 /** custom type for relation mode */
 type InteractionType = 
@@ -67,12 +63,12 @@ export class UMLEditor extends LitElementWw{
             "uml-class-dialog": ClassDialog,
             "uml-relation-dialog": RelationDialog,
             "confirm-dialog": ConfirmDialog,
-            "sl-alert": SlAlert
+            "canvas-alert": CanvasAlert
         };
     }
 
     /** Styles are set in seperate file (./uml-editor.styles.ts) */
-    static styles = [styles, canvasAlertStyles];
+    static styles = [styles];
 
     /** Reference to the main Drawflow editor DOM element used to initialize and interact with the canvas */
     @query("#drawflowEditorDiv") accessor drawflowEditorDiv!: HTMLElement;
@@ -86,12 +82,9 @@ export class UMLEditor extends LitElementWw{
     /** Stores state of the interaction mode */
     @property() private interactionMode:  InteractionType | 'idle' = 'idle';
 
-    @state() private accessor _notice: string | null = null;
-
-    /** Counts shown notices, so every notice gets its own alert (which restarts its auto-hide timer) */
-    @state() private accessor _noticeCount = 0;
-
     @query("confirm-dialog") private accessor _confirmDialog!: ConfirmDialog;
+
+    @query("canvas-alert") private accessor _alert!: CanvasAlert;
 
     /** Stores Id of the relation source node while creating a new relation */
     @state() private relationSourceNodeId: string | null = null;
@@ -163,7 +156,21 @@ export class UMLEditor extends LitElementWw{
         this.editor.reroute = false; 
         this.editor.zoom = 1;
         this.editor.curvature = 0;
+        this.editor.zoom_min = 0.3;
         this.editor.start();
+
+        // Clamp the zoom steps, which would overshoot the limits from zoom levels set by fitting or pinching
+        const editor = this.editor;
+        editor.zoom_in = () => {
+            if (editor.zoom >= editor.zoom_max) return;
+            editor.zoom = Math.min(editor.zoom + editor.zoom_value, editor.zoom_max);
+            editor.zoom_refresh();
+        };
+        editor.zoom_out = () => {
+            if (editor.zoom <= editor.zoom_min) return;
+            editor.zoom = Math.max(editor.zoom - editor.zoom_value, editor.zoom_min);
+            editor.zoom_refresh();
+        };
 
         // Drawflow's own pinch zoom only compares the horizontal finger distance and zooms in fixed steps around the
         // canvas center; _handlePinchTouch replaces it
@@ -174,7 +181,7 @@ export class UMLEditor extends LitElementWw{
         emulateTouchClicks(div);
 
         // Reload stored diagram
-        this._loadDiagramData(this.savedDiagramData);
+        this._loadDiagramData(this.savedDiagramData, () => this._fitOnceVisible());
 
         // Realtime updates of the diagram while node is moving
         this.drawflowEditorDiv.addEventListener('mousemove', (e) => {
@@ -288,9 +295,6 @@ export class UMLEditor extends LitElementWw{
                 this._handleNodeSelection(nodeId);
             }
         });
-
-        // init update for the container and toolbar about number of elements and so on
-        setTimeout(() => this._serializeAndEmit(), 150);
     }
 
     /** Event handler for doubleclick or rightclick (interaction with elements) */
@@ -357,10 +361,12 @@ export class UMLEditor extends LitElementWw{
         this.editor.clear();
         if (!data) {
             this._updateEmptyState();
+            this._emitCounts();
             return;
         }
         this.editor.import(JSON.parse(data));
         this._updateEmptyState();
+        this._emitCounts();
         
         const exportedData = JSON.parse(data);
         const nodes = exportedData?.drawflow?.Home?.data;
@@ -417,6 +423,13 @@ export class UMLEditor extends LitElementWw{
             },
             bubbles: true,
             composed: true
+        }));
+    }
+
+    /** Report the class and relation counts without saving the diagram */
+    private _emitCounts() {
+        this.dispatchEvent(new CustomEvent('diagram-counts-changed', {
+            detail: { classCount: this._getClassCount(), relationCount: this._getRelationCount() }
         }));
     }
 
@@ -492,6 +505,57 @@ export class UMLEditor extends LitElementWw{
         // zoom_refresh scales the offset by the zoom change, which is already included here
         editor.zoom = editor.zoom_last_value = zoom;
         editor.zoom_refresh();
+    }
+
+    /** Zoom and pan so that all classes and relations fit into the view, with some padding */
+    private _fitToView() {
+        const editor = this.editor;
+        const { clientWidth: width, clientHeight: height } = this.drawflowEditorDiv;
+        if (width === 0 || height === 0) return;
+
+        // Unscaled canvas coordinates, measured from the transformed canvas' corner
+        const origin = editor.precanvas.getBoundingClientRect();
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        editor.precanvas.querySelectorAll('.drawflow-node, svg.connection > *').forEach((el: Element) => {
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 && r.height === 0) return;
+            minX = Math.min(minX, (r.left - origin.left) / editor.zoom);
+            minY = Math.min(minY, (r.top - origin.top) / editor.zoom);
+            maxX = Math.max(maxX, (r.right - origin.left) / editor.zoom);
+            maxY = Math.max(maxY, (r.bottom - origin.top) / editor.zoom);
+        });
+        if (minX === Infinity) return;
+
+        // Never enlarge beyond 100%
+        const padding = 32;
+        const zoom = Math.max(Math.min(
+            (width - 2 * padding) / (maxX - minX),
+            (height - 2 * padding) / (maxY - minY),
+            1
+        ), editor.zoom_min);
+
+        // Drawflow scales around the canvas center
+        editor.canvas_x = (width / 2 - (minX + maxX) / 2) * zoom;
+        editor.canvas_y = (height / 2 - (minY + maxY) / 2) * zoom;
+        // zoom_refresh scales the offset by the zoom change, which is already included here
+        editor.zoom = editor.zoom_last_value = zoom;
+        editor.zoom_refresh();
+    }
+
+    /** Fit the view once the editor has a size, which it lacks while its tab is hidden */
+    private _fitOnceVisible() {
+        const div = this.drawflowEditorDiv;
+        const fit = () => {
+            this._routeRelations();
+            this._fitToView();
+        };
+        if (div.clientWidth && div.clientHeight) return fit();
+        const observer = new ResizeObserver(() => {
+            if (!div.clientWidth || !div.clientHeight) return;
+            observer.disconnect();
+            fit();
+        });
+        observer.observe(div);
     }
 
     /** Move and scale the dotted background grid with the Drawflow canvas, keeping the dots themselves the same size */
@@ -705,7 +769,6 @@ export class UMLEditor extends LitElementWw{
         this.editor.node_selected = null;
         this.editor.connection_selected?.classList.remove('selected');
         this.editor.connection_selected = null;
-        this._notice = null;
         this.interactionMode = relationType as InteractionType;
         this.relationSourceNodeId = null;
         this.firstOrSecondClass = 'first';
@@ -956,10 +1019,10 @@ export class UMLEditor extends LitElementWw{
         let sourceName = sourceNode.data.name;
         let targetName = targetNode.data.name;
 
-        if (sourceNode.data.isProxy) sourceName = "(Proxy)";
+        if (sourceNode.data.isProxy) sourceName = `(${msg("Proxy")})`;
         if (targetNode.data.isProxy) {
              const parent = this.editor.getNodeFromId(targetNode.data.parentNodeId);
-             targetName = parent ? `${parent.data.name} (Self)` : "Self";
+             targetName = parent ? `${parent.data.name} (${msg("Self")})` : msg("Self");
         }
 
         // crate data package from the collected data to pass it to the dialog
@@ -1066,10 +1129,7 @@ export class UMLEditor extends LitElementWw{
     */
 
     public async showNotice(message: string) {
-        this._notice = message;
-        this._noticeCount++;
-        await this.updateComplete;
-        (this.shadowRoot?.querySelector(".canvas-alert sl-alert") as SlAlert | null)?.show();
+        await this._alert.show(message);
     }
 
     public confirm(options: ConfirmOptions): Promise<boolean> {
@@ -1967,14 +2027,7 @@ export class UMLEditor extends LitElementWw{
 
     /** Filters relation validation issues based on the global validation mode */
     private _activeIssues(sourceId: string, targetId: string): RelationValidationIssue[] {
-        const allIssues = this._getAllValidationIssues(sourceId, targetId);
-
-        if (this.globalSettings.validationMode === 'off') return [];
-        if (this.globalSettings.validationMode === 'all') return allIssues;
-
-        return allIssues.filter(issue =>
-            (this.settings as any)[issue.settingKey] === true
-        );
+        return this.globalSettings.activeIssues(this._getAllValidationIssues(sourceId, targetId), this.settings);
     }
 
     // #################################################################################
@@ -1993,35 +2046,12 @@ export class UMLEditor extends LitElementWw{
                 </svg>
             </div>
 
-            ${this._notice ? keyed(this._noticeCount, html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="danger"
-                        duration="5000"
-                        closable
-                        @sl-after-hide=${(e: Event) => { if (e.target === e.currentTarget) this._notice = null; }}
-                    >
-                        <sl-icon slot="icon" src=${alertCircleIcon}></sl-icon>
-                        <span class="canvas-alert-text">${this._notice}</span>
-                    </sl-alert>
-                </div>
-            `) : this.interactionMode !== 'idle' ? html`
-                <div class="canvas-alert">
-                    <sl-alert
-                        variant="primary"
-                        closable
-                        open
-                        @sl-hide=${(e: Event) => { if (e.target === e.currentTarget) this._cancelAddRelation(); }}
-                    >
-                        <sl-icon slot="icon" src=${infoCircleIcon}></sl-icon>
-                        <span>
-                            ${this.firstOrSecondClass === 'first'
-                                ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
-                                : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
-                        </span>
-                    </sl-alert>
-                </div>
-            ` : ''}
+            <canvas-alert
+                .hint=${this.interactionMode === 'idle' ? null : this.firstOrSecondClass === 'first'
+                    ? msg(html`Select source for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)
+                    : msg(html`Select target for <strong>${relationLabel(this.interactionMode, this.diagramType === 'object-diagram')}</strong>.`)}
+                @hint-closed=${() => this._cancelAddRelation()}
+            ></canvas-alert>
 
             ${this._isEmpty ? html`
                 <div class="empty-hint">
@@ -2033,12 +2063,13 @@ export class UMLEditor extends LitElementWw{
 
             <zoom-controls
                 .zoomLevel=${this.editor?.zoom ?? 1}
-                .minZoom=${this.editor?.zoom_min ?? 0.5}
+                .minZoom=${this.editor?.zoom_min ?? 0.3}
                 .maxZoom=${this.editor?.zoom_max ?? 1.6}
                 .isFullscreen=${this.isFullscreen}
                 ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${() => this.editor.zoom_in()}
                 @zoom-out=${() => this.editor.zoom_out()}
+                @fit-to-view=${() => this._fitToView()}
             ></zoom-controls>
 
             <uml-class-dialog 
