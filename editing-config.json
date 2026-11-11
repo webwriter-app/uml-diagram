@@ -70,7 +70,23 @@
             "ml": "ക്രമീകരിക്കാവുന്ന ഘടകങ്ങൾ, പരിധികൾ, സാധൂകരണം ഉപയോഗിച്ച് UML ക്ലാസ്, ഓബ്ജക്റ്റ്, sequence ഡയഗ്രങ്ങൾ സൃഷ്ടിക്കുകയും അഭ്യസിക്കുകയും ചെയ്യുക.",
             "id": "Buat dan latih diagram kelas, objek, dan urutan UML dengan elemen, batasan, dan validasi yang dapat diatur.",
             "ms": "Cipta dan latih penggunaan rajah kelas, objek dan jujukan UML dengan unsur, had dan pengesahan yang boleh dikonfigurasi.",
-            "vi": "Tạo và thực hành sơ đồ lớp, đối tượng và tuần tự UML với các phần tử, giới hạn và quy tắc kiểm tra có thể điều chỉnh."
+            "vi": "Tạo và thực hành sơ đồ lớp, đối tượng và tuần tự UML với các phần tử, giới hạn và quy tắc kiểm tra có thể điều chỉnh.",
+            "mt": "Oħloq u pprattika dijagrammi UML ta’ klassijiet, oġġetti u sekwenzi b’elementi, limiti u validazzjoni konfigurabbli.",
+            "is": "Búðu til og æfðu UML klasaskýringarmyndir, hlutaskýringarmyndir og raðskýringarmyndir með stillanlegum þáttum, mörkum og staðfestingu.",
+            "lb": "Erstellt a übt UML-Klassen-, Objekt- a Sequenzdiagrammer mat konfiguréierbaren Elementer, Limiten a Validatioun.",
+            "or": "ବିନ୍ୟାସଯୋଗ୍ୟ ଉପାଦାନ, ସୀମା ଓ ଯାଞ୍ଚ ସହ UML କ୍ଲାସ୍, ଅବଜେକ୍ଟ ଏବଂ sequence ଡାୟାଗ୍ରାମ୍ ତିଆରି କରି ଅଭ୍ୟାସ କରନ୍ତୁ।",
+            "ne": "कन्फिगर गर्न मिल्ने तत्व, सीमा र मान्यतासहित UML कक्षा, वस्तु र sequence चित्रहरू बनाउनुहोस् र अभ्यास गर्नुहोस्।",
+            "si": "වින්‍යාස කළ හැකි අංග, සීමා සහ වලංගුකරණය භාවිත කර UML පන්ති, වස්තු සහ sequence රූප සටහන් සාදා පුහුණු වන්න.",
+            "ps": "د تنظیمېدونکو عناصرو، محدودیتونو او اعتبارسنجونې په کارولو سره UML ټولګي، څيز او sequence ډیاګرامونه جوړ او تمرین کړئ.",
+            "tl": "Gumawa at magsanay sa mga diyagram na UML ng class, object at pagkakasunod-sunod, na may mga elemento, limitasyon, at tuntunin sa pagsusuri na maaaring baguhin.",
+            "th": "สร้างและฝึกใช้ไดอะแกรมคลาส อ็อบเจกต์ และลำดับของ UML พร้อมองค์ประกอบ ข้อจำกัด และกฎการตรวจสอบที่กำหนดได้",
+            "kk": "Бапталатын элементтер, шектеулер және тексеру арқылы UML сынып, нысан және реттілік диаграммаларын құрып, жаттығыңыз.",
+            "ky": "Конфигурациялануучу элементтер, чектөөлөр жана текшерүү менен UML класс, объект жана ырааттуулук диаграммаларын түзүп, машыгыңыз.",
+            "ka": "შექმენით და ივარჯიშეთ UML-ის კლასის, ობიექტისა და მიმდევრობის დიაგრამებზე კონფიგურირებადი ელემენტებით, შეზღუდვებითა და ვალიდაციით.",
+            "hy": "Ստեղծեք և վարժվեք UML դասերի, օբյեկտների և հաջորդականությունների դիագրամների վրա՝ կարգավորվող տարրերով, սահմանափակումներով և վավերացմամբ։",
+            "he": "צרו תרשימי מחלקות, אובייקטים ורצף ב־UML ותרגלו בעזרת רכיבים, מגבלות וכללי אימות שניתן להגדיר.",
+            "la": "Diagrammata UML classium, obiectorum et sequentiarum cum elementis, limitibus et validatione configurabilibus crea et exerce.",
+            "sw": "Unda na ufanyie mazoezi michoro ya madarasa, objekti na mfuatano ya UML kwa kutumia vipengee, vikomo na uthibitishaji unaoweza kusanidiwa."
         },
         "label": {
             "_": "Uml Diagram",
@@ -142,7 +158,23 @@
             "ml": "UML ഡയഗ്രം",
             "id": "Diagram UML",
             "ms": "Rajah UML",
-            "vi": "Sơ đồ UML"
+            "vi": "Sơ đồ UML",
+            "mt": "Dijagramma UML",
+            "is": "UML skýringarmynd",
+            "lb": "UML-Diagramm",
+            "or": "UML ଡାୟାଗ୍ରାମ୍",
+            "ne": "UML चित्र",
+            "si": "UML රූප සටහන",
+            "ps": "UML ډیاګرام",
+            "tl": "Diyagram na UML",
+            "th": "ไดอะแกรม UML",
+            "kk": "UML диаграммасы",
+            "ky": "UML диаграммасы",
+            "ka": "UML დიაგრამა",
+            "hy": "UML դիագրամ",
+            "he": "תרשים UML",
+            "la": "Diagramma UML",
+            "sw": "Mchoro wa UML"
         }
     },
     "./widgets/webwriter-uml-diagram": {
@@ -216,7 +248,23 @@
             "ml": "UML ഡയഗ്രം",
             "id": "Diagram UML",
             "ms": "Rajah UML",
-            "vi": "Sơ đồ UML"
+            "vi": "Sơ đồ UML",
+            "mt": "Dijagramma UML",
+            "is": "UML skýringarmynd",
+            "lb": "UML-Diagramm",
+            "or": "UML ଡାୟାଗ୍ରାମ୍",
+            "ne": "UML चित्र",
+            "si": "UML රූප සටහන",
+            "ps": "UML ډیاګرام",
+            "tl": "Diyagram na UML",
+            "th": "ไดอะแกรม UML",
+            "kk": "UML диаграммасы",
+            "ky": "UML диаграммасы",
+            "ka": "UML დიაგრამა",
+            "hy": "UML դիագրամ",
+            "he": "תרשים UML",
+            "la": "Diagramma UML",
+            "sw": "Mchoro wa UML"
         }
     },
     "./snippets/library-loan": {
@@ -290,7 +338,23 @@
             "ml": "ലൈബ്രറി വായ്പ",
             "id": "Peminjaman perpustakaan",
             "ms": "Pinjaman perpustakaan",
-            "vi": "Mượn sách thư viện"
+            "vi": "Mượn sách thư viện",
+            "mt": "Self mill-librerija",
+            "is": "Bókasafnslán",
+            "lb": "Bibliothéiksloun",
+            "or": "ପୁସ୍ତକାଳୟ ଋଣ",
+            "ne": "पुस्तकालयबाट ऋण",
+            "si": "පුස්තකාල ණය",
+            "ps": "د کتابتون پور",
+            "tl": "Paghiram ng aklat",
+            "th": "การยืมหนังสือจากห้องสมุด",
+            "kk": "Кітапханадағы кітапты алу",
+            "ky": "Китепканадан китеп алуу",
+            "ka": "ბიბლიოთეკიდან სესხება",
+            "hy": "Գրադարանի փոխառություն",
+            "he": "השאלה מהספרייה",
+            "la": "Mutuum bibliothecae",
+            "sw": "Kuazima kitabu maktabani"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -364,7 +428,23 @@
             "ml": "ഓൺലൈൻ കട",
             "id": "Toko daring",
             "ms": "Kedai dalam talian",
-            "vi": "Cửa hàng trực tuyến"
+            "vi": "Cửa hàng trực tuyến",
+            "mt": "Ħanut online",
+            "is": "Vefverslun",
+            "lb": "Onlinebuttek",
+            "or": "ଅନଲାଇନ୍ ଦୋକାନ",
+            "ne": "अनलाइन पसल",
+            "si": "මාර්ගගත වෙළඳසැල",
+            "ps": "آنلاین هټۍ",
+            "tl": "Online na tindahan",
+            "th": "ร้านค้าออนไลน์",
+            "kk": "Интернет-дүкендегі тапсырыс",
+            "ky": "Интернет-дүкөндөгү буйрутма",
+            "ka": "ონლაინ მაღაზიის შეკვეთა",
+            "hy": "Առցանց խանութի պատվեր",
+            "he": "חנות מקוונת",
+            "la": "Taberna interretialis",
+            "sw": "Duka la mtandaoni"
         }
     }
 }
