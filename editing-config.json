@@ -54,7 +54,23 @@
             "pa": "ਸੰਰਚਨਾਯੋਗ ਤੱਤਾਂ, ਸੀਮਾਵਾਂ ਅਤੇ ਜਾਂਚ ਨਾਲ UML ਕਲਾਸ, ਔਬਜੈਕਟ ਅਤੇ ਤਰਤੀਬ ਡਾਇਗ੍ਰਾਮ ਬਣਾਓ ਅਤੇ ਅਭਿਆਸ ਕਰੋ।",
             "gu": "ગોઠવી શકાય એવા તત્ત્વો, મર્યાદાઓ અને માન્યતા સાથે UML ક્લાસ, ઑબ્જેક્ટ અને અનુક્રમ ડાયાગ્રામ બનાવો અને અભ્યાસ કરો.",
             "mr": "कॉन्फिगर करता येणारे घटक, मर्यादा आणि पडताळणी वापरून UML क्लास, ऑब्जेक्ट आणि sequence आरेख तयार करा व सराव करा.",
-            "te": "కాన్ఫిగర్ చేయగల ఎలిమెంట్‌లు, పరిమితులు, ధృవీకరణతో UML క్లాస్, ఆబ్జెక్ట్, sequence డయాగ్రామ్‌లను సృష్టించి అభ్యసించండి."
+            "te": "కాన్ఫిగర్ చేయగల ఎలిమెంట్‌లు, పరిమితులు, ధృవీకరణతో UML క్లాస్, ఆబ్జెక్ట్, sequence డయాగ్రామ్‌లను సృష్టించి అభ్యసించండి.",
+            "hr": "Izrađujte i vježbajte UML dijagrame klasa, objekata i slijeda s prilagodljivim elementima, ograničenjima i provjerom valjanosti.",
+            "ga": "Cruthaigh agus cleachtaigh léaráidí UML ranga, réada agus seichimh le heilimintí, teorainneacha agus bailíochtú in-chumraithe.",
+            "sl": "Ustvarjajte in vadite diagrame UML razredov, objektov in zaporedij z nastavljivimi elementi, omejitvami in preverjanjem.",
+            "fa": "نمودارهای کلاس، اشیا و توالی UML را بسازید و تمرین کنید. می‌توانید عناصر، محدودیت‌ها و اعتبارسنجی را تنظیم کنید.",
+            "nn": "Lag og øv på UML-klasse-, objekt- og sekvensdiagram med konfigurerbare element, grenser og validering.",
+            "sq": "Krijoni dhe praktikoni diagrame UML të klasave, objekteve dhe sekuencave me elemente, kufizime dhe validim të konfigurueshëm.",
+            "mk": "Креирајте и вежбајте UML дијаграми на класи, објекти и секвенци со конфигурабилни елементи, ограничувања и валидација.",
+            "bs": "Kreirajte i vježbajte UML dijagrame klasa, objekata i sekvenci sa podesivim elementima, ograničenjima i validacijom.",
+            "cy": "Creu ac ymarfer diagramau dosbarth, gwrthrych a dilyniant UML gydag elfennau, terfynau a dilysu ffurfweddadwy.",
+            "ur": "قابلِ ترتیب عناصر، حدود اور توثیق کے ساتھ UML کلاس، آبجیکٹ اور sequence خاکے بنائیں اور مشق کریں۔",
+            "kn": "ಕಾನ್ಫಿಗರ್ ಮಾಡಬಹುದಾದ ಅಂಶಗಳು, ಮಿತಿಗಳು ಮತ್ತು ಮೌಲ್ಯೀಕರಣದೊಂದಿಗೆ UML ಕ್ಲಾಸ್, ಆಬ್ಜೆಕ್ಟ್ ಮತ್ತು sequence ಡಯಾಗ್ರಾಮ್‌ಗಳನ್ನು ರಚಿಸಿ ಅಭ್ಯಾಸ ಮಾಡಿ.",
+            "ta": "உள்ளமைக்கக்கூடிய கூறுகள், வரம்புகள் மற்றும் சரிபார்ப்பைப் பயன்படுத்தி UML வகுப்பு, பொருள், sequence வரைபடங்களை உருவாக்கிப் பயிற்சி செய்யுங்கள்.",
+            "ml": "ക്രമീകരിക്കാവുന്ന ഘടകങ്ങൾ, പരിധികൾ, സാധൂകരണം ഉപയോഗിച്ച് UML ക്ലാസ്, ഓബ്ജക്റ്റ്, sequence ഡയഗ്രങ്ങൾ സൃഷ്ടിക്കുകയും അഭ്യസിക്കുകയും ചെയ്യുക.",
+            "id": "Buat dan latih diagram kelas, objek, dan urutan UML dengan elemen, batasan, dan validasi yang dapat diatur.",
+            "ms": "Cipta dan latih penggunaan rajah kelas, objek dan jujukan UML dengan unsur, had dan pengesahan yang boleh dikonfigurasi.",
+            "vi": "Tạo và thực hành sơ đồ lớp, đối tượng và tuần tự UML với các phần tử, giới hạn và quy tắc kiểm tra có thể điều chỉnh."
         },
         "label": {
             "_": "Uml Diagram",
@@ -110,7 +126,23 @@
             "pa": "UML ਡਾਇਗ੍ਰਾਮ",
             "gu": "UML ડાયાગ્રામ",
             "mr": "UML आरेख",
-            "te": "UML డయాగ్రామ్"
+            "te": "UML డయాగ్రామ్",
+            "hr": "UML dijagram",
+            "ga": "Léaráid UML",
+            "sl": "Diagram UML",
+            "fa": "نمودار UML",
+            "nn": "UML-diagram",
+            "sq": "Diagramë UML",
+            "mk": "UML дијаграм",
+            "bs": "UML dijagram",
+            "cy": "Diagram UML",
+            "ur": "UML خاکہ",
+            "kn": "UML ಡಯಾಗ್ರಾಮ್",
+            "ta": "UML வரைபடம்",
+            "ml": "UML ഡയഗ്രം",
+            "id": "Diagram UML",
+            "ms": "Rajah UML",
+            "vi": "Sơ đồ UML"
         }
     },
     "./widgets/webwriter-uml-diagram": {
@@ -168,7 +200,23 @@
             "pa": "UML ਡਾਇਗ੍ਰਾਮ",
             "gu": "UML ડાયાગ્રામ",
             "mr": "UML आरेख",
-            "te": "UML డయాగ్రామ్"
+            "te": "UML డయాగ్రామ్",
+            "hr": "UML dijagram",
+            "ga": "Léaráid UML",
+            "sl": "Diagram UML",
+            "fa": "نمودار UML",
+            "nn": "UML-diagram",
+            "sq": "Diagramë UML",
+            "mk": "UML дијаграм",
+            "bs": "UML dijagram",
+            "cy": "Diagram UML",
+            "ur": "UML خاکہ",
+            "kn": "UML ಡಯಾಗ್ರಾಮ್",
+            "ta": "UML வரைபடம்",
+            "ml": "UML ഡയഗ്രം",
+            "id": "Diagram UML",
+            "ms": "Rajah UML",
+            "vi": "Sơ đồ UML"
         }
     },
     "./snippets/library-loan": {
@@ -226,7 +274,23 @@
             "pa": "ਲਾਇਬ੍ਰੇਰੀ ਉਧਾਰ",
             "gu": "લાઇબ્રેરીમાંથી ઉધાર",
             "mr": "ग्रंथालयातून कर्ज",
-            "te": "లైబ్రరీ రుణం"
+            "te": "లైబ్రరీ రుణం",
+            "hr": "Posudba u knjižnici",
+            "ga": "Iasacht leabharlainne",
+            "sl": "Izposoja v knjižnici",
+            "fa": "امانت کتابخانه",
+            "nn": "Utlån frå bibliotek",
+            "sq": "Huazim nga biblioteka",
+            "mk": "Изнајмување од библиотека",
+            "bs": "Posudba u biblioteci",
+            "cy": "Benthyciad llyfrgell",
+            "ur": "کتب خانے سے ادھار",
+            "kn": "ಗ್ರಂಥಾಲಯ ಸಾಲ",
+            "ta": "நூலகக் கடன்",
+            "ml": "ലൈബ്രറി വായ്പ",
+            "id": "Peminjaman perpustakaan",
+            "ms": "Pinjaman perpustakaan",
+            "vi": "Mượn sách thư viện"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -284,7 +348,23 @@
             "pa": "ਆਨਲਾਈਨ ਦੁਕਾਨ",
             "gu": "ઑનલાઇન દુકાન",
             "mr": "ऑनलाइन दुकान",
-            "te": "ఆన్‌లైన్ దుకాణం"
+            "te": "ఆన్‌లైన్ దుకాణం",
+            "hr": "Internetska trgovina",
+            "ga": "Siopa ar líne",
+            "sl": "Spletni nakup",
+            "fa": "فروشگاه اینترنتی",
+            "nn": "Nettbutikkjøp",
+            "sq": "Porosi në dyqan online",
+            "mk": "Нарачка во интернет-продавница",
+            "bs": "Internet prodavnica",
+            "cy": "Siop ar-lein",
+            "ur": "آن لائن دکان",
+            "kn": "ಆನ್‌ಲೈನ್ ಅಂಗಡಿ",
+            "ta": "ஆன்லைன் கடை",
+            "ml": "ഓൺലൈൻ കട",
+            "id": "Toko daring",
+            "ms": "Kedai dalam talian",
+            "vi": "Cửa hàng trực tuyến"
         }
     }
 }
