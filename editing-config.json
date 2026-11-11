@@ -103,7 +103,16 @@
             "om": "Diyaagiraamii UML kutaa, wantaa fi tartiibaa uumi, shaakali; wantoota, daangaa fi mirkaneessa qindeessuun dandaʼamu fayyadami.",
             "so": "Abuur oo ku tababar jaantusyada fasal, shay iyo taxane ee UML adigoo adeegsanaya xubno, xaddidaado iyo xaqiijin la habayn karo.",
             "ti": "ዲያግራማት UML ክፍሊ፣ ነገርን ተኸታታልን ብዝተቐናጅ ባእታታት፣ ገደባትን ምርግጋጽን ፍጠር እና ተለማመድ።",
-            "ha": "Ƙirƙira kuma ka yi atisaye da zane-zanen UML na ajujuwa, abubuwa da jerin saƙonni tare da abubuwa, iyakoki da dokokin tabbatarwa masu daidaituwa."
+            "ha": "Ƙirƙira kuma ka yi atisaye da zane-zanen UML na ajujuwa, abubuwa da jerin saƙonni tare da abubuwa, iyakoki da dokokin tabbatarwa masu daidaituwa.",
+            "yue-Hans": "建立同练习 UML 类别图、物件图同序列图，并可设定元素、限制同验证方式。",
+            "yue-Hant": "建立同練習 UML 類別圖、物件圖同序列圖，並可設定元素、限制同驗證方式。",
+            "kmr": "Diagramên çîn, objekt û rêzê yên UML bi hêman, sînor û derbasbûnên veavabarkirî çêbike û pratîk bike.",
+            "kmr-Latn": "Diagramên çîn, objekt û rêzê yên UML bi hêman, sînor û derbasbûnên veavabarkirî çêbike û pratîk bike.",
+            "kmr-Arab": "داگرامێن چین, ئۆبژەکت ئوو رێزێ یێن UML ب هێمان, سینۆر ئوو دەرباسبوونێن ڤەاڤابارکری چێبکە ئوو پراتیک بکە.",
+            "ckb": "هێڵکاریی پۆل، شت و زنجیرە دروست بکە و ڕاهێنان بکە، لەگەڵ توخم، سنوور و پشتڕاستکردنەوەی ڕێکخراو.",
+            "ckb-Arab": "هێڵکاریی پۆل، شت و زنجیرە دروست بکە و ڕاهێنان بکە، لەگەڵ توخم، سنوور و پشتڕاستکردنەوەی ڕێکخراو.",
+            "af-ZA": "Skep en oefen UML-klas-, objek- en volgordediagramme met instelbare elemente, limiete en validering.",
+            "af-NA": "Skep en oefen UML-klas-, objek- en volgordediagramme met instelbare elemente, limiete en validering."
         },
         "label": {
             "_": "Uml Diagram",
@@ -208,7 +217,16 @@
             "om": "Diyaagiraamii UML",
             "so": "Jaantus UML",
             "ti": "ዲያግራም UML",
-            "ha": "Zanen UML"
+            "ha": "Zanen UML",
+            "yue-Hans": "UML 图表",
+            "yue-Hant": "UML 圖表",
+            "kmr": "Uml Diagram",
+            "kmr-Latn": "Uml Diagram",
+            "kmr-Arab": "ئومل داگرام",
+            "ckb": "هێڵکاریی UML",
+            "ckb-Arab": "هێڵکاریی UML",
+            "af-ZA": "UML-diagram",
+            "af-NA": "UML-diagram"
         }
     },
     "./widgets/webwriter-uml-diagram": {
@@ -315,7 +333,16 @@
             "om": "Diyaagiraamii UML",
             "so": "Jaantus UML",
             "ti": "ዲያግራም UML",
-            "ha": "Zanen UML"
+            "ha": "Zanen UML",
+            "yue-Hans": "UML 图表",
+            "yue-Hant": "UML 圖表",
+            "kmr": "UML Diagram",
+            "kmr-Latn": "UML Diagram",
+            "kmr-Arab": "UML داگرام",
+            "ckb": "هێڵکاریی UML",
+            "ckb-Arab": "هێڵکاریی UML",
+            "af-ZA": "UML-diagram",
+            "af-NA": "UML-diagram"
         }
     },
     "./snippets/library-loan": {
@@ -422,7 +449,16 @@
             "om": "Liqa mana kitaabaa",
             "so": "Amaahda maktabadda",
             "ti": "ልቓሕ ቤተ-መጻሕፍቲ",
-            "ha": "Aron littafi daga ɗakin karatu"
+            "ha": "Aron littafi daga ɗakin karatu",
+            "yue-Hans": "图书借阅",
+            "yue-Hant": "圖書借閱",
+            "kmr": "Kirêkirina Pirtûkxaneyê",
+            "kmr-Latn": "Kirêkirina Pirtûkxaneyê",
+            "kmr-Arab": "کرێکرنا پرتووکخانەیێ",
+            "ckb": "خواستی کتێبخانە",
+            "ckb-Arab": "خواستی کتێبخانە",
+            "af-ZA": "Biblioteeklening",
+            "af-NA": "Biblioteeklening"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -529,7 +565,16 @@
             "om": "Dukaan interneetii",
             "so": "Dukaan internetka",
             "ti": "ኦንላይን ድኳን",
-            "ha": "Shagon intanet"
+            "ha": "Shagon intanet",
+            "yue-Hans": "网上商店",
+            "yue-Hant": "網上商店",
+            "kmr": "Dikana Serhêl",
+            "kmr-Latn": "Dikana Serhêl",
+            "kmr-Arab": "دکانا سەرهێل",
+            "ckb": "فرۆشگای ئۆنلاین",
+            "ckb-Arab": "فرۆشگای ئۆنلاین",
+            "af-ZA": "Aanlynwinkel",
+            "af-NA": "Aanlynwinkel"
         }
     }
 }

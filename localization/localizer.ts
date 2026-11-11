@@ -4,7 +4,9 @@ import { runtimeMsg } from "@lit/localize/internal/runtime-msg.js";
 import type { LitElement } from "lit";
 import { sourceLocale, targetLocales } from "./generated/locale-codes.js";
 
-const supported = new Map([sourceLocale, ...targetLocales].map(locale => [locale.toLowerCase(), locale]));
+const supported = new Map([sourceLocale, ...targetLocales].map(locale => [
+  new Intl.Locale(locale).baseName.toLowerCase(), locale,
+]));
 const regionalDefaults: Record<string, string> = {
   bn: "bn-BD", de: "de-DE", es: "es-ES", fa: "fa-IR", fr: "fr-FR",
   no: "nb", pt: "pt-PT",

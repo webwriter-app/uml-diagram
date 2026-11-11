@@ -97,7 +97,16 @@
     "om",
     "so",
     "ti",
-    "ha"
+    "ha",
+    "yue-Hans",
+    "yue-Hant",
+    "kmr",
+    "kmr-Latn",
+    "kmr-Arab",
+    "ckb",
+    "ckb-Arab",
+    "af-ZA",
+    "af-NA"
   ],
   "interchange": {
     "format": "xliff",
