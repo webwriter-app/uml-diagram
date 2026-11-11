@@ -19,7 +19,20 @@
             "bg": "Създавайте и упражнявайте UML диаграми на класове, обекти и последователности с настройваеми елементи, ограничения и проверка.",
             "zh": "创建和练习 UML 类图、对象图和时序图，可配置元素、限制和验证规则。",
             "zh-Hans": "创建和练习 UML 类图、对象图和时序图，可配置元素、限制和验证规则。",
-            "zh-Hant": "建立並練習 UML 類別圖、物件圖與循序圖，可設定元素、限制及驗證規則。"
+            "zh-Hant": "建立並練習 UML 類別圖、物件圖與循序圖，可設定元素、限制及驗證規則。",
+            "cs": "Vytvářejte a procvičujte diagramy tříd, objektů a sekvencí UML s nastavitelnými prvky, limity a ověřováním.",
+            "da": "Opret og øv UML-klasse-, objekt- og sekvensdiagrammer med konfigurerbare elementer, grænser og validering.",
+            "hu": "Készíts és gyakorolj UML-osztály-, objektum- és szekvenciadiagramokat beállítható elemekkel, korlátokkal és érvényesítéssel.",
+            "pt": "Crie e pratique diagramas UML de classes, objetos e sequência com elementos, limites e validação configuráveis.",
+            "pt-PT": "Crie e pratique diagramas UML de classes, objetos e sequência com elementos, limites e validação configuráveis.",
+            "ru": "Создавайте и практикуйте диаграммы классов, объектов и последовательностей UML с настраиваемыми элементами, ограничениями и проверкой.",
+            "sk": "Vytvárajte a precvičujte UML diagramy tried, objektov a sekvencií s nastaviteľnými prvkami, limitmi a overovaním.",
+            "sv": "Skapa och öva på klass-, objekt- och sekvensdiagram i UML med inställbara element, gränser och validering.",
+            "ja": "設定可能な要素、制限、検証を使ってUMLクラス図、オブジェクト図、シーケンス図を作成・練習しましょう。",
+            "ko": "구성 가능한 요소, 제한, 검증을 사용해 UML 클래스, 객체 및 시퀀스 다이어그램을 만들고 연습하세요.",
+            "no": "Opprett og øv på UML-klasse-, objekt- og sekvensdiagrammer med konfigurerbare elementer, grenser og validering.",
+            "nb": "Opprett og øv på UML-klasse-, objekt- og sekvensdiagrammer med konfigurerbare elementer, grenser og validering.",
+            "uk": "Створюйте та практикуйте діаграми класів, об’єктів і послідовностей UML із налаштовуваними елементами, обмеженнями та перевіркою."
         },
         "label": {
             "_": "Uml Diagram",
@@ -40,7 +53,20 @@
             "nl": "UML-diagram",
             "it": "Diagramma UML",
             "pl": "Diagram UML",
-            "pt-BR": "Diagrama UML"
+            "pt-BR": "Diagrama UML",
+            "cs": "Diagram UML",
+            "da": "UML-diagram",
+            "hu": "UML-diagram",
+            "pt": "Diagrama UML",
+            "pt-PT": "Diagrama UML",
+            "ru": "Диаграмма UML",
+            "sk": "UML diagram",
+            "sv": "UML-diagram",
+            "ja": "UML図",
+            "ko": "UML 다이어그램",
+            "no": "UML-diagram",
+            "nb": "UML-diagram",
+            "uk": "Діаграма UML"
         }
     },
     "./widgets/webwriter-uml-diagram": {
@@ -63,7 +89,20 @@
             "nl": "UML-diagram",
             "it": "Diagramma UML",
             "pl": "Diagram UML",
-            "pt-BR": "Diagrama UML"
+            "pt-BR": "Diagrama UML",
+            "cs": "Diagram UML",
+            "da": "UML-diagram",
+            "hu": "UML-diagram",
+            "pt": "Diagrama UML",
+            "pt-PT": "Diagrama UML",
+            "ru": "Диаграмма UML",
+            "sk": "UML diagram",
+            "sv": "UML-diagram",
+            "ja": "UML図",
+            "ko": "UML 다이어그램",
+            "no": "UML-diagram",
+            "nb": "UML-diagram",
+            "uk": "Діаграма UML"
         }
     },
     "./snippets/library-loan": {
@@ -86,7 +125,20 @@
             "bg": "Заемане на книги",
             "zh": "图书馆借阅",
             "zh-Hans": "图书馆借阅",
-            "zh-Hant": "圖書館借閱"
+            "zh-Hant": "圖書館借閱",
+            "cs": "Výpůjčka v knihovně",
+            "da": "Biblioteksudlån",
+            "hu": "Könyvtári kölcsönzés",
+            "pt": "Empréstimo de livros",
+            "pt-PT": "Empréstimo de livros",
+            "ru": "Выдача книг в библиотеке",
+            "sk": "Výpožička v knižnici",
+            "sv": "Bibliotekslån",
+            "ja": "図書館貸出",
+            "ko": "도서 대출",
+            "no": "Biblioteklån",
+            "nb": "Biblioteklån",
+            "uk": "Позика бібліотечних книжок"
         }
     },
     "./snippets/online-shop-checkout": {
@@ -109,7 +161,20 @@
             "bg": "Онлайн магазин",
             "zh": "网上商店",
             "zh-Hans": "网上商店",
-            "zh-Hant": "網路商店"
+            "zh-Hant": "網路商店",
+            "cs": "Internetový obchod",
+            "da": "Webshop",
+            "hu": "Webáruház",
+            "pt": "Loja online",
+            "pt-PT": "Loja online",
+            "ru": "Интернет-магазин",
+            "sk": "Internetový obchod",
+            "sv": "Webbutik",
+            "ja": "オンラインショップ",
+            "ko": "온라인 쇼핑",
+            "no": "Nettbutikk",
+            "nb": "Nettbutikk",
+            "uk": "Інтернет-магазин"
         }
     }
 }

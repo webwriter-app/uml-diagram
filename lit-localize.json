@@ -13,7 +13,20 @@
     "bg",
     "zh",
     "zh-Hans",
-    "zh-Hant"
+    "zh-Hant",
+    "cs",
+    "da",
+    "hu",
+    "pt",
+    "pt-PT",
+    "ru",
+    "sk",
+    "sv",
+    "ja",
+    "ko",
+    "no",
+    "nb",
+    "uk"
   ],
   "interchange": {
     "format": "xliff",
