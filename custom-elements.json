@@ -4,20 +4,52 @@
   "modules": [
     {
       "kind": "javascript-module",
-      "path": "widgets/webwriter-uml-diagram.ts",
+      "path": "src/widgets/webwriter-uml-diagram.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "Interactive editor for UML class, object and sequence diagrams.\nAuthors configure the available diagram types, elements, limits and validation rules and can provide a\nstarting diagram that learners can reset to. Learners model their solution directly in the widget.",
           "name": "WebwriterUmlDiagram",
+          "slots": [
+            {
+              "description": "Direct application/json block stores diagram settings and authored models.",
+              "name": "data"
+            }
+          ],
           "members": [
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ diagramType: { type: \"select\" as const, label: (widget: {msg: MsgFn}) => widget.msg(\"Diagram to show\"), options: [ { value: \"class-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Class diagram\") }, { value: \"object-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Object diagram\") }, { value: \"sequence-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Sequence diagram\") }, ], }, }"
+            },
+            {
+              "kind": "field",
+              "name": "actions",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ openSettings: { label: (widget: {msg: MsgFn}) => widget.msg(\"Configure diagrams\"), icon: \"Settings\", intent: \"default\" as const }, }"
+            },
+            {
+              "kind": "field",
+              "name": "localize"
+            },
+            {
+              "kind": "field",
+              "name": "msg"
+            },
             {
               "kind": "field",
               "name": "classSettings",
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules; persisted together in the direct JSON data block."
+              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules"
             },
             {
               "kind": "field",
@@ -25,7 +57,7 @@
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules; persisted together in the direct JSON data block."
+              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules"
             },
             {
               "kind": "field",
@@ -33,7 +65,7 @@
               "type": {
                 "text": "SequenceSettings"
               },
-              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules; persisted together in the direct JSON data block."
+              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules"
             },
             {
               "kind": "field",
@@ -41,7 +73,7 @@
               "type": {
                 "text": "GlobalSettings"
               },
-              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode; persisted together in the direct JSON data block."
+              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode"
             },
             {
               "kind": "field",
@@ -60,7 +92,7 @@
               "type": {
                 "text": "SequenceModel"
               },
-              "description": "Sequence diagram content as JSON (lifelines, messages and fragments); persisted together in the direct JSON data block."
+              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)"
             },
             {
               "kind": "field",
@@ -69,7 +101,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Class diagram content as JSON; persisted together in the direct JSON data block."
+              "description": "Class diagram content as JSON"
             },
             {
               "kind": "field",
@@ -78,7 +110,16 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Object diagram content as JSON; persisted together in the direct JSON data block."
+              "description": "Object diagram content as JSON"
+            },
+            {
+              "kind": "field",
+              "name": "settingsOpen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
             },
             {
               "kind": "field",
@@ -137,6 +178,40 @@
             },
             {
               "kind": "field",
+              "name": "_skipDataWrite",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#data",
+              "privacy": "private",
+              "description": "The widget's JSON data block: settings and diagram contents, saved under the keys of the stored object"
+            },
+            {
+              "kind": "method",
+              "name": "_restoreData",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "data",
+                  "default": "this.#data.get()",
+                  "type": {
+                    "text": "Record<string, any>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "_writeData",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
               "name": "_clearProseMirrorNodeSelection",
               "privacy": "private",
               "description": "WebWriter selects the widget on every press, which can turn into a DOM range around it that highlights\nall of its texts. Remove that range (the widget stays selected), but leave text fields alone."
@@ -166,6 +241,10 @@
               "name": "_flushSaves",
               "privacy": "private",
               "description": "Writes all pending diagram changes"
+            },
+            {
+              "kind": "method",
+              "name": "openSettings"
             },
             {
               "kind": "method",
@@ -247,9 +326,8 @@
           },
           "tagName": "webwriter-uml-diagram",
           "customElement": true,
-          "modulePath": "widgets/webwriter-uml-diagram.ts",
-          "definitionPath": "widgets/webwriter-uml-diagram.ts",
-          "properties": []
+          "modulePath": "src/widgets/webwriter-uml-diagram.ts",
+          "definitionPath": "src/widgets/webwriter-uml-diagram.ts"
         }
       ],
       "exports": [
@@ -258,7 +336,7 @@
           "name": "WebwriterUmlDiagram",
           "declaration": {
             "name": "WebwriterUmlDiagram",
-            "module": "widgets/webwriter-uml-diagram.ts"
+            "module": "src/widgets/webwriter-uml-diagram.ts"
           }
         },
         {
@@ -266,7 +344,7 @@
           "name": "webwriter-uml-diagram",
           "declaration": {
             "name": "WebwriterUmlDiagram",
-            "module": "widgets/webwriter-uml-diagram.ts"
+            "module": "src/widgets/webwriter-uml-diagram.ts"
           }
         }
       ]

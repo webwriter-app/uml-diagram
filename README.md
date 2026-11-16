@@ -1,5 +1,5 @@
-# UML Diagram (`@webwriter/uml-diagram@1.0.0`)
-[License: MIT](LICENSE) | Version: 1.0.0
+# Uml Diagram (`@webwriter/uml-diagram@2.0.0`)
+[License: MIT](LICENSE) | Version: 2.0.0
 
 Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.
 
@@ -42,9 +42,34 @@ npm install @webwriter/uml-diagram
 ## Fields
 | Name (Attribute Name) | Type | Description | Default | Reflects |
 | :-------------------: | :--: | :---------: | :-----: | :------: |
+| `WebwriterUmlDiagram.options` | `object` | - | `{ diagramType: { type: "select" as const, label: (widget: {msg: MsgFn}) => widget.msg("Diagram to show"), options: [ { value: "class-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Class diagram") }, { value: "object-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Object diagram") }, { value: "sequence-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Sequence diagram") }, ], }, }` | ✗ |
+| `WebwriterUmlDiagram.actions` | `object` | - | `{ openSettings: { label: (widget: {msg: MsgFn}) => widget.msg("Configure diagrams"), icon: "Settings", intent: "default" as const }, }` | ✗ |
+| `localize` | - | - | - | ✗ |
+| `msg` | - | - | - | ✗ |
+| `classSettings` | `ClassSettings` | Class diagram settings as JSON: available class and relation types, limits and validation rules | - | ✗ |
+| `objectSettings` | `ClassSettings` | Object diagram settings as JSON: available elements, displayed details, limits and validation rules | - | ✗ |
+| `sequenceSettings` | `SequenceSettings` | Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules | - | ✗ |
+| `globalSettings` | `GlobalSettings` | Global settings as JSON: enabled diagram types, checkpoint reset and validation mode | - | ✗ |
 | `diagramType` (`diagram-type`) | `string` | Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram` | `"class-diagram"` | ✓ |
+| `sequenceModelData` | `SequenceModel` | Sequence diagram content as JSON (lifelines, messages and fragments) | - | ✗ |
+| `classDiagramData` | `string` | Class diagram content as JSON | `''` | ✗ |
+| `objectDiagramData` | `string` | Object diagram content as JSON | `''` | ✗ |
 
 *Fields including [properties](https://developer.mozilla.org/en-US/docs/Glossary/Property/JavaScript) and [attributes](https://developer.mozilla.org/en-US/docs/Glossary/Attribute) define the current state of the widget and offer customization options.*
+
+## Methods
+| Name | Description | Parameters |
+| :--: | :---------: | :-------: |
+| `openSettings` | - | -
+
+*[Methods](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Method_definitions) allow programmatic access to the widget.*
+
+## Slots
+| Name | Description | Content Type |
+| :--: | :---------: | :----------: |
+| `data` | Direct application/json block stores diagram settings and authored models. | - |
+
+*[Slots](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) define how the content of the widget is rendered.*
 
 ## Editing config
 | Name | Value |
@@ -53,7 +78,7 @@ npm install @webwriter/uml-diagram
 
 *The [editing config](https://webwriter.app/docs/packages/configuring/#editingconfig) defines how explorable authoring tools such as [WebWriter](https://webwriter.app) treat the widget.*
 
-*No public methods, slots, events, custom CSS properties, or CSS parts.*
+*No public events, custom CSS properties, or CSS parts.*
 
 
 ---

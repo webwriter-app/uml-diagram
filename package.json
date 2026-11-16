@@ -132,27 +132,44 @@
   "author": "moritz.sander@rwth-aachen.de",
   "repository": "https://github.com/webwriter-app/uml-diagram",
   "scripts": {
-    "prepublishOnly": "npx @webwriter/build",
-    "dev": "npx @webwriter/build dev",
+    "prepublishOnly": "npx @webwriter/build --shared-dependencies",
+    "dev": "npx @webwriter/build dev --shared-dependencies",
     "localize": "lit-localize extract && npx @webwriter/build localize && lit-localize build"
   },
   "dependencies": {
     "@lit/localize": "^0.12.2",
     "@shoelace-style/shoelace": "^2.20.1",
     "@tabler/icons": "^3.52.0",
-    "@webwriter/lit": "^3.0.0",
-    "drawflow": "^0.0.60",
-    "interactjs": "^1.10.27",
-    "lit": "^3"
+    "@webwriter/lit": "^3.2.0",
+    "@webwriter/widget": "^1.2.0",
+    "lit": "^3.3.0",
+    "pixi.js": "^8.23.0"
   },
   "devDependencies": {
-    "@webwriter/build": "^1.13.1",
-    "@lit/localize-tools": "^0.8"
+    "@lit/localize-tools": "^0.8",
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@webwriter/build": "^1.14.0",
+    "chai": "^6.3.0",
+    "mocha": "^12.0.3",
+    "typescript": "^7.0.2"
   },
   "exports": {
     "./widgets/webwriter-uml-diagram.*": {
-      "source": "./widgets/webwriter-uml-diagram.ts",
+      "source": "./src/widgets/webwriter-uml-diagram.ts",
       "default": "./dist/widgets/webwriter-uml-diagram.*"
+    },
+    "./tests/data.*": {
+      "source": "./tests/data.test.ts",
+      "default": "./dist/tests/data.*"
+    },
+    "./tests/scene.*": {
+      "source": "./tests/scene.test.ts",
+      "default": "./dist/tests/scene.*"
+    },
+    "./tests/sequence.*": {
+      "source": "./tests/sequence.test.ts",
+      "default": "./dist/tests/sequence.*"
     },
     "./icon": "./icon.svg",
     "./editing-config.json": "./editing-config.json",
@@ -160,5 +177,10 @@
     "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
     "./custom-elements.json": "./custom-elements.json"
   },
-  "customElements": "custom-elements.json"
+  "customElements": "custom-elements.json",
+  "prebuiltDependencies": [
+    "@webwriter/lit",
+    "@webwriter/widget",
+    "pixi.js"
+  ]
 }

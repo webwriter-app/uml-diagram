@@ -1,0 +1,179 @@
+import { LitElementWw } from "@webwriter/lit";
+import { widgetMsg } from "@webwriter/lit/localize";
+import { html } from "lit";
+import { property } from "lit/decorators.js";
+import { default as SlDetails } from "@shoelace-style/shoelace/dist/components/details/details.component.js";
+import { default as SlSwitch } from "@shoelace-style/shoelace/dist/components/switch/switch.component.js";
+import { default as SlDivider } from "@shoelace-style/shoelace/dist/components/divider/divider.component.js";
+import { default as SlSelect } from "@shoelace-style/shoelace/dist/components/select/select.component.js";
+import { default as SlOption } from "@shoelace-style/shoelace/dist/components/option/option.component.js";
+import { GlobalSettings } from "../../model/global-settings/global-settings-model";
+import { ClassSettings } from "../../model/class-object-diagram/class-settings-model";
+import { SequenceSettings } from "../../model/sequence-diagram/sequence-settings-model";
+import { ClassSettingsMenu } from "../class-object-diagram/class-settings-menu";
+import { SequenceDiagramSettingsMenu } from "../sequence-diagram/sequence-diagram-settings-menu";
+import sharedStyles from "../shared/settings-menu.styles";
+import styles from "./global-settings-menu.styles"
+
+/**
+ * Master Settings Menu for the entire Widget (shown in the options panel)
+ * Shows the general settings at the top, followed by one expandable section per diagram type
+ * with its enable switch and the diagram specific settings menu.
+ */
+export class GlobalSettingsMenu extends LitElementWw {
+    msg = widgetMsg(this);
+
+    /** Register used Elements */
+    static get scopedElements() {
+        return {
+            "sl-details": SlDetails,
+            "sl-switch": SlSwitch,
+            "sl-divider": SlDivider,
+            "sl-select": SlSelect,
+            "sl-option": SlOption,
+            "class-settings-menu": ClassSettingsMenu,
+            "sequence-diagram-settings-menu": SequenceDiagramSettingsMenu
+        };
+    }
+
+    /** Styles are defined in the corresponding .styles file */
+    static styles = [sharedStyles, styles];
+
+    /** Settings instances for all diagram types, passed down from the main widget */
+    @property({ attribute: false }) accessor globalSettings: GlobalSettings = GlobalSettings.getInitialGlobalSettings();
+    @property({ attribute: false }) accessor classSettings: ClassSettings = ClassSettings.getInitialClassDiagramSettings();
+    @property({ attribute: false }) accessor objectSettings: ClassSettings = ClassSettings.getInitialObjectDiagramSettings();
+    @property({ attribute: false }) accessor sequenceSettings: SequenceSettings = SequenceSettings.getInitialSequenceSettings();
+
+    // --------------------------------------------------------------------------------------------------------
+    // Handlers
+    // --------------------------------------------------------------------------------------------------------
+
+    /** Handler for changes in the global settings */
+    private _handleGlobalSwitchChange(e: Event, key: keyof GlobalSettings) {
+        const target = e.target as HTMLInputElement;
+        
+        // Create a new updated settings object
+        const newSettings = new GlobalSettings();
+        Object.assign(newSettings, this.globalSettings);
+        Object.assign(newSettings, { [key]: target.checked });
+
+        // Prevent deactivating all diagrams — at least one must remain active
+        const anyEnabled = newSettings.classDiagramEnabled || 
+                        newSettings.objectDiagramEnabled || 
+                        newSettings.sequenceDiagramEnabled;
+        if (!anyEnabled) {
+            (target as any).checked = true;
+            return;
+        }
+
+        // Dispatch the generic settings-changed event
+        this.dispatchEvent(new CustomEvent('settings-changed', {
+            detail: { 
+                diagramType: 'global-settings', 
+                updatedSettings: newSettings 
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    /** Handler for changes in the validation mode selector */
+    private _handleValidationModeChange(e: Event) {
+        const target = e.target as HTMLSelectElement;
+        const newSettings = new GlobalSettings();
+        Object.assign(newSettings, this.globalSettings);
+        newSettings.validationMode = target.value as 'all' | 'off' | 'custom';
+        this.dispatchEvent(new CustomEvent('settings-changed', {
+            detail: { 
+                diagramType: 'global-settings', 
+                updatedSettings: newSettings 
+            },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    // --------------------------------------------------------------------------------------------------------
+    // Render Method
+    // --------------------------------------------------------------------------------------------------------
+
+    /** Renders the expandable section of one diagram type with its enable switch and settings */
+    private _renderDiagramSection(label: string, enabledKey: 'classDiagramEnabled' | 'objectDiagramEnabled' | 'sequenceDiagramEnabled', content: unknown) {
+        const enabled = this.globalSettings[enabledKey];
+        const enabledCount = [this.globalSettings.classDiagramEnabled, this.globalSettings.objectDiagramEnabled, this.globalSettings.sequenceDiagramEnabled].filter(Boolean).length;
+        // at least one diagram has to stay enabled
+        const isLastEnabled = enabled && enabledCount === 1;
+
+        // keep clicks and key presses on the switch from also expanding/collapsing the section
+        const keepFromHeader = (e: Event) => e.stopPropagation();
+
+        return html`
+            <sl-details>
+                <div slot="summary" class="diagram-summary">
+                    <sl-switch
+                        size="small"
+                        aria-label=${this.msg("Enabled")}
+                        ?checked=${enabled}
+                        ?disabled=${isLastEnabled}
+                        @click=${keepFromHeader}
+                        @keydown=${keepFromHeader}
+                        @sl-change=${(e: Event) => this._handleGlobalSwitchChange(e, enabledKey)}
+                    ></sl-switch>
+                    <span>${label}</span>
+                </div>
+                ${content}
+            </sl-details>
+        `;
+    }
+
+    render() {
+        return html`
+            <section class="section">
+                <sl-select
+                    size="small"
+                    label=${this.msg("Validation Mode")}
+                    .value=${this.globalSettings.validationMode}
+                    @sl-change=${this._handleValidationModeChange}
+                >
+                    <sl-option value="off">${this.msg("Off")}</sl-option>
+                    <sl-option value="custom">${this.msg("Custom")}</sl-option>
+                    <sl-option value="all">${this.msg("All")}</sl-option>
+                </sl-select>
+                <sl-switch
+                    size="small"
+                    ?checked=${this.globalSettings.useCheckpoint}
+                    @sl-change=${(e: Event) => this._handleGlobalSwitchChange(e, 'useCheckpoint')}
+                >
+                    ${this.msg("Use Checkpoint")}
+                </sl-switch>
+            </section>
+
+            <div class="diagram-sections">
+                ${this._renderDiagramSection(this.msg("Class Diagram"), 'classDiagramEnabled', html`
+                    <class-settings-menu
+                        .settings=${this.classSettings}
+                        .globalSettings=${this.globalSettings}
+                        diagramType="class-diagram"
+                    ></class-settings-menu>
+                `)}
+
+                ${this._renderDiagramSection(this.msg("Object Diagram"), 'objectDiagramEnabled', html`
+                    <class-settings-menu
+                        .settings=${this.objectSettings}
+                        .globalSettings=${this.globalSettings}
+                        diagramType="object-diagram"
+                    ></class-settings-menu>
+                `)}
+
+                ${this._renderDiagramSection(this.msg("Sequence Diagram"), 'sequenceDiagramEnabled', html`
+                    <sequence-diagram-settings-menu
+                        .settings=${this.sequenceSettings}
+                        .globalSettings=${this.globalSettings}
+                        diagramType="sequence-diagram"
+                    ></sequence-diagram-settings-menu>
+                `)}
+            </div>
+        `;
+    }
+}
