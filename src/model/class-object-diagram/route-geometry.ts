@@ -22,8 +22,3 @@ export function routeMidpoint(route: Point[]): { point: Point, horizontal: boole
     }
     return { point: route[0], horizontal: true };
 }
-
-/** Converts a route into SVG path data */
-export function routeToPath(route: Point[]) {
-    return route.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
-}

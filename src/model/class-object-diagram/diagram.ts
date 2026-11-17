@@ -61,18 +61,6 @@ export interface Relation {
     data: RelationData;
 }
 
-/** The relation types a relation can have */
-export const RELATION_TYPES = [
-    'association',
-    'association-bidirectional',
-    'association-undirected',
-    'inheritance',
-    'composition',
-    'aggregation',
-    'dependency',
-    'realization'
-] as const;
-
 /** Types a relation constraint distinguishes; every other type counts as association */
 const CONSTRAINT_TYPES = ['inheritance', 'realization', 'composition', 'aggregation'];
 

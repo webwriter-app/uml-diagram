@@ -655,19 +655,6 @@ export class SequenceEditor extends LitElementWw {
         }));
     }
 
-    /** Handler to remove a region from an alternative fragment */
-    private _handleRemoveFragmentRegion() {
-        if (!this.editingFragmentId) return;
-        
-        const frag = this.model.fragments?.find(f => f.id === this.editingFragmentId);
-        if (!frag || frag.operands.length <= 1) return;
-
-        const updatedOperands = frag.operands.slice(0, -1);
-        this.dispatchEvent(new CustomEvent('update-fragment', {
-            detail: { id: frag.id, operands: updatedOperands }
-        }));
-    }
-
     /** Hander to remove a region in an alt fragment */
     private _handleRemoveFragmentOperand(operandId: string) {
         const frag = this.model.fragments?.find(f => f.id === this.editingFragmentId);

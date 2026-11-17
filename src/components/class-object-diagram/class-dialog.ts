@@ -441,7 +441,7 @@ export class ClassDialog extends LitElementWw {
                                 id="attributes-list" 
                                 style="display: flex; flex-direction: column; gap: 5px;"
                             >
-                                ${repeat(this._editingNodeData.attributes, (attr, i) => `attr-${i}`, (attr, i) => html`
+                                ${repeat(this._editingNodeData.attributes, (_attr, i) => `attr-${i}`, (attr, i) => html`
                                     <div class="method-or-parameter-card">
 
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
@@ -583,7 +583,7 @@ export class ClassDialog extends LitElementWw {
                                 ${this.msg("Enumeration Values")}
                             </strong>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                ${repeat(this._editingNodeData.enumValues, (val, i) => `enum-${i}`, (val, i) => html`
+                                ${repeat(this._editingNodeData.enumValues, (_val, i) => `enum-${i}`, (val, i) => html`
                                     <div style="display: flex; gap: 5px; align-items: center;">
                                         <sl-input 
                                             placeholder=${this.msg("Value")}
@@ -624,7 +624,7 @@ export class ClassDialog extends LitElementWw {
                                 id="methods-list" 
                                 style="display: flex; flex-direction: column; gap: 10px;"
                             >
-                                ${repeat(this._editingNodeData.methods, (meth, i) => `meth-${i}`, (meth, i) => html`
+                                ${repeat(this._editingNodeData.methods, (_meth, i) => `meth-${i}`, (meth, i) => html`
                                     <div class="method-or-parameter-card">
 
                                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
