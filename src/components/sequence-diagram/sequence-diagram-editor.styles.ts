@@ -18,7 +18,7 @@ export default css`
         inset: 0;
         background-color: var(--uml-canvas-background, var(--sl-color-neutral-0));
         --ww-scene-grid-color: var(--sl-color-neutral-300);
-        --ww-scene-selection: var(--sl-color-primary-600);
+        --ww-scene-selection: var(--uml-accent, var(--sl-color-primary-600));
         touch-action: none;
         /* Long presses open the element's menu instead of selecting text or showing Safari's callout */
         -webkit-user-select: none;
@@ -63,7 +63,7 @@ export default css`
 
     /* Elements of the diagram are drawn by the scene; they take the same colors as the hovered and dragged elements of the class diagram */
     ww-path, ww-shape {
-        stroke: var(--sl-color-neutral-900);
+        stroke: var(--uml-ink, var(--sl-color-neutral-900));
     }
 
     /* The dashed line of a lifeline */
@@ -74,7 +74,7 @@ export default css`
     }
 
     ww-path.lifeline-line.active {
-        stroke: var(--sl-color-primary-600);
+        stroke: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     /* The area of a lifeline that takes clicks and drags (and has the handle to make it longer) */
@@ -97,18 +97,18 @@ export default css`
 
     ww-path.message-line:state(hover),
     ww-path.message-line.active {
-        stroke: var(--sl-color-primary-600);
+        stroke: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     ww-path.message-line ww-text {
-        fill: var(--sl-color-neutral-900);
+        fill: var(--uml-ink, var(--sl-color-neutral-900));
         stroke: none;
         font-family: var(--sl-font-sans);
         font-size: var(--sl-font-size-small);
     }
 
     ww-shape.message-dot {
-        fill: var(--sl-color-neutral-900);
+        fill: var(--uml-ink, var(--sl-color-neutral-900));
         stroke: none;
         pointer-events: none;
     }
@@ -133,13 +133,13 @@ export default css`
 
     ww-shape.activation-box:state(hover),
     ww-shape.activation-box.active {
-        stroke: var(--sl-color-primary-600);
+        stroke: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     /* A fragment: the frame and the header take the pointer only at the header */
     ww-shape.fragment-background {
         fill: none;
-        stroke: var(--sl-color-neutral-900);
+        stroke: var(--uml-ink, var(--sl-color-neutral-900));
         stroke-width: 1.5px;
         pointer-events: none;
     }
@@ -152,7 +152,7 @@ export default css`
     ww-shape.fragment-background.active,
     ww-shape.fragment-header.active,
     ww-shape.fragment-header:state(hover) {
-        stroke: var(--sl-color-primary-600);
+        stroke: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     ww-shape.fragment-background.overlapping.active {
@@ -161,7 +161,7 @@ export default css`
 
     ww-shape.fragment-header {
         fill: var(--sl-color-neutral-0);
-        stroke: var(--sl-color-neutral-900);
+        stroke: var(--uml-ink, var(--sl-color-neutral-900));
         stroke-width: 1.5px;
         cursor: grab;
     }
@@ -186,7 +186,7 @@ export default css`
 
     ww-text.fragment-type,
     ww-text.fragment-guard {
-        fill: var(--sl-color-neutral-900);
+        fill: var(--uml-ink, var(--sl-color-neutral-900));
         stroke: none;
         font-family: var(--sl-font-sans);
         font-size: var(--sl-font-size-small);
@@ -268,7 +268,7 @@ export default css`
         height: ${HEAD_HEIGHT}px;
         width: ${HEAD_WIDTH}px;
         background: var(--sl-color-neutral-0);
-        border: 2px solid var(--sl-color-neutral-900);
+        border: 2px solid var(--uml-ink, var(--sl-color-neutral-900));
         box-sizing: border-box;
         padding: 4px;
         gap: 8px; 
@@ -281,7 +281,7 @@ export default css`
 
     ww-node.lifeline-box:hover,
     ww-node.lifeline-box.active {
-        border-color: var(--sl-color-primary-600);
+        border-color: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     /* Stacks the text elements vertically and uses min-width: 0 to allow proper text truncation and wrapping within the flex container. */
@@ -363,5 +363,10 @@ export default css`
     .operand-input-wrapper sl-input {
         width: 100%;
     }
-  
+
+    @media print {
+        sl-drawer {
+            display: none;
+        }
+    }
 `;

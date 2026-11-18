@@ -12,6 +12,7 @@ export default css`
         display: flex;
         align-items: flex-end;
         gap: var(--sl-spacing-3x-small);
+        min-width: 0;
     }
 
     /* Inactive tabs look like small Shoelace text buttons without an outline */
@@ -23,12 +24,15 @@ export default css`
         height: var(--sl-input-height-small);
         padding: 0 var(--sl-spacing-x-small);
         min-width: 5rem;
+        flex: 0 1 auto;
 
         font-family: var(--sl-font-sans);
         font-size: var(--sl-font-size-small);
         font-weight: var(--sl-font-weight-semibold);
         color: var(--sl-color-neutral-600);
         white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         background: none;
         /* transparent border keeps the size identical to the bordered active tab */
@@ -40,7 +44,7 @@ export default css`
     }
 
     .tab:hover:not(.active) {
-        color: var(--sl-color-primary-600);
+        color: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     .tab:focus-visible {
@@ -51,7 +55,7 @@ export default css`
     /* The active tab reaches down through the frame border, is filled with the toolbar
        color so it merges with the toolbar row below and is highlighted in the primary color */
     .tab.active {
-        color: var(--sl-color-primary-600);
+        color: var(--uml-accent, var(--sl-color-primary-600));
         background-color: var(--sl-color-neutral-0);
         border-color: var(--sl-input-border-color);
         height: calc(var(--sl-input-height-small) + 1px);
@@ -69,5 +73,21 @@ export default css`
 
     :host([fullscreen]) .tab:first-child {
         border-left: none;
+    }
+
+    /* On a narrow widget the three tabs share the row */
+    @container (max-width: 480px) {
+        .tab {
+            min-width: 0;
+            padding: 0 var(--sl-spacing-2x-small);
+            font-size: var(--sl-font-size-x-small);
+        }
+    }
+
+    /* On paper only the tab of the diagram that is shown stays, as its title */
+    @media print {
+        .tab:not(.active) {
+            display: none;
+        }
     }
 `;

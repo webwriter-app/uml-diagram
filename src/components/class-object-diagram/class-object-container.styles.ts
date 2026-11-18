@@ -34,4 +34,11 @@ export default css`
         position: relative;
         z-index: 10;
     }
+
+    /* The toolbar is only for the screen; the diagram fills the container */
+    @media print {
+        class-toolbar {
+            display: none;
+        }
+    }
 `;

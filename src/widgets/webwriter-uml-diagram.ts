@@ -15,12 +15,32 @@ import { SequenceModel } from "../model/sequence-diagram/sequence-model";
 import { DiagramTabs, visibleDiagramTypes } from "../components/diagram-tabs/diagram-tabs";
 import styles from "../components/webwriter-uml-diagram.styles";
 import { jsonData } from "@webwriter/lit/data";
+import { ClassDiagram } from "../model/class-object-diagram/diagram";
+import { classDiagramToPlantUml, sequenceToPlantUml } from "../model/exchange/plantuml-export";
+import { parsePlantUml, type PlantUmlResult } from "../model/exchange/plantuml-import";
+import { classDiagramToSvg, sequenceToSvg } from "../model/exchange/svg-export";
 
 /**
  * Interactive editor for UML class, object and sequence diagrams.
  * Authors configure the available diagram types, elements, limits and validation rules and can provide a
  * starting diagram that learners can reset to. Learners model their solution directly in the widget.
  * @slot data - Direct application/json block stores diagram settings and authored models.
+ * @part tabs - The row of diagram tabs above the frame.
+ * @part frame - The bordered frame around the toolbar and the canvas.
+ *
+ * Theme: the text and line color of the diagrams follow `--ww-text-color`, the font follows `--ww-font-family`, and
+ * the selected and hovered marks and the active tab follow `--ww-theme-accent-1`; without them the colors are unchanged.
+ * Pointer, touch and keyboard: every class, relation, lifeline and message is focusable on the canvas, arrow keys move it,
+ * Enter opens its drawer, Delete removes it and a long press opens the menu. The widget is laid out for widths from
+ * 300 to 2100 px. On paper the toolbars and controls are left out and the shown diagram is fitted to the page and printed whole.
+ *
+ * Conversions: the shown diagram exports as PlantUML (`.puml`, also as a `pre`), as SVG (`image/svg+xml`, also as an
+ * `img` with a data URL) and, with the settings, all diagrams as JSON (`.json`, the content of the data block, lossless).
+ * PlantUML and SVG carry names, members, relation types, multiplicities and relation names (class and object diagrams),
+ * or lifelines, messages, activations and fragments (sequence diagrams); they drop settings, positions (they are laid out
+ * again on import), relation roles, and the other two diagrams. A PlantUML file or `pre` with classes becomes the class
+ * diagram, one with `object` the object diagram and one with participants the sequence diagram; lines outside this
+ * subset are skipped. The JSON file replaces the settings and all three diagrams.
  */
 @customElement("webwriter-uml-diagram")
 export class WebwriterUmlDiagram extends LitElementWw {
@@ -44,6 +64,20 @@ export class WebwriterUmlDiagram extends LitElementWw {
                 { value: "sequence-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Sequence diagram") },
             ],
         },
+    };
+
+    static convertFrom = {
+        pre: "loadPlantUmlText",
+        ".puml": "importPlantUml",
+        ".json": "importJson",
+    };
+
+    static convertTo = {
+        img: "toImage",
+        pre: "toPlantUmlText",
+        ".puml": "exportPlantUml",
+        "image/svg+xml": "exportSvg",
+        ".json": "exportJson",
     };
 
     static actions = {
@@ -222,6 +256,122 @@ export class WebwriterUmlDiagram extends LitElementWw {
         this.settingsOpen = true;
     }
 
+    // --------------------------------------------------------------------------------------------------------
+    // Conversions
+    // --------------------------------------------------------------------------------------------------------
+
+    /** The shown diagram as PlantUML text and as SVG, or `null` values when it is empty */
+    private _shownDiagram(): { puml: string | null; svg: string | null } {
+        this._flushSaves();
+        const title = this.msg("UML diagram");
+        if (this.diagramType === 'sequence-diagram') {
+            return { puml: sequenceToPlantUml(this.sequenceModelData), svg: sequenceToSvg(this.sequenceModelData, title) };
+        }
+        const diagram = new ClassDiagram();
+        diagram.load(this.diagramType === 'object-diagram' ? this.objectDiagramData : this.classDiagramData);
+        return { puml: classDiagramToPlantUml(diagram), svg: classDiagramToSvg(diagram, title) };
+    }
+
+    /** Replaces the shown diagram with a parsed PlantUML diagram and shows it */
+    private _applyPlantUml(result: PlantUmlResult) {
+        clearTimeout(this._saveTimeout);
+        this._pendingSaves.clear();
+        const flag = result.kind === 'sequence' ? 'sequenceDiagramEnabled' : result.kind === 'object' ? 'objectDiagramEnabled' : 'classDiagramEnabled';
+        if (!this.globalSettings[flag]) this.globalSettings = { ...this.globalSettings, [flag]: true };
+        if (result.kind === 'sequence') this.sequenceModelData = result.model;
+        else if (result.kind === 'object') this.objectDiagramData = result.json;
+        else this.classDiagramData = result.json;
+        this.diagramType = `${result.kind}-diagram`;
+    }
+
+    /** @internal Takes over PlantUML text from a `pre`; declines text that holds no diagram */
+    loadPlantUmlText(fragment: DocumentFragment): boolean {
+        try {
+            this._applyPlantUml(parsePlantUml(fragment.textContent ?? "", this.msg));
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /** @internal Reads a PlantUML file completely and returns the function that applies it */
+    async importPlantUml(file: File): Promise<() => void> {
+        const result = parsePlantUml(await file.text(), this.msg);
+        return () => this._applyPlantUml(result);
+    }
+
+    /** @internal The shown diagram as a `pre` with PlantUML text */
+    toPlantUmlText(): HTMLElement | null {
+        const puml = this._shownDiagram().puml;
+        if (!puml) return null;
+        const pre = this.ownerDocument.createElement("pre");
+        pre.textContent = puml;
+        return pre;
+    }
+
+    /** @internal The shown diagram as an `img` with an SVG data URL */
+    toImage(): HTMLElement | null {
+        const svg = this._shownDiagram().svg;
+        if (!svg) return null;
+        const img = this.ownerDocument.createElement("img");
+        img.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        img.alt = this.msg("UML diagram");
+        return img;
+    }
+
+    /** @internal The shown diagram as a PlantUML file */
+    exportPlantUml(): File | null {
+        const puml = this._shownDiagram().puml;
+        return puml ? new File([puml], "uml-diagram.puml", { type: "text/plain" }) : null;
+    }
+
+    /** @internal The shown diagram as an SVG file */
+    exportSvg(): File | null {
+        const svg = this._shownDiagram().svg;
+        return svg ? new File([svg], "uml-diagram.svg", { type: "image/svg+xml" }) : null;
+    }
+
+    /** @internal The settings and all diagrams as a JSON file */
+    exportJson(): File {
+        this._flushSaves();
+        const parse = (value: string) => { try { return JSON.parse(value); } catch { return value; } };
+        const content = {
+            classSettings: this.classSettings,
+            objectSettings: this.objectSettings,
+            sequenceSettings: this.sequenceSettings,
+            globalSettings: this.globalSettings,
+            sequenceModelData: this.sequenceModelData,
+            classDiagramData: parse(this.classDiagramData),
+            objectDiagramData: parse(this.objectDiagramData),
+        };
+        return new File([JSON.stringify(content, null, 2)], "uml-diagram.json", { type: "application/json" });
+    }
+
+    /** @internal Reads a JSON file completely and returns the function that applies it */
+    async importJson(file: File): Promise<() => void> {
+        let data: Record<string, any>;
+        try {
+            data = JSON.parse(await file.text());
+        } catch {
+            throw new Error(this.msg("The file is not valid JSON."));
+        }
+        const isObject = (value: unknown) => typeof value === "object" && value !== null && !Array.isArray(value);
+        const model = data?.sequenceModelData;
+        const valid = isObject(data)
+            && ["classSettings", "objectSettings", "sequenceSettings", "globalSettings"].every(key => data[key] === undefined || isObject(data[key]))
+            && (model === undefined || (isObject(model) && Array.isArray(model.lifelines) && Array.isArray(model.messages) && Array.isArray(model.fragments ?? [])))
+            && ["classDiagramData", "objectDiagramData"].every(key => data[key] === undefined || typeof data[key] === "string" || isObject(data[key]))
+            && ["classSettings", "objectSettings", "sequenceSettings", "globalSettings", "sequenceModelData", "classDiagramData", "objectDiagramData"].some(key => data[key] !== undefined);
+        if (!valid) throw new Error(this.msg("The file does not hold UML diagram data."));
+        return () => {
+            clearTimeout(this._saveTimeout);
+            this._pendingSaves.clear();
+            this._restoreData(data);
+            this._skipDataWrite = false;
+            this.requestUpdate();
+        };
+    }
+
     /** @internal Whether the widget is shown in fullscreen */
     get isFullscreen() {
         return this.ownerDocument.fullscreenElement === this;
@@ -321,13 +471,14 @@ export class WebwriterUmlDiagram extends LitElementWw {
         return html`
             <div class="root ${this.isFullscreen ? 'fullscreen' : ''}">
                 <diagram-tabs
+                    part="tabs"
                     .active=${this.diagramType}
                     .globalSettings=${this.globalSettings}
                     ?fullscreen=${this.isFullscreen}
                     @select-diagram=${(e: CustomEvent) => this._handleChangeDiagram(e.detail.type)}
                 ></diagram-tabs>
 
-                <div class="frame ${this.diagramType === firstTabType ? 'first-tab-active' : ''}">
+                <div part="frame" class="frame ${this.diagramType === firstTabType ? 'first-tab-active' : ''}">
                     <div 
                         class="diagram-wrapper" 
                         style="${hideSequenceDiagram}"

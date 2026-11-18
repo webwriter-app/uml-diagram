@@ -48,6 +48,7 @@ import {
     type Diagram, type SequenceValidationIssue
 } from "../../model/sequence-diagram/sequence-rules";
 import canvasAlertStyles from "../shared/canvas-alert.styles";
+import { printWebglScenes } from "../shared/print-scene";
 import styles from "./sequence-diagram-editor.styles";
 import { GlobalSettings } from "../../model/global-settings/global-settings-model";
 import { ZoomControls } from "../zoom-controls/zoom-controls";
@@ -190,12 +191,26 @@ export class SequenceEditor extends LitElementWw {
 
     #preview = noPreview();
 
+    /** Aborting it removes the listeners of the print view */
+    #printing?: AbortController;
+
     /** styles are defined in the editor.styles */
     static styles = [styles, canvasAlertStyles];
 
     // --------------------------------------------------------------------------------------------------------
     // Lifecycle
     // --------------------------------------------------------------------------------------------------------
+
+    connectedCallback() {
+        super.connectedCallback();
+        this.#printing = new AbortController();
+        printWebglScenes(this, this.#printing.signal, this.#viewport);
+    }
+
+    disconnectedCallback() {
+        this.#printing?.abort();
+        super.disconnectedCallback();
+    }
 
     protected willUpdate(changedProperties: PropertyValues) {
         super.willUpdate(changedProperties);
@@ -357,11 +372,12 @@ export class SequenceEditor extends LitElementWw {
         }
     }
 
-    /** A double click opens the drawer of what was pressed */
+    /** A double click, or Enter on a focused element, opens the drawer of what was pressed */
     #onActivate(event: CustomEvent<ActivateDetail>) {
-        const { hit, count, pointer } = event.detail;
-        if (this.interactionMode !== 'idle' || count !== 2) return;
-        const [kind, id, subId] = hit.key.split(':');
+        const { hit, item, count, via, pointer } = event.detail;
+        const target = hit ?? item;
+        if (this.interactionMode !== 'idle' || !target || (count !== 2 && via !== 'keyboard')) return;
+        const [kind, id, subId] = target.key.split(':');
         this.#openDrawer(kind, id, subId, pointer?.clientX);
     }
 

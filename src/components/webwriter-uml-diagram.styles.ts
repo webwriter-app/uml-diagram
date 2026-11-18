@@ -6,10 +6,19 @@ export default css`
         /* Canvas color of the editors */
         --uml-canvas-background: var(--sl-color-neutral-0);
 
+        /* Theme: the text color and the accent of the document, with today's colors as the fallback */
+        --uml-ink: var(--ww-text-color, var(--sl-color-neutral-900));
+        --uml-accent: var(--ww-theme-accent-1, var(--sl-color-primary-600));
+
         display: block;
         height: 600px;
+        min-width: 300px;
+        max-width: 2100px;
+        min-height: 22rem;
         position: relative;
         box-sizing: border-box;
+        font-family: var(--ww-font-family, inherit);
+        color: var(--ww-text-color, inherit);
     }
 
     /* Stacks the tabs and the frame; a separate element because the host's display
@@ -18,6 +27,8 @@ export default css`
         display: flex;
         flex-direction: column;
         height: 100%;
+        /* Lets the tabs and toolbars answer to the width of the widget */
+        container-type: inline-size;
     }
 
     /* The active tab overlaps the top border of the frame, so it has to be painted above it */
@@ -61,6 +72,27 @@ export default css`
         min-height: 0;
         display: flex;
         flex-direction: column;
+    }
+
+    @media print {
+        :host {
+            max-width: none;
+            break-inside: avoid;
+        }
+
+        /* The grid, the lines and the boxes are what is printed, also where the browser leaves out backgrounds */
+        .root {
+            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact;
+        }
+
+        .frame {
+            border-color: var(--uml-ink);
+        }
+
+        dialog {
+            display: none;
+        }
     }
 
     /* hide settings menu if not in "edit mode" */

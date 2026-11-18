@@ -343,7 +343,16 @@
             "ckb-Arab": "هێڵکاریی UML",
             "af-ZA": "UML-diagram",
             "af-NA": "UML-diagram"
-        }
+        },
+        "importFormats": [
+            ".puml",
+            ".json"
+        ],
+        "exportFormats": [
+            ".puml",
+            "image/svg+xml",
+            ".json"
+        ]
     },
     "./snippets/library-loan": {
         "label": {

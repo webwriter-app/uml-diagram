@@ -43,6 +43,8 @@ npm install @webwriter/uml-diagram
 | Name (Attribute Name) | Type | Description | Default | Reflects |
 | :-------------------: | :--: | :---------: | :-----: | :------: |
 | `WebwriterUmlDiagram.options` | `object` | - | `{ diagramType: { type: "select" as const, label: (widget: {msg: MsgFn}) => widget.msg("Diagram to show"), options: [ { value: "class-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Class diagram") }, { value: "object-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Object diagram") }, { value: "sequence-diagram", label: (widget: {msg: MsgFn}) => widget.msg("Sequence diagram") }, ], }, }` | ✗ |
+| `WebwriterUmlDiagram.convertFrom` | `object` | - | `{ pre: "loadPlantUmlText", ".puml": "importPlantUml", ".json": "importJson", }` | ✗ |
+| `WebwriterUmlDiagram.convertTo` | `object` | - | `{ img: "toImage", pre: "toPlantUmlText", ".puml": "exportPlantUml", "image/svg+xml": "exportSvg", ".json": "exportJson", }` | ✗ |
 | `WebwriterUmlDiagram.actions` | `object` | - | `{ openSettings: { label: (widget: {msg: MsgFn}) => widget.msg("Configure diagrams"), icon: "Settings", intent: "default" as const }, }` | ✗ |
 | `localize` | - | - | - | ✗ |
 | `msg` | - | - | - | ✗ |
@@ -71,6 +73,14 @@ npm install @webwriter/uml-diagram
 
 *[Slots](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_templates_and_slots) define how the content of the widget is rendered.*
 
+## CSS parts
+| Name | Description |
+| :--: | :---------: |
+| tabs | The row of diagram tabs above the frame. |
+| frame | The bordered frame around the toolbar and the canvas. Theme: the text and line color of the diagrams follow `--ww-text-color`, the font follows `--ww-font-family`, and the selected and hovered marks and the active tab follow `--ww-theme-accent-1`; without them the colors are unchanged. Pointer, touch and keyboard: every class, relation, lifeline and message is focusable on the canvas, arrow keys move it, Enter opens its drawer, Delete removes it and a long press opens the menu. The widget is laid out for widths from 300 to 2100 px. On paper the toolbars and controls are left out and the shown diagram is fitted to the page and printed whole. Conversions: the shown diagram exports as PlantUML (`.puml`, also as a `pre`), as SVG (`image/svg+xml`, also as an `img` with a data URL) and, with the settings, all diagrams as JSON (`.json`, the content of the data block, lossless). PlantUML and SVG carry names, members, relation types, multiplicities and relation names (class and object diagrams), or lifelines, messages, activations and fragments (sequence diagrams); they drop settings, positions (they are laid out again on import), relation roles, and the other two diagrams. A PlantUML file or `pre` with classes becomes the class diagram, one with `object` the object diagram and one with participants the sequence diagram; lines outside this subset are skipped. The JSON file replaces the settings and all three diagrams. |
+
+*[CSS parts](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_shadow_parts) allow freely styling internals of the widget with CSS.*
+
 ## Editing config
 | Name | Value |
 | :--: | :---------: |
@@ -78,8 +88,8 @@ npm install @webwriter/uml-diagram
 
 *The [editing config](https://webwriter.app/docs/packages/configuring/#editingconfig) defines how explorable authoring tools such as [WebWriter](https://webwriter.app) treat the widget.*
 
-*No public events, custom CSS properties, or CSS parts.*
+*No public events, or custom CSS properties.*
 
 
 ---
-*Generated with @webwriter/build@1.9.1*
+*Generated with @webwriter/build@1.14.0*

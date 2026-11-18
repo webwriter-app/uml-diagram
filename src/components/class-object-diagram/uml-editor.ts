@@ -30,6 +30,7 @@ import { cancelOnOutsideInteraction } from "../shared/cancel-on-outside-interact
 import { ConfirmDialog, ConfirmOptions } from "../shared/confirm-dialog";
 import { Point, Box, RelationEnds, routeMidpoint } from "../../model/class-object-diagram/route-geometry";
 import { straightRoutes } from "../../model/class-object-diagram/straight-routes";
+import { printWebglScenes } from "../shared/print-scene";
 
 /** custom type for relation mode */
 type InteractionType =
@@ -134,6 +135,9 @@ export class UMLEditor extends LitElementWw {
 
     #initialEmit = 0;
 
+    /** Aborting it removes the listeners of the print view */
+    #printing?: AbortController;
+
     /* 
     #################################################################################
     Lifecycle and Init
@@ -146,7 +150,14 @@ export class UMLEditor extends LitElementWw {
         this.addEventListener('fullscreenchange', () => this.requestUpdate());
     }
 
+    connectedCallback() {
+        super.connectedCallback();
+        this.#printing = new AbortController();
+        printWebglScenes(this, this.#printing.signal, this.#viewport);
+    }
+
     disconnectedCallback() {
+        this.#printing?.abort();
         this._cancelAddRelation();
         clearTimeout(this.#initialEmit);
         this.#observer.disconnect();
@@ -262,10 +273,10 @@ export class UMLEditor extends LitElementWw {
 
     /** A click picks a class in relation mode; a double click opens the dialog of a class or relation */
     #onActivate(event: CustomEvent<ActivateDetail>) {
-        const { key, count } = event.detail;
+        const { key, count, via } = event.detail;
         if (this.interactionMode !== 'idle') {
             if (this.diagram.node(key)) this._handleNodeSelection(key);
-        } else if (count === 2) {
+        } else if (count === 2 || via === 'keyboard') {
             this.#interact(key);
         }
     }

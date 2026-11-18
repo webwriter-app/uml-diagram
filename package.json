@@ -6,16 +6,31 @@
     "webwriter-widget",
     "widget-conceptual",
     "widget-practical",
-    "iscedf2013-06",
     "isced2011-3",
     "isced2011-6",
     "isced2011-7",
+    "iscedf2013-0613",
+    "widget-editable",
+    "widget-allows-pointer-input",
+    "widget-allows-keyboard-input",
+    "widget-allows-touch-input",
+    "widget-convertible-to-image/svg+xml",
+    "widget-convertible-to-img",
+    "widget-convertible-to-pre",
+    "widget-convertible-from-pre",
+    "widget-responsive",
+    "widget-themeable",
+    "widget-printable",
+    "widget-stateful",
+    "widget-configurable",
+    "widget-testable",
+    "widget-supports-shared-dependencies",
     "uml",
     "class-diagram",
     "object-diagram",
     "sequence-diagram",
     "modeling",
-    "object-oriented programming",
+    "plantuml",
     "widget-lang-en",
     "widget-lang-en-US",
     "widget-lang-en-GB",
@@ -162,6 +177,14 @@
     "./tests/data.*": {
       "source": "./tests/data.test.ts",
       "default": "./dist/tests/data.*"
+    },
+    "./tests/exchange.*": {
+      "source": "./tests/exchange.test.ts",
+      "default": "./dist/tests/exchange.*"
+    },
+    "./tests/interaction.*": {
+      "source": "./tests/interaction.test.ts",
+      "default": "./dist/tests/interaction.*"
     },
     "./tests/scene.*": {
       "source": "./tests/scene.test.ts",

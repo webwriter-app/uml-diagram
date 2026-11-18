@@ -54,10 +54,24 @@ export class DiagramTabs extends LitElementWw {
                 class="tab ${type === this.active ? 'active' : ''}"
                 role="tab"
                 aria-selected=${type === this.active ? 'true' : 'false'}
+                tabindex=${type === this.active ? '0' : '-1'}
+                @keydown=${this._keydown}
                 @click=${() => this._select(type)}
             >${labels[type]}</button>
         `);
     }
+
+    /** Arrow keys, Home and End move between the tabs and select the one they reach */
+    private _keydown = (event: KeyboardEvent) => {
+        const tabs = [...this.renderRoot.querySelectorAll<HTMLElement>('[role="tab"]')];
+        const at = tabs.indexOf(event.currentTarget as HTMLElement);
+        const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : step === undefined ? -1 : (at + step + tabs.length) % tabs.length;
+        if (next < 0) return;
+        event.preventDefault();
+        tabs[next].focus();
+        tabs[next].click();
+    };
 
     /** Notify the widget that another diagram type was chosen */
     private _select(type: string) {

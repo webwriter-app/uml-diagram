@@ -73,13 +73,13 @@ export default css`
     ww-node {
         display: flex;
         background: var(--sl-color-neutral-0);
-        border: 2px solid var(--sl-color-neutral-900);
+        border: 2px solid var(--uml-ink, var(--sl-color-neutral-900));
         min-width: 30px;
         min-height: 30px;
         cursor: grab;
         transition: border-color var(--sl-transition-fast) ease;
         /* the outline of a selected node */
-        --ww-scene-selection: var(--sl-color-primary-600);
+        --ww-scene-selection: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     /* Switches to grabbing cursor while actively dragging a node */
@@ -90,7 +90,7 @@ export default css`
     /* Outlines hovered nodes in the primary color (without moving them) */
     ww-node:hover,
     ww-node[selected] {
-        border-color: var(--sl-color-primary-600);
+        border-color: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     ww-node:focus-visible {
@@ -117,7 +117,7 @@ export default css`
         text-align: center;
         background-color: var(--sl-color-neutral-100);
         border-bottom: 1px solid var(--sl-color-neutral-700);
-        color: var(--sl-color-neutral-900);
+        color: var(--uml-ink, var(--sl-color-neutral-900));
     }
 
     .uml-stereotype {
@@ -173,7 +173,7 @@ export default css`
     /* -------------------------------------------------------------------------- */
 
     ww-path {
-        stroke: var(--sl-color-neutral-900);
+        stroke: var(--uml-ink, var(--sl-color-neutral-900));
         stroke-width: 2px;
         cursor: pointer;
         /* Hollow heads (inheritance, aggregation) are filled with the canvas color */
@@ -182,7 +182,7 @@ export default css`
     }
 
     ww-path:state(hover) {
-        stroke: var(--sl-color-primary-600);
+        stroke: var(--uml-accent, var(--sl-color-primary-600));
     }
 
     ww-path.dashed {
@@ -199,7 +199,7 @@ export default css`
 
     /* Multiplicities, roles and names of relations, with a halo of the canvas color */
     ww-path ww-text {
-        fill: var(--sl-color-neutral-900);
+        fill: var(--uml-ink, var(--sl-color-neutral-900));
         font-size: var(--sl-font-size-small);
         font-weight: bold;
         stroke: var(--sl-color-neutral-0);
@@ -219,7 +219,7 @@ export default css`
 
     /* Marks the node selected as the relation source with the (solid) Shoelace focus ring */
     .interaction-mode-active ww-node.node-source-selected {
-        border-color: var(--sl-color-primary-600);
+        border-color: var(--uml-accent, var(--sl-color-primary-600));
         outline: var(--sl-focus-ring);
         outline-offset: var(--sl-focus-ring-offset);
     }

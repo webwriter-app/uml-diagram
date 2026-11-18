@@ -40,4 +40,10 @@ export default css`
     .canvas-alert-text {
         white-space: pre-line;
     }
+
+    @media print {
+        .canvas-alert {
+            display: none;
+        }
+    }
 `;

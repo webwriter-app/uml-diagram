@@ -44,4 +44,11 @@ export default css`
         height: 1rem;
         --spacing: var(--sl-spacing-2x-small);
     }
+
+    /* Nothing to press on paper */
+    @media print {
+        :host {
+            display: none;
+        }
+    }
 `;
