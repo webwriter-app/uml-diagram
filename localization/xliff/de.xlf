@@ -2,186 +2,6 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="de" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="sf752b696087fa3c6">
-  <source>Object name is required.</source>
-  <target>Objektname ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="s2b295702e7140ab7">
-  <source>Class name is required.</source>
-  <target>Klassenname ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="s2c0642d152a1c8d5">
-  <source>This name is already used by another class.</source>
-  <target>Dieser Name wird bereits von einer anderen Klasse verwendet.</target>
-</trans-unit>
-<trans-unit id="s0f6e9f991bc2b1ab">
-  <source>Object names should start with a lowercase letter.</source>
-  <target>Objektnamen sollten mit einem Kleinbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="s76287c15efb9cd71">
-  <source>Object names must not contain spaces.</source>
-  <target>Objektnamen dürfen keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="s18d1d88ab70cc0b7">
-  <source>Class names should start with an uppercase letter.</source>
-  <target>Klassennamen sollten mit einem Großbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="s40bbce04a4584df2">
-  <source>Class names must not contain spaces.</source>
-  <target>Klassennamen dürfen keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="s633876602eda63e7">
-  <source>Attribute name is required.</source>
-  <target>Attributname ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="sf6a5af468fd4beae">
-  <source>Attribute type is required.</source>
-  <target>Attributtyp ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="sba94b3870567f66d">
-  <source>Duplicate attribute name.</source>
-  <target>Doppelter Attributname.</target>
-</trans-unit>
-<trans-unit id="s5005524c536ceb9e">
-  <source>Attribute names should start with a lowercase letter.</source>
-  <target>Attributnamen sollten mit einem Kleinbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="sc355d95b8c69a202">
-  <source>Attribute names must not contain spaces.</source>
-  <target>Attributnamen dürfen keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="s6b5201fbbb39df11">
-  <source>Attributes in interfaces and annotations must be public.</source>
-  <target>Attribute in Interfaces und Annotationen müssen public sein.</target>
-</trans-unit>
-<trans-unit id="s545c6277188dd420">
-  <source>Interface attributes must be static and final.</source>
-  <target>Interface-Attribute müssen static und final sein.</target>
-</trans-unit>
-<trans-unit id="sdbe713363a6a8a71">
-  <source>Parameter attributes are only valid in parameterized classes.</source>
-  <target>Parameterattribute sind nur in parametrisierten Klassen zulässig.</target>
-</trans-unit>
-<trans-unit id="sd0acc3432e22e6a8">
-  <source>Method name is required.</source>
-  <target>Methodenname ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="seadb073a3ae9a65e">
-  <source>Return type is required.</source>
-  <target>Rückgabetyp ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="s1a98e915a81ae0a7">
-  <source>Constructors must not have a return type.</source>
-  <target>Konstruktoren dürfen keinen Rückgabetyp haben.</target>
-</trans-unit>
-<trans-unit id="s55de04ebf752aad4">
-  <source>Objects do not have constructors.</source>
-  <target>Objekte haben keine Konstruktoren.</target>
-</trans-unit>
-<trans-unit id="s89fcc8ddcf63ed27">
-  <source>This looks like a constructor but does not match the class name capitalization.</source>
-  <target>Dies sieht wie ein Konstruktor aus, stimmt aber nicht mit der Groß-/Kleinschreibung des Klassennamens überein.</target>
-</trans-unit>
-<trans-unit id="s48c68d7f3d47f509">
-  <source>Method names should start with a lowercase letter.</source>
-  <target>Methodennamen sollten mit einem Kleinbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="s674b9c60a0dd3817">
-  <source>Method names must not contain spaces.</source>
-  <target>Methodennamen dürfen keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="s5635fe9ec580c654">
-  <source>Methods in interfaces and annotations must be public.</source>
-  <target>Methoden in Interfaces und Annotationen müssen public sein.</target>
-</trans-unit>
-<trans-unit id="s9d8f15fcd9bb2231">
-  <source>Abstract methods cannot be final.</source>
-  <target>Abstrakte Methoden können nicht final sein.</target>
-</trans-unit>
-<trans-unit id="s3b14c24a8b1969a1">
-  <source>Abstract methods cannot be static.</source>
-  <target>Abstrakte Methoden können nicht static sein.</target>
-</trans-unit>
-<trans-unit id="s1c4e9efe8e8d2d47">
-  <source>Constructors cannot be static or final.</source>
-  <target>Konstruktoren können nicht static oder final sein.</target>
-</trans-unit>
-<trans-unit id="s4944d9a50ed82b68">
-  <source>Parameter name is required.</source>
-  <target>Parametername ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="s77002f685d02ee65">
-  <source>Parameter type is required.</source>
-  <target>Parametertyp ist erforderlich.</target>
-</trans-unit>
-<trans-unit id="sb2f13f84f2055646">
-  <source>Duplicate parameter name.</source>
-  <target>Doppelter Parametername.</target>
-</trans-unit>
-<trans-unit id="sb49efe53843f28c9">
-  <source>Parameter names should start with a lowercase letter.</source>
-  <target>Parameternamen sollten mit einem Kleinbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="s7d02f7fdf88760d7">
-  <source>Parameter names must not contain spaces.</source>
-  <target>Parameternamen dürfen keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="s815e4e6869b373c7">
-  <source>Selected class type cannot extend other classes.</source>
-  <target>Der gewählte Klassentyp kann keine anderen Klassen erweitern.</target>
-</trans-unit>
-<trans-unit id="se205a5d6339202a0">
-  <source>Selected class type can only extend other interfaces.</source>
-  <target>Der gewählte Klassentyp kann nur andere Interfaces erweitern.</target>
-</trans-unit>
-<trans-unit id="s7fbbfcdbad53e530">
-  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
-  <target>Der gewählte Klassentyp kann kein Interface erweitern. Stattdessen eine Realisierung verwenden.</target>
-</trans-unit>
-<trans-unit id="s3d81f99c8bbe7c1e">
-  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
-  <target>Der gewählte Klassentyp kann nicht von einer Klasse erweitert werden. Stattdessen eine Realisierung verwenden.</target>
-</trans-unit>
-<trans-unit id="s5ab48567a7b89fef">
-  <source>Selected class type can only be extended by other interfaces.</source>
-  <target>Der gewählte Klassentyp kann nur von anderen Interfaces erweitert werden.</target>
-</trans-unit>
-<trans-unit id="sf868ffaf4e63faf5">
-  <source>Selected class type cannot be a parent class.</source>
-  <target>Der gewählte Klassentyp kann keine Oberklasse sein.</target>
-</trans-unit>
-<trans-unit id="se0a11ec9a3548c89">
-  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
-  <target>Der gewählte Klassentyp kann keine Interfaces implementieren. Stattdessen Vererbung verwenden.</target>
-</trans-unit>
-<trans-unit id="s79c23de608bf327c">
-  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
-  <target>Der gewählte Klassentyp kann nicht Ziel einer Realisierung sein. Nur Interfaces sind gültige Ziele.</target>
-</trans-unit>
-<trans-unit id="scde2458b59249c80">
-  <source>Selected class type cannot own compositions or aggregations.</source>
-  <target>Der gewählte Klassentyp kann keine Kompositionen oder Aggregationen besitzen.</target>
-</trans-unit>
-<trans-unit id="s99014a4992baa534">
-  <source>Selected class type cannot be part of a composition or aggregation.</source>
-  <target>Der gewählte Klassentyp kann nicht Teil einer Komposition oder Aggregation sein.</target>
-</trans-unit>
-<trans-unit id="s36b2d9d82a7a6ccf">
-  <source>Selected class type cannot participate in bidirectional associations.</source>
-  <target>Der gewählte Klassentyp kann nicht an bidirektionalen Assoziationen beteiligt sein.</target>
-</trans-unit>
-<trans-unit id="sd1ec21ab6f95c1db">
-  <source>Selected class type cannot be the source of an association.</source>
-  <target>Der gewählte Klassentyp kann nicht Quelle einer Assoziation sein.</target>
-</trans-unit>
-<trans-unit id="sf57c6078d6d78598">
-  <source>Objects cannot be the source of inheritance or realization relations.</source>
-  <target>Objekte können nicht Quelle von Vererbungs- oder Realisierungsbeziehungen sein.</target>
-</trans-unit>
-<trans-unit id="s7f139035aaa81544">
-  <source>Objects cannot be the target of inheritance or realization relations.</source>
-  <target>Objekte können nicht Ziel von Vererbungs- oder Realisierungsbeziehungen sein.</target>
-</trans-unit>
 <trans-unit id="s8355ec0cae86058f">
   <source>Object Editor</source>
   <target>Objekt-Editor</target>
@@ -281,82 +101,6 @@
 <trans-unit id="s1de38819c1d0c545">
   <source>Maximum number of connections per pair reached</source>
   <target>Maximale Anzahl an Verbindungen pro Paar erreicht</target>
-</trans-unit>
-<trans-unit id="s991302c34d4ab3bf">
-  <source>A class cannot inherit from itself.</source>
-  <target>Eine Klasse kann nicht von sich selbst erben.</target>
-</trans-unit>
-<trans-unit id="sf285ba473f20505a">
-  <source>A class cannot realize itself.</source>
-  <target>Eine Klasse kann sich nicht selbst realisieren.</target>
-</trans-unit>
-<trans-unit id="s25f8ef11d9d27e69">
-  <source>Enumerations and records cannot extend other classes.</source>
-  <target>Aufzählungen und Records können keine anderen Klassen erweitern.</target>
-</trans-unit>
-<trans-unit id="s2232c3d843d945c8">
-  <source>Annotations cannot extend other classes.</source>
-  <target>Annotationen können keine anderen Klassen erweitern.</target>
-</trans-unit>
-<trans-unit id="sca622529f55548ec">
-  <source>Annotations cannot be extended.</source>
-  <target>Annotationen können nicht erweitert werden.</target>
-</trans-unit>
-<trans-unit id="s03536c9db8ed23de">
-  <source>Objects cannot participate in inheritance relations.</source>
-  <target>Objekte können nicht an Vererbungsbeziehungen beteiligt sein.</target>
-</trans-unit>
-<trans-unit id="s979178cfb4d8a3dd">
-  <source>Interfaces can only extend other interfaces.</source>
-  <target>Interfaces können nur andere Interfaces erweitern.</target>
-</trans-unit>
-<trans-unit id="s4b43ba347d4af4c7">
-  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
-  <target>Klassen können keine Interfaces erweitern. Zum Implementieren eines Interfaces eine Realisierung verwenden.</target>
-</trans-unit>
-<trans-unit id="s683b5495fe491317">
-  <source>This class already inherits from the selected class.</source>
-  <target>Diese Klasse erbt bereits von der gewählten Klasse.</target>
-</trans-unit>
-<trans-unit id="sd4b44f1897d9691c">
-  <source>Only interfaces can be realization targets.</source>
-  <target>Nur Interfaces können Ziel einer Realisierung sein.</target>
-</trans-unit>
-<trans-unit id="s99007178f766a0d3">
-  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
-  <target>Interfaces können keine anderen Elemente realisieren. Zum Erweitern eines Interfaces Vererbung verwenden.</target>
-</trans-unit>
-<trans-unit id="se2e072d9e76d78e7">
-  <source>Annotations cannot implement interfaces.</source>
-  <target>Annotationen können keine Interfaces implementieren.</target>
-</trans-unit>
-<trans-unit id="s6873f37f88d68bee">
-  <source>Objects cannot participate in realization relations.</source>
-  <target>Objekte können nicht an Realisierungsbeziehungen beteiligt sein.</target>
-</trans-unit>
-<trans-unit id="sdd1a3d0051483ab1">
-  <source>Inheritance cycles are not allowed.</source>
-  <target>Zyklen in der Vererbung sind nicht erlaubt.</target>
-</trans-unit>
-<trans-unit id="s9fb6d60ce907b45a">
-  <source>This class is already part of a composition. A class can only have one owner.</source>
-  <target>Diese Klasse ist bereits Teil einer Komposition. Eine Klasse kann nur einen Besitzer haben.</target>
-</trans-unit>
-<trans-unit id="s66260080e372437e">
-  <source>A class cannot directly or indirectly own itself.</source>
-  <target>Eine Klasse kann sich nicht direkt oder indirekt selbst besitzen.</target>
-</trans-unit>
-<trans-unit id="sfb4181c4306745a9">
-  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
-  <target>Datentypen und Aufzählungen können nicht Quelle einer bidirektionalen Assoziation sein.</target>
-</trans-unit>
-<trans-unit id="sc774f0def0051c0d">
-  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
-  <target>Datentypen und Aufzählungen können nicht Ziel einer bidirektionalen Assoziation sein.</target>
-</trans-unit>
-<trans-unit id="s2a9fd53c400e3ce4">
-  <source>Data types and enumerations cannot be the source of an association.</source>
-  <target>Datentypen und Aufzählungen können nicht Quelle einer Assoziation sein.</target>
 </trans-unit>
 <trans-unit id="s8eb8977c0da31ca1">
   <source>Add objects via the toolbar above.</source>
@@ -702,26 +446,6 @@
   <source>Message cannot be placed here (outside of logical boundaries or inside the name box).</source>
   <target>Nachricht kann hier nicht platziert werden (außerhalb der logischen Grenzen oder im Namensfeld).</target>
 </trans-unit>
-<trans-unit id="s4b5705c599e644d1">
-  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
-  <target>Objektnamen sollten mit einem Kleinbuchstaben beginnen (z. B. meinObjekt).</target>
-</trans-unit>
-<trans-unit id="sf2a73ce47a27b168">
-  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
-  <target>Klassennamen sollten mit einem Großbuchstaben beginnen (z. B. Kunde).</target>
-</trans-unit>
-<trans-unit id="s98629add8883a056">
-  <source>Message names, except replies, should start with a lowercase letter.</source>
-  <target>Nachrichtennamen (außer Antworten) sollten mit einem Kleinbuchstaben beginnen.</target>
-</trans-unit>
-<trans-unit id="se7c522560dd345a7">
-  <source>Assignment must not contain spaces.</source>
-  <target>Zuweisung darf keine Leerzeichen enthalten.</target>
-</trans-unit>
-<trans-unit id="sc25e9b3bfaaf255f">
-  <source>Guard condition must not be empty.</source>
-  <target>Bedingung darf nicht leer sein.</target>
-</trans-unit>
 <trans-unit id="s01605966c0d9e035">
   <source>Select sending lifeline</source>
   <target>Sendende Lebenslinie auswählen</target>
@@ -795,8 +519,8 @@
   <target>Fragmenttyp</target>
 </trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
-  <target>Bedingung <x id="0" equiv-text="${index + 1}" /></target>
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+  <target>Bedingung <x id="0" equiv-text="${index + 1}"/></target>
 </trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
@@ -1015,20 +739,20 @@
   <target>Vergrößern</target>
 </trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Verknüpfung bearbeiten: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Verknüpfung bearbeiten: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Beziehung bearbeiten: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Beziehung bearbeiten: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Wählen Sie die Quelle für <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" /> aus.</target></trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Wählen Sie die Quelle für <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/> aus.</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Wählen Sie das Ziel für <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" /> aus.</target></trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Wählen Sie das Ziel für <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/> aus.</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
-  <target>Stereotypen von Abhängigkeiten müssen in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> oder <x id="1" equiv-text="${&quot;« »&quot;}" /> stehen.</target>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+  <target>Stereotypen von Abhängigkeiten müssen in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> oder <x id="1" equiv-text="${&quot;« »&quot;}"/> stehen.</target>
 </trans-unit>
 <trans-unit id="s388101295e5b6a4b">
   <source>No icon</source>
@@ -1108,13 +832,17 @@
   <source>Fit to view</source>
   <target>An Ansicht anpassen</target>
 </trans-unit>
-<trans-unit id="sb8dd788adf7b907b">
-  <source>Proxy</source>
-  <target>Proxy</target>
+<trans-unit id="s95018940caec4950">
+  <source>UML diagram</source>
+  <target>UML-Diagramm</target>
 </trans-unit>
-<trans-unit id="s57a6e624d5765397">
-  <source>Self</source>
-  <target>Selbstbezug</target>
+<trans-unit id="sb8c878135ee917b1">
+  <source>The file is not valid JSON.</source>
+  <target>Die Datei enthält kein gültiges JSON.</target>
+</trans-unit>
+<trans-unit id="s9c76b46fcc1a83be">
+  <source>The file does not hold UML diagram data.</source>
+  <target>Die Datei enthält keine UML-Diagrammdaten.</target>
 </trans-unit>
 </body>
 </file>

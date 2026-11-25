@@ -2,141 +2,6 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="lt" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="sf752b696087fa3c6">
-  <source>Object name is required.</source>
-<target>Objekto pavadinimas yra privalomas.</target></trans-unit>
-<trans-unit id="s2b295702e7140ab7">
-  <source>Class name is required.</source>
-<target>Klasės pavadinimas yra privalomas.</target></trans-unit>
-<trans-unit id="s2c0642d152a1c8d5">
-  <source>This name is already used by another class.</source>
-<target>Šį pavadinimą jau naudoja kita klasė.</target></trans-unit>
-<trans-unit id="s0f6e9f991bc2b1ab">
-  <source>Object names should start with a lowercase letter.</source>
-<target>Objektų pavadinimai turi prasidėti mažąja raide.</target></trans-unit>
-<trans-unit id="s76287c15efb9cd71">
-  <source>Object names must not contain spaces.</source>
-<target>Objektų pavadinimuose negali būti tarpų.</target></trans-unit>
-<trans-unit id="s18d1d88ab70cc0b7">
-  <source>Class names should start with an uppercase letter.</source>
-<target>Klasių pavadinimai turi prasidėti didžiąja raide.</target></trans-unit>
-<trans-unit id="s40bbce04a4584df2">
-  <source>Class names must not contain spaces.</source>
-<target>Klasių pavadinimuose negali būti tarpų.</target></trans-unit>
-<trans-unit id="s633876602eda63e7">
-  <source>Attribute name is required.</source>
-<target>Atributo pavadinimas yra privalomas.</target></trans-unit>
-<trans-unit id="sf6a5af468fd4beae">
-  <source>Attribute type is required.</source>
-<target>Atributo tipas yra privalomas.</target></trans-unit>
-<trans-unit id="sba94b3870567f66d">
-  <source>Duplicate attribute name.</source>
-<target>Pasikartojantis atributo pavadinimas.</target></trans-unit>
-<trans-unit id="s5005524c536ceb9e">
-  <source>Attribute names should start with a lowercase letter.</source>
-<target>Atributų pavadinimai turi prasidėti mažąja raide.</target></trans-unit>
-<trans-unit id="sc355d95b8c69a202">
-  <source>Attribute names must not contain spaces.</source>
-<target>Atributų pavadinimuose negali būti tarpų.</target></trans-unit>
-<trans-unit id="s6b5201fbbb39df11">
-  <source>Attributes in interfaces and annotations must be public.</source>
-<target>Sąsajų ir anotacijų atributai turi būti public.</target></trans-unit>
-<trans-unit id="s545c6277188dd420">
-  <source>Interface attributes must be static and final.</source>
-<target>Sąsajos atributai turi būti static ir final.</target></trans-unit>
-<trans-unit id="sdbe713363a6a8a71">
-  <source>Parameter attributes are only valid in parameterized classes.</source>
-<target>Parametrų atributai galimi tik parametrizuotose klasėse.</target></trans-unit>
-<trans-unit id="sd0acc3432e22e6a8">
-  <source>Method name is required.</source>
-<target>Metodo pavadinimas yra privalomas.</target></trans-unit>
-<trans-unit id="seadb073a3ae9a65e">
-  <source>Return type is required.</source>
-<target>Grąžinimo tipas yra privalomas.</target></trans-unit>
-<trans-unit id="s1a98e915a81ae0a7">
-  <source>Constructors must not have a return type.</source>
-<target>Konstruktoriai negali turėti grąžinimo tipo.</target></trans-unit>
-<trans-unit id="s55de04ebf752aad4">
-  <source>Objects do not have constructors.</source>
-<target>Objektai neturi konstruktorių.</target></trans-unit>
-<trans-unit id="s89fcc8ddcf63ed27">
-  <source>This looks like a constructor but does not match the class name capitalization.</source>
-<target>Atrodo, kad tai konstruktorius, tačiau didžiųjų raidžių vartojimas neatitinka klasės pavadinimo.</target></trans-unit>
-<trans-unit id="s48c68d7f3d47f509">
-  <source>Method names should start with a lowercase letter.</source>
-<target>Metodų pavadinimai turi prasidėti mažąja raide.</target></trans-unit>
-<trans-unit id="s674b9c60a0dd3817">
-  <source>Method names must not contain spaces.</source>
-<target>Metodų pavadinimuose negali būti tarpų.</target></trans-unit>
-<trans-unit id="s5635fe9ec580c654">
-  <source>Methods in interfaces and annotations must be public.</source>
-<target>Sąsajų ir anotacijų metodai turi būti public.</target></trans-unit>
-<trans-unit id="s9d8f15fcd9bb2231">
-  <source>Abstract methods cannot be final.</source>
-<target>Abstraktūs metodai negali būti final.</target></trans-unit>
-<trans-unit id="s3b14c24a8b1969a1">
-  <source>Abstract methods cannot be static.</source>
-<target>Abstraktūs metodai negali būti static.</target></trans-unit>
-<trans-unit id="s1c4e9efe8e8d2d47">
-  <source>Constructors cannot be static or final.</source>
-<target>Konstruktoriai negali būti static arba final.</target></trans-unit>
-<trans-unit id="s4944d9a50ed82b68">
-  <source>Parameter name is required.</source>
-<target>Parametro pavadinimas yra privalomas.</target></trans-unit>
-<trans-unit id="s77002f685d02ee65">
-  <source>Parameter type is required.</source>
-<target>Parametro tipas yra privalomas.</target></trans-unit>
-<trans-unit id="sb2f13f84f2055646">
-  <source>Duplicate parameter name.</source>
-<target>Pasikartojantis parametro pavadinimas.</target></trans-unit>
-<trans-unit id="sb49efe53843f28c9">
-  <source>Parameter names should start with a lowercase letter.</source>
-<target>Parametrų pavadinimai turi prasidėti mažąja raide.</target></trans-unit>
-<trans-unit id="s7d02f7fdf88760d7">
-  <source>Parameter names must not contain spaces.</source>
-<target>Parametrų pavadinimuose negali būti tarpų.</target></trans-unit>
-<trans-unit id="s815e4e6869b373c7">
-  <source>Selected class type cannot extend other classes.</source>
-<target>Pasirinktas klasės tipas negali paveldėti kitų klasių.</target></trans-unit>
-<trans-unit id="se205a5d6339202a0">
-  <source>Selected class type can only extend other interfaces.</source>
-<target>Pasirinktas klasės tipas gali paveldėti tik kitas sąsajas.</target></trans-unit>
-<trans-unit id="s7fbbfcdbad53e530">
-  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
-<target>Pasirinktas klasės tipas negali paveldėti sąsajos. Vietoj to naudokite realizaciją.</target></trans-unit>
-<trans-unit id="s3d81f99c8bbe7c1e">
-  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
-<target>Klasė negali paveldėti pasirinkto klasės tipo. Vietoj to naudokite realizaciją.</target></trans-unit>
-<trans-unit id="s5ab48567a7b89fef">
-  <source>Selected class type can only be extended by other interfaces.</source>
-<target>Pasirinktą klasės tipą gali paveldėti tik kitos sąsajos.</target></trans-unit>
-<trans-unit id="sf868ffaf4e63faf5">
-  <source>Selected class type cannot be a parent class.</source>
-<target>Pasirinktas klasės tipas negali būti tėvine klase.</target></trans-unit>
-<trans-unit id="se0a11ec9a3548c89">
-  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
-<target>Pasirinktas klasės tipas negali įgyvendinti sąsajų. Vietoj to naudokite paveldėjimą.</target></trans-unit>
-<trans-unit id="s79c23de608bf327c">
-  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
-<target>Pasirinktas klasės tipas negali būti realizacijos tikslas. Tik sąsajos gali būti tikslais.</target></trans-unit>
-<trans-unit id="scde2458b59249c80">
-  <source>Selected class type cannot own compositions or aggregations.</source>
-<target>Pasirinktas klasės tipas negali turėti kompozicijų ar agregacijų.</target></trans-unit>
-<trans-unit id="s99014a4992baa534">
-  <source>Selected class type cannot be part of a composition or aggregation.</source>
-<target>Pasirinktas klasės tipas negali būti kompozicijos ar agregacijos dalimi.</target></trans-unit>
-<trans-unit id="s36b2d9d82a7a6ccf">
-  <source>Selected class type cannot participate in bidirectional associations.</source>
-<target>Pasirinktas klasės tipas negali dalyvauti dvikryptėse asociacijose.</target></trans-unit>
-<trans-unit id="sd1ec21ab6f95c1db">
-  <source>Selected class type cannot be the source of an association.</source>
-<target>Pasirinktas klasės tipas negali būti asociacijos šaltinis.</target></trans-unit>
-<trans-unit id="sf57c6078d6d78598">
-  <source>Objects cannot be the source of inheritance or realization relations.</source>
-<target>Objektai negali būti paveldėjimo ar realizacijos ryšių šaltinis.</target></trans-unit>
-<trans-unit id="s7f139035aaa81544">
-  <source>Objects cannot be the target of inheritance or realization relations.</source>
-<target>Objektai negali būti paveldėjimo ar realizacijos ryšių tikslas.</target></trans-unit>
 <trans-unit id="s8355ec0cae86058f">
   <source>Object Editor</source>
 <target>Objekto rengyklė</target></trans-unit>
@@ -212,69 +77,12 @@
 <trans-unit id="s1de38819c1d0c545">
   <source>Maximum number of connections per pair reached</source>
 <target>Pasiektas didžiausias vienos poros jungčių skaičius</target></trans-unit>
-<trans-unit id="s991302c34d4ab3bf">
-  <source>A class cannot inherit from itself.</source>
-<target>Klasė negali paveldėti savęs pačios.</target></trans-unit>
-<trans-unit id="sf285ba473f20505a">
-  <source>A class cannot realize itself.</source>
-<target>Klasė negali realizuoti savęs pačios.</target></trans-unit>
-<trans-unit id="s25f8ef11d9d27e69">
-  <source>Enumerations and records cannot extend other classes.</source>
-<target>Išvardijimai ir įrašai negali paveldėti kitų klasių.</target></trans-unit>
-<trans-unit id="s2232c3d843d945c8">
-  <source>Annotations cannot extend other classes.</source>
-<target>Anotacijos negali paveldėti kitų klasių.</target></trans-unit>
-<trans-unit id="sca622529f55548ec">
-  <source>Annotations cannot be extended.</source>
-<target>Anotacijos negali būti paveldimos.</target></trans-unit>
-<trans-unit id="s03536c9db8ed23de">
-  <source>Objects cannot participate in inheritance relations.</source>
-<target>Objektai negali dalyvauti paveldėjimo ryšiuose.</target></trans-unit>
-<trans-unit id="s979178cfb4d8a3dd">
-  <source>Interfaces can only extend other interfaces.</source>
-<target>Sąsajos gali paveldėti tik kitas sąsajas.</target></trans-unit>
-<trans-unit id="s4b43ba347d4af4c7">
-  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
-<target>Klasės negali paveldėti sąsajų. Sąsajai įgyvendinti naudokite realizaciją.</target></trans-unit>
-<trans-unit id="s683b5495fe491317">
-  <source>This class already inherits from the selected class.</source>
-<target>Ši klasė jau paveldi pasirinktą klasę.</target></trans-unit>
-<trans-unit id="sd4b44f1897d9691c">
-  <source>Only interfaces can be realization targets.</source>
-<target>Realizacijos tikslais gali būti tik sąsajos.</target></trans-unit>
-<trans-unit id="s99007178f766a0d3">
-  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
-<target>Sąsajos negali realizuoti kitų elementų. Sąsajai išplėsti naudokite paveldėjimą.</target></trans-unit>
-<trans-unit id="se2e072d9e76d78e7">
-  <source>Annotations cannot implement interfaces.</source>
-<target>Anotacijos negali įgyvendinti sąsajų.</target></trans-unit>
-<trans-unit id="s6873f37f88d68bee">
-  <source>Objects cannot participate in realization relations.</source>
-<target>Objektai negali dalyvauti realizacijos ryšiuose.</target></trans-unit>
-<trans-unit id="sdd1a3d0051483ab1">
-  <source>Inheritance cycles are not allowed.</source>
-<target>Paveldėjimo ciklai neleidžiami.</target></trans-unit>
-<trans-unit id="s9fb6d60ce907b45a">
-  <source>This class is already part of a composition. A class can only have one owner.</source>
-<target>Ši klasė jau priklauso kompozicijai. Klasė gali turėti tik vieną savininką.</target></trans-unit>
-<trans-unit id="s66260080e372437e">
-  <source>A class cannot directly or indirectly own itself.</source>
-<target>Klasė negali tiesiogiai ar netiesiogiai turėti savęs.</target></trans-unit>
-<trans-unit id="sfb4181c4306745a9">
-  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
-<target>Duomenų tipai ir išvardijimai negali būti dvikryptės asociacijos šaltiniu.</target></trans-unit>
-<trans-unit id="sc774f0def0051c0d">
-  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
-<target>Duomenų tipai ir išvardijimai negali būti dvikryptės asociacijos tikslu.</target></trans-unit>
-<trans-unit id="s2a9fd53c400e3ce4">
-  <source>Data types and enumerations cannot be the source of an association.</source>
-<target>Duomenų tipai ir išvardijimai negali būti asociacijos šaltiniu.</target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Pasirinkite <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" /> šaltinį.</target></trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Pasirinkite <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/> šaltinį.</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Pasirinkite <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" /> tikslą.</target></trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Pasirinkite <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/> tikslą.</target></trans-unit>
 <trans-unit id="s8eb8977c0da31ca1">
   <source>Add objects via the toolbar above.</source>
 <target>Objektus pridėkite naudodami aukščiau esančią įrankių juostą.</target></trans-unit>
@@ -288,8 +96,8 @@
   <source>Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
 <target>Netinkamas tikslo kardinalumas. Pavyzdžiai: 1, 0..1, *, 1..*.</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
-<target>Priklausomybės stereotipas turi būti įrašytas tarp <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> arba <x id="1" equiv-text="${&quot;« »&quot;}" />.</target></trans-unit>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+<target>Priklausomybės stereotipas turi būti įrašytas tarp <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> arba <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target></trans-unit>
 <trans-unit id="s16ce96d62ac3e2a5">
   <source>Stereotype</source>
 <target>Stereotipas</target></trans-unit>
@@ -300,11 +108,11 @@
   <source>Relation Name</source>
 <target>Ryšio pavadinimas</target></trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Redaguoti nuorodą: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Redaguoti nuorodą: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Redaguoti ryšį: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Redaguoti ryšį: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="s5f43af3669b1e098">
   <source>Source</source>
 <target>Šaltinis</target></trans-unit>
@@ -590,21 +398,6 @@
 <trans-unit id="s49d9f0805e17f262">
   <source>Credit Card</source>
 <target>Kredito kortelė</target></trans-unit>
-<trans-unit id="s4b5705c599e644d1">
-  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
-<target>Objektų pavadinimai turi prasidėti mažąja raide (pvz., myObject).</target></trans-unit>
-<trans-unit id="sf2a73ce47a27b168">
-  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
-<target>Klasių pavadinimai turi prasidėti didžiąja raide (pvz., Customer).</target></trans-unit>
-<trans-unit id="s98629add8883a056">
-  <source>Message names, except replies, should start with a lowercase letter.</source>
-<target>Pranešimų pavadinimai, išskyrus atsakymus, turi prasidėti mažąja raide.</target></trans-unit>
-<trans-unit id="se7c522560dd345a7">
-  <source>Assignment must not contain spaces.</source>
-<target>Priskyrime negali būti tarpų.</target></trans-unit>
-<trans-unit id="sc25e9b3bfaaf255f">
-  <source>Guard condition must not be empty.</source>
-<target>Apsauginė sąlyga negali būti tuščia.</target></trans-unit>
 <trans-unit id="s01605966c0d9e035">
   <source>Select sending lifeline</source>
 <target>Pasirinkite siunčiančią gyvavimo liniją</target></trans-unit>
@@ -654,8 +447,8 @@
   <source>Fragment Type</source>
 <target>Fragmento tipas</target></trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
-<target>Sąlyga <x id="0" equiv-text="${index + 1}" /></target></trans-unit>
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+<target>Sąlyga <x id="0" equiv-text="${index + 1}"/></target></trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
 <target>Pašalinti sritį</target></trans-unit>
@@ -836,6 +629,22 @@
 <trans-unit id="s4dc5fa690dd0e9f3">
   <source>Configure diagrams</source>
 <target>Konfigūruoti diagramas</target></trans-unit>
+<trans-unit id="s3c604c5ce842d6f2">
+  <source>Fit to view</source>
+<target>Pritaikyti prie ekrano</target>
+</trans-unit>
+<trans-unit id="s95018940caec4950">
+  <source>UML diagram</source>
+  <target>UML diagrama</target>
+</trans-unit>
+<trans-unit id="sb8c878135ee917b1">
+  <source>The file is not valid JSON.</source>
+  <target>Faile nėra tinkamo JSON turinio.</target>
+</trans-unit>
+<trans-unit id="s9c76b46fcc1a83be">
+  <source>The file does not hold UML diagram data.</source>
+  <target>Faile nėra UML diagramos duomenų.</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

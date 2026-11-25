@@ -2,141 +2,6 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="bn" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="sf752b696087fa3c6">
-  <source>Object name is required.</source>
-<target>অবজেক্টের নাম আবশ্যক।</target></trans-unit>
-<trans-unit id="s2b295702e7140ab7">
-  <source>Class name is required.</source>
-<target>ক্লাসের নাম আবশ্যক।</target></trans-unit>
-<trans-unit id="s2c0642d152a1c8d5">
-  <source>This name is already used by another class.</source>
-<target>এই নামটি অন্য একটি ক্লাসে ইতিমধ্যে ব্যবহৃত হয়েছে।</target></trans-unit>
-<trans-unit id="s0f6e9f991bc2b1ab">
-  <source>Object names should start with a lowercase letter.</source>
-<target>অবজেক্টের নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="s76287c15efb9cd71">
-  <source>Object names must not contain spaces.</source>
-<target>অবজেক্টের নামে ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="s18d1d88ab70cc0b7">
-  <source>Class names should start with an uppercase letter.</source>
-<target>ক্লাসের নাম বড় হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="s40bbce04a4584df2">
-  <source>Class names must not contain spaces.</source>
-<target>ক্লাসের নামে ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="s633876602eda63e7">
-  <source>Attribute name is required.</source>
-<target>অ্যাট্রিবিউটের নাম আবশ্যক।</target></trans-unit>
-<trans-unit id="sf6a5af468fd4beae">
-  <source>Attribute type is required.</source>
-<target>অ্যাট্রিবিউটের ধরন আবশ্যক।</target></trans-unit>
-<trans-unit id="sba94b3870567f66d">
-  <source>Duplicate attribute name.</source>
-<target>একই অ্যাট্রিবিউটের নাম একাধিকবার আছে।</target></trans-unit>
-<trans-unit id="s5005524c536ceb9e">
-  <source>Attribute names should start with a lowercase letter.</source>
-<target>অ্যাট্রিবিউটের নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="sc355d95b8c69a202">
-  <source>Attribute names must not contain spaces.</source>
-<target>অ্যাট্রিবিউটের নামে ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="s6b5201fbbb39df11">
-  <source>Attributes in interfaces and annotations must be public.</source>
-<target>ইন্টারফেস ও অ্যানোটেশনের অ্যাট্রিবিউট public হতে হবে।</target></trans-unit>
-<trans-unit id="s545c6277188dd420">
-  <source>Interface attributes must be static and final.</source>
-<target>ইন্টারফেস অ্যাট্রিবিউট static এবং final হতে হবে।</target></trans-unit>
-<trans-unit id="sdbe713363a6a8a71">
-  <source>Parameter attributes are only valid in parameterized classes.</source>
-<target>প্যারামিটার অ্যাট্রিবিউট কেবল প্যারামিটারযুক্ত ক্লাসে বৈধ।</target></trans-unit>
-<trans-unit id="sd0acc3432e22e6a8">
-  <source>Method name is required.</source>
-<target>মেথডের নাম আবশ্যক।</target></trans-unit>
-<trans-unit id="seadb073a3ae9a65e">
-  <source>Return type is required.</source>
-<target>রিটার্নের ধরন আবশ্যক।</target></trans-unit>
-<trans-unit id="s1a98e915a81ae0a7">
-  <source>Constructors must not have a return type.</source>
-<target>কনস্ট্রাক্টরের রিটার্নের ধরন থাকতে পারে না।</target></trans-unit>
-<trans-unit id="s55de04ebf752aad4">
-  <source>Objects do not have constructors.</source>
-<target>অবজেক্টে কনস্ট্রাক্টর থাকে না।</target></trans-unit>
-<trans-unit id="s89fcc8ddcf63ed27">
-  <source>This looks like a constructor but does not match the class name capitalization.</source>
-<target>কনস্ট্রাক্টরের মতো মনে হচ্ছে, তবে ক্লাস নামের বড়-ছোট অক্ষর মেলে না।</target></trans-unit>
-<trans-unit id="s48c68d7f3d47f509">
-  <source>Method names should start with a lowercase letter.</source>
-<target>মেথডের নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="s674b9c60a0dd3817">
-  <source>Method names must not contain spaces.</source>
-<target>মেথডের নামে ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="s5635fe9ec580c654">
-  <source>Methods in interfaces and annotations must be public.</source>
-<target>ইন্টারফেস ও অ্যানোটেশনের মেথড public হতে হবে।</target></trans-unit>
-<trans-unit id="s9d8f15fcd9bb2231">
-  <source>Abstract methods cannot be final.</source>
-<target>বিমূর্ত মেথড final হতে পারে না।</target></trans-unit>
-<trans-unit id="s3b14c24a8b1969a1">
-  <source>Abstract methods cannot be static.</source>
-<target>বিমূর্ত মেথড static হতে পারে না।</target></trans-unit>
-<trans-unit id="s1c4e9efe8e8d2d47">
-  <source>Constructors cannot be static or final.</source>
-<target>কনস্ট্রাক্টর static বা final হতে পারে না।</target></trans-unit>
-<trans-unit id="s4944d9a50ed82b68">
-  <source>Parameter name is required.</source>
-<target>প্যারামিটারের নাম আবশ্যক।</target></trans-unit>
-<trans-unit id="s77002f685d02ee65">
-  <source>Parameter type is required.</source>
-<target>প্যারামিটারের ধরন আবশ্যক।</target></trans-unit>
-<trans-unit id="sb2f13f84f2055646">
-  <source>Duplicate parameter name.</source>
-<target>একই প্যারামিটারের নাম একাধিকবার আছে।</target></trans-unit>
-<trans-unit id="sb49efe53843f28c9">
-  <source>Parameter names should start with a lowercase letter.</source>
-<target>প্যারামিটারের নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="s7d02f7fdf88760d7">
-  <source>Parameter names must not contain spaces.</source>
-<target>প্যারামিটারের নামে ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="s815e4e6869b373c7">
-  <source>Selected class type cannot extend other classes.</source>
-<target>নির্বাচিত ক্লাসের ধরন অন্য ক্লাস সম্প্রসারণ করতে পারে না।</target></trans-unit>
-<trans-unit id="se205a5d6339202a0">
-  <source>Selected class type can only extend other interfaces.</source>
-<target>নির্বাচিত ক্লাসের ধরন কেবল অন্য ইন্টারফেস সম্প্রসারণ করতে পারে।</target></trans-unit>
-<trans-unit id="s7fbbfcdbad53e530">
-  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
-<target>নির্বাচিত ক্লাসের ধরন কোনো ইন্টারফেস সম্প্রসারণ করতে পারে না। এর বদলে বাস্তবায়ন ব্যবহার করুন।</target></trans-unit>
-<trans-unit id="s3d81f99c8bbe7c1e">
-  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
-<target>নির্বাচিত ক্লাসের ধরনকে কোনো ক্লাস সম্প্রসারণ করতে পারে না। এর বদলে বাস্তবায়ন ব্যবহার করুন।</target></trans-unit>
-<trans-unit id="s5ab48567a7b89fef">
-  <source>Selected class type can only be extended by other interfaces.</source>
-<target>নির্বাচিত ক্লাসের ধরনকে কেবল অন্য ইন্টারফেস সম্প্রসারণ করতে পারে।</target></trans-unit>
-<trans-unit id="sf868ffaf4e63faf5">
-  <source>Selected class type cannot be a parent class.</source>
-<target>নির্বাচিত ক্লাসের ধরন মূল ক্লাস হতে পারে না।</target></trans-unit>
-<trans-unit id="se0a11ec9a3548c89">
-  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
-<target>নির্বাচিত ক্লাসের ধরন ইন্টারফেস প্রয়োগ করতে পারে না। এর বদলে উত্তরাধিকার ব্যবহার করুন।</target></trans-unit>
-<trans-unit id="s79c23de608bf327c">
-  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
-<target>নির্বাচিত ক্লাসের ধরন বাস্তবায়নের লক্ষ্য হতে পারে না। কেবল ইন্টারফেস বৈধ লক্ষ্য।</target></trans-unit>
-<trans-unit id="scde2458b59249c80">
-  <source>Selected class type cannot own compositions or aggregations.</source>
-<target>নির্বাচিত ক্লাসের ধরন গঠন বা সমাবেশ-এর মালিক হতে পারে না।</target></trans-unit>
-<trans-unit id="s99014a4992baa534">
-  <source>Selected class type cannot be part of a composition or aggregation.</source>
-<target>নির্বাচিত ক্লাসের ধরন গঠন বা সমাবেশ-এর অংশ হতে পারে না।</target></trans-unit>
-<trans-unit id="s36b2d9d82a7a6ccf">
-  <source>Selected class type cannot participate in bidirectional associations.</source>
-<target>নির্বাচিত ক্লাসের ধরন দ্বিমুখী সংযোগ-এ অংশ নিতে পারে না।</target></trans-unit>
-<trans-unit id="sd1ec21ab6f95c1db">
-  <source>Selected class type cannot be the source of an association.</source>
-<target>নির্বাচিত ক্লাসের ধরন সংযোগ-এর উৎস হতে পারে না।</target></trans-unit>
-<trans-unit id="sf57c6078d6d78598">
-  <source>Objects cannot be the source of inheritance or realization relations.</source>
-<target>অবজেক্ট উত্তরাধিকার বা বাস্তবায়ন সম্পর্কের উৎস হতে পারে না।</target></trans-unit>
-<trans-unit id="s7f139035aaa81544">
-  <source>Objects cannot be the target of inheritance or realization relations.</source>
-<target>অবজেক্ট উত্তরাধিকার বা বাস্তবায়ন সম্পর্কের লক্ষ্য হতে পারে না।</target></trans-unit>
 <trans-unit id="s8355ec0cae86058f">
   <source>Object Editor</source>
 <target>অবজেক্ট সম্পাদক</target></trans-unit>
@@ -212,69 +77,12 @@
 <trans-unit id="s1de38819c1d0c545">
   <source>Maximum number of connections per pair reached</source>
 <target>প্রতি জোড়ার সর্বোচ্চ সংযোগসংখ্যা পূর্ণ হয়েছে</target></trans-unit>
-<trans-unit id="s991302c34d4ab3bf">
-  <source>A class cannot inherit from itself.</source>
-<target>ক্লাস নিজেকে উত্তরাধিকার গ্রহণ করতে পারে না।</target></trans-unit>
-<trans-unit id="sf285ba473f20505a">
-  <source>A class cannot realize itself.</source>
-<target>ক্লাস নিজেকে বাস্তবায়ন করতে পারে না।</target></trans-unit>
-<trans-unit id="s25f8ef11d9d27e69">
-  <source>Enumerations and records cannot extend other classes.</source>
-<target>এনুমারেশন ও রেকর্ড অন্য ক্লাস সম্প্রসারণ করতে পারে না।</target></trans-unit>
-<trans-unit id="s2232c3d843d945c8">
-  <source>Annotations cannot extend other classes.</source>
-<target>অ্যানোটেশন অন্য ক্লাস সম্প্রসারণ করতে পারে না।</target></trans-unit>
-<trans-unit id="sca622529f55548ec">
-  <source>Annotations cannot be extended.</source>
-<target>অ্যানোটেশন সম্প্রসারণ করা যায় না।</target></trans-unit>
-<trans-unit id="s03536c9db8ed23de">
-  <source>Objects cannot participate in inheritance relations.</source>
-<target>অবজেক্ট উত্তরাধিকার সম্পর্কে অংশ নিতে পারে না।</target></trans-unit>
-<trans-unit id="s979178cfb4d8a3dd">
-  <source>Interfaces can only extend other interfaces.</source>
-<target>ইন্টারফেস কেবল অন্য ইন্টারফেস সম্প্রসারণ করতে পারে।</target></trans-unit>
-<trans-unit id="s4b43ba347d4af4c7">
-  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
-<target>ক্লাস ইন্টারফেস সম্প্রসারণ করতে পারে না। ইন্টারফেস বাস্তবায়নে বাস্তবায়ন ব্যবহার করুন।</target></trans-unit>
-<trans-unit id="s683b5495fe491317">
-  <source>This class already inherits from the selected class.</source>
-<target>এই ক্লাসটি নির্বাচিত ক্লাস থেকে ইতিমধ্যেই উত্তরাধিকার গ্রহণ করে।</target></trans-unit>
-<trans-unit id="sd4b44f1897d9691c">
-  <source>Only interfaces can be realization targets.</source>
-<target>শুধু ইন্টারফেস বাস্তবায়নের লক্ষ্য হতে পারে।</target></trans-unit>
-<trans-unit id="s99007178f766a0d3">
-  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
-<target>ইন্টারফেস অন্য উপাদান বাস্তবায়ন করতে পারে না। ইন্টারফেস প্রসারিত করতে উত্তরাধিকার ব্যবহার করুন।</target></trans-unit>
-<trans-unit id="se2e072d9e76d78e7">
-  <source>Annotations cannot implement interfaces.</source>
-<target>অ্যানোটেশন ইন্টারফেস প্রয়োগ করতে পারে না।</target></trans-unit>
-<trans-unit id="s6873f37f88d68bee">
-  <source>Objects cannot participate in realization relations.</source>
-<target>অবজেক্ট বাস্তবায়ন সম্পর্কে অংশ নিতে পারে না।</target></trans-unit>
-<trans-unit id="sdd1a3d0051483ab1">
-  <source>Inheritance cycles are not allowed.</source>
-<target>উত্তরাধিকার চক্র অনুমোদিত নয়।</target></trans-unit>
-<trans-unit id="s9fb6d60ce907b45a">
-  <source>This class is already part of a composition. A class can only have one owner.</source>
-<target>এই ক্লাসটি ইতিমধ্যেই গঠন-এর অংশ। একটি ক্লাসের কেবল একজন মালিক থাকতে পারে।</target></trans-unit>
-<trans-unit id="s66260080e372437e">
-  <source>A class cannot directly or indirectly own itself.</source>
-<target>ক্লাস প্রত্যক্ষ বা পরোক্ষভাবে নিজেকে মালিক করতে পারে না।</target></trans-unit>
-<trans-unit id="sfb4181c4306745a9">
-  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
-<target>ডেটা ধরন ও এনুমারেশন দ্বিমুখী সংযোগ-এর উৎস হতে পারে না।</target></trans-unit>
-<trans-unit id="sc774f0def0051c0d">
-  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
-<target>ডেটা ধরন ও এনুমারেশন দ্বিমুখী সংযোগ-এর লক্ষ্য হতে পারে না।</target></trans-unit>
-<trans-unit id="s2a9fd53c400e3ce4">
-  <source>Data types and enumerations cannot be the source of an association.</source>
-<target>ডেটা ধরন ও এনুমারেশন সংযোগ-এর উৎস হতে পারে না।</target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target><x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />-এর উৎস নির্বাচন করুন</target></trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target><x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/>-এর উৎস নির্বাচন করুন</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target><x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />-এর লক্ষ্য নির্বাচন করুন</target></trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target><x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/>-এর লক্ষ্য নির্বাচন করুন</target></trans-unit>
 <trans-unit id="s8eb8977c0da31ca1">
   <source>Add objects via the toolbar above.</source>
 <target>উপরের টুলবার থেকে অবজেক্ট যোগ করুন।</target></trans-unit>
@@ -288,8 +96,8 @@
   <source>Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
 <target>লক্ষ্যের বহুত্ব অবৈধ। উদাহরণ: 1, 0..1, *, 1..*।</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
-<target>নির্ভরতা স্টেরিওটাইপ-কে <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> অথবা <x id="1" equiv-text="${&quot;« »&quot;}" /> দিয়ে ঘিরতে হবে।</target></trans-unit>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+<target>নির্ভরতা স্টেরিওটাইপ-কে <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> অথবা <x id="1" equiv-text="${&quot;« »&quot;}"/> দিয়ে ঘিরতে হবে।</target></trans-unit>
 <trans-unit id="s16ce96d62ac3e2a5">
   <source>Stereotype</source>
 <target>স্টেরিওটাইপ</target></trans-unit>
@@ -300,11 +108,11 @@
   <source>Relation Name</source>
 <target>সম্পর্কের নাম</target></trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>লিংক সম্পাদনা: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>লিংক সম্পাদনা: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>সম্পর্ক সম্পাদনা: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>সম্পর্ক সম্পাদনা: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="s5f43af3669b1e098">
   <source>Source</source>
 <target>উৎস</target></trans-unit>
@@ -590,21 +398,6 @@
 <trans-unit id="s49d9f0805e17f262">
   <source>Credit Card</source>
 <target>ক্রেডিট কার্ড</target></trans-unit>
-<trans-unit id="s4b5705c599e644d1">
-  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
-<target>অবজেক্টের নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত (যেমন myObject)।</target></trans-unit>
-<trans-unit id="sf2a73ce47a27b168">
-  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
-<target>ক্লাসের নাম বড় হাতের অক্ষর দিয়ে শুরু হওয়া উচিত (যেমন Customer)।</target></trans-unit>
-<trans-unit id="s98629add8883a056">
-  <source>Message names, except replies, should start with a lowercase letter.</source>
-<target>উত্তর ছাড়া বার্তার নাম ছোট হাতের অক্ষর দিয়ে শুরু হওয়া উচিত।</target></trans-unit>
-<trans-unit id="se7c522560dd345a7">
-  <source>Assignment must not contain spaces.</source>
-<target>মান নির্ধারণ-এ ফাঁকা স্থান থাকতে পারবে না।</target></trans-unit>
-<trans-unit id="sc25e9b3bfaaf255f">
-  <source>Guard condition must not be empty.</source>
-<target>প্রহরী শর্ত ফাঁকা হতে পারবে না।</target></trans-unit>
 <trans-unit id="s01605966c0d9e035">
   <source>Select sending lifeline</source>
 <target>প্রেরণকারী জীবনরেখা নির্বাচন করুন</target></trans-unit>
@@ -654,8 +447,8 @@
   <source>Fragment Type</source>
 <target>ফ্র্যাগমেন্টের ধরন</target></trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
-<target>শর্ত <x id="0" equiv-text="${index + 1}" /></target></trans-unit>
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+<target>শর্ত <x id="0" equiv-text="${index + 1}"/></target></trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
 <target>অঞ্চল সরান</target></trans-unit>
@@ -836,6 +629,22 @@
 <trans-unit id="s4dc5fa690dd0e9f3">
   <source>Configure diagrams</source>
 <target>ডায়াগ্রাম কনফিগার করুন</target></trans-unit>
+<trans-unit id="s3c604c5ce842d6f2">
+  <source>Fit to view</source>
+<target>দৃশ্যের সঙ্গে মানানসই করুন</target>
+</trans-unit>
+<trans-unit id="s95018940caec4950">
+  <source>UML diagram</source>
+  <target>UML ডায়াগ্রাম</target>
+</trans-unit>
+<trans-unit id="sb8c878135ee917b1">
+  <source>The file is not valid JSON.</source>
+  <target>ফাইলটি বৈধ JSON নয়।</target>
+</trans-unit>
+<trans-unit id="s9c76b46fcc1a83be">
+  <source>The file does not hold UML diagram data.</source>
+  <target>ফাইলটিতে UML ডায়াগ্রামের ডেটা নেই।</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

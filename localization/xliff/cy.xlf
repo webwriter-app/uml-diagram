@@ -2,141 +2,6 @@
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
 <file target-language="cy" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="sf752b696087fa3c6">
-  <source>Object name is required.</source>
-<target>Mae angen enw gwrthrych.</target></trans-unit>
-<trans-unit id="s2b295702e7140ab7">
-  <source>Class name is required.</source>
-<target>Mae angen enw dosbarth.</target></trans-unit>
-<trans-unit id="s2c0642d152a1c8d5">
-  <source>This name is already used by another class.</source>
-<target>Mae dosbarth arall eisoes yn defnyddio’r enw hwn.</target></trans-unit>
-<trans-unit id="s0f6e9f991bc2b1ab">
-  <source>Object names should start with a lowercase letter.</source>
-<target>Rhaid i enwau gwrthrychau ddechrau â llythyren fach.</target></trans-unit>
-<trans-unit id="s76287c15efb9cd71">
-  <source>Object names must not contain spaces.</source>
-<target>Ni chaiff enwau gwrthrychau gynnwys bylchau.</target></trans-unit>
-<trans-unit id="s18d1d88ab70cc0b7">
-  <source>Class names should start with an uppercase letter.</source>
-<target>Rhaid i enwau dosbarthiadau ddechrau â phriflythyren.</target></trans-unit>
-<trans-unit id="s40bbce04a4584df2">
-  <source>Class names must not contain spaces.</source>
-<target>Ni chaiff enwau dosbarthiadau gynnwys bylchau.</target></trans-unit>
-<trans-unit id="s633876602eda63e7">
-  <source>Attribute name is required.</source>
-<target>Mae angen enw priodoledd.</target></trans-unit>
-<trans-unit id="sf6a5af468fd4beae">
-  <source>Attribute type is required.</source>
-<target>Mae angen math priodoledd.</target></trans-unit>
-<trans-unit id="sba94b3870567f66d">
-  <source>Duplicate attribute name.</source>
-<target>Enw priodoledd dyblyg.</target></trans-unit>
-<trans-unit id="s5005524c536ceb9e">
-  <source>Attribute names should start with a lowercase letter.</source>
-<target>Rhaid i enwau priodoleddau ddechrau â llythyren fach.</target></trans-unit>
-<trans-unit id="sc355d95b8c69a202">
-  <source>Attribute names must not contain spaces.</source>
-<target>Ni chaiff enwau priodoleddau gynnwys bylchau.</target></trans-unit>
-<trans-unit id="s6b5201fbbb39df11">
-  <source>Attributes in interfaces and annotations must be public.</source>
-<target>Rhaid i briodoleddau mewn rhyngwynebau ac anodiadau fod yn public.</target></trans-unit>
-<trans-unit id="s545c6277188dd420">
-  <source>Interface attributes must be static and final.</source>
-<target>Rhaid i briodoleddau rhyngwyneb fod yn static a final.</target></trans-unit>
-<trans-unit id="sdbe713363a6a8a71">
-  <source>Parameter attributes are only valid in parameterized classes.</source>
-<target>Dim ond mewn dosbarthiadau parametrig y mae priodoleddau paramedr yn ddilys.</target></trans-unit>
-<trans-unit id="sd0acc3432e22e6a8">
-  <source>Method name is required.</source>
-<target>Mae angen enw dull.</target></trans-unit>
-<trans-unit id="seadb073a3ae9a65e">
-  <source>Return type is required.</source>
-<target>Mae angen math dychwelyd.</target></trans-unit>
-<trans-unit id="s1a98e915a81ae0a7">
-  <source>Constructors must not have a return type.</source>
-<target>Ni chaiff adeiladwyr gael math dychwelyd.</target></trans-unit>
-<trans-unit id="s55de04ebf752aad4">
-  <source>Objects do not have constructors.</source>
-<target>Nid oes gan wrthrychau adeiladwyr.</target></trans-unit>
-<trans-unit id="s89fcc8ddcf63ed27">
-  <source>This looks like a constructor but does not match the class name capitalization.</source>
-<target>Mae hyn yn edrych fel adeiladwr, ond nid yw’r priflythrennau a’r llythrennau bach yn cyfateb i enw’r dosbarth.</target></trans-unit>
-<trans-unit id="s48c68d7f3d47f509">
-  <source>Method names should start with a lowercase letter.</source>
-<target>Rhaid i enwau dulliau ddechrau â llythyren fach.</target></trans-unit>
-<trans-unit id="s674b9c60a0dd3817">
-  <source>Method names must not contain spaces.</source>
-<target>Ni chaiff enwau dulliau gynnwys bylchau.</target></trans-unit>
-<trans-unit id="s5635fe9ec580c654">
-  <source>Methods in interfaces and annotations must be public.</source>
-<target>Rhaid i ddulliau mewn rhyngwynebau ac anodiadau fod yn public.</target></trans-unit>
-<trans-unit id="s9d8f15fcd9bb2231">
-  <source>Abstract methods cannot be final.</source>
-<target>Ni all dulliau haniaethol fod yn final.</target></trans-unit>
-<trans-unit id="s3b14c24a8b1969a1">
-  <source>Abstract methods cannot be static.</source>
-<target>Ni all dulliau haniaethol fod yn static.</target></trans-unit>
-<trans-unit id="s1c4e9efe8e8d2d47">
-  <source>Constructors cannot be static or final.</source>
-<target>Ni all adeiladwyr fod yn static nac yn final.</target></trans-unit>
-<trans-unit id="s4944d9a50ed82b68">
-  <source>Parameter name is required.</source>
-<target>Mae angen enw paramedr.</target></trans-unit>
-<trans-unit id="s77002f685d02ee65">
-  <source>Parameter type is required.</source>
-<target>Mae angen math paramedr.</target></trans-unit>
-<trans-unit id="sb2f13f84f2055646">
-  <source>Duplicate parameter name.</source>
-<target>Enw paramedr dyblyg.</target></trans-unit>
-<trans-unit id="sb49efe53843f28c9">
-  <source>Parameter names should start with a lowercase letter.</source>
-<target>Rhaid i enwau paramedrau ddechrau â llythyren fach.</target></trans-unit>
-<trans-unit id="s7d02f7fdf88760d7">
-  <source>Parameter names must not contain spaces.</source>
-<target>Ni chaiff enwau paramedrau gynnwys bylchau.</target></trans-unit>
-<trans-unit id="s815e4e6869b373c7">
-  <source>Selected class type cannot extend other classes.</source>
-<target>Ni all y math dosbarth a ddewiswyd etifeddu dosbarthiadau eraill.</target></trans-unit>
-<trans-unit id="se205a5d6339202a0">
-  <source>Selected class type can only extend other interfaces.</source>
-<target>Dim ond rhyngwynebau eraill y gall y math dosbarth a ddewiswyd eu hymestyn.</target></trans-unit>
-<trans-unit id="s7fbbfcdbad53e530">
-  <source>Selected class type cannot extend an interface. Use Realization instead.</source>
-<target>Ni all y math dosbarth a ddewiswyd ymestyn rhyngwyneb. Defnyddiwch Wireddu yn lle hynny.</target></trans-unit>
-<trans-unit id="s3d81f99c8bbe7c1e">
-  <source>Selected class type cannot be extended by a class. Use Realization instead.</source>
-<target>Ni all dosbarth ymestyn y math dosbarth a ddewiswyd. Defnyddiwch Wireddu yn lle hynny.</target></trans-unit>
-<trans-unit id="s5ab48567a7b89fef">
-  <source>Selected class type can only be extended by other interfaces.</source>
-<target>Dim ond rhyngwynebau eraill all ymestyn y math dosbarth a ddewiswyd.</target></trans-unit>
-<trans-unit id="sf868ffaf4e63faf5">
-  <source>Selected class type cannot be a parent class.</source>
-<target>Ni all y math dosbarth a ddewiswyd fod yn ddosbarth rhiant.</target></trans-unit>
-<trans-unit id="se0a11ec9a3548c89">
-  <source>Selected class type cannot implement interfaces. Use Inheritance instead.</source>
-<target>Ni all y math dosbarth a ddewiswyd weithredu rhyngwynebau. Defnyddiwch Etifeddiaeth yn lle hynny.</target></trans-unit>
-<trans-unit id="s79c23de608bf327c">
-  <source>Selected class type cannot be a realization target. Only interfaces are valid targets.</source>
-<target>Ni all y math dosbarth a ddewiswyd fod yn darged wireddu. Dim ond rhyngwynebau sy’n dargedau dilys.</target></trans-unit>
-<trans-unit id="scde2458b59249c80">
-  <source>Selected class type cannot own compositions or aggregations.</source>
-<target>Ni all y math dosbarth a ddewiswyd fod yn berchen ar gyfansoddiadau nac agregiadau.</target></trans-unit>
-<trans-unit id="s99014a4992baa534">
-  <source>Selected class type cannot be part of a composition or aggregation.</source>
-<target>Ni all y math dosbarth a ddewiswyd fod yn rhan o gyfansoddiad nac agregiad.</target></trans-unit>
-<trans-unit id="s36b2d9d82a7a6ccf">
-  <source>Selected class type cannot participate in bidirectional associations.</source>
-<target>Ni all y math dosbarth a ddewiswyd gymryd rhan mewn cysylltiadau deugyfeiriadol.</target></trans-unit>
-<trans-unit id="sd1ec21ab6f95c1db">
-  <source>Selected class type cannot be the source of an association.</source>
-<target>Ni all y math dosbarth a ddewiswyd fod yn ffynhonnell cysylltiad.</target></trans-unit>
-<trans-unit id="sf57c6078d6d78598">
-  <source>Objects cannot be the source of inheritance or realization relations.</source>
-<target>Ni all gwrthrychau fod yn ffynhonnell perthnasoedd etifeddiaeth na wireddu.</target></trans-unit>
-<trans-unit id="s7f139035aaa81544">
-  <source>Objects cannot be the target of inheritance or realization relations.</source>
-<target>Ni all gwrthrychau fod yn darged perthnasoedd etifeddiaeth na wireddu.</target></trans-unit>
 <trans-unit id="s8355ec0cae86058f">
   <source>Object Editor</source>
 <target>Golygydd gwrthrychau</target></trans-unit>
@@ -212,69 +77,12 @@
 <trans-unit id="s1de38819c1d0c545">
   <source>Maximum number of connections per pair reached</source>
 <target>Cyrhaeddwyd uchafswm y cysylltiadau fesul pâr</target></trans-unit>
-<trans-unit id="s991302c34d4ab3bf">
-  <source>A class cannot inherit from itself.</source>
-<target>Ni all dosbarth etifeddu oddi wrtho’i hun.</target></trans-unit>
-<trans-unit id="sf285ba473f20505a">
-  <source>A class cannot realize itself.</source>
-<target>Ni all dosbarth wireddu ei hun.</target></trans-unit>
-<trans-unit id="s25f8ef11d9d27e69">
-  <source>Enumerations and records cannot extend other classes.</source>
-<target>Ni all cyfrifiadau a chofnodion ymestyn dosbarthiadau eraill.</target></trans-unit>
-<trans-unit id="s2232c3d843d945c8">
-  <source>Annotations cannot extend other classes.</source>
-<target>Ni all anodiadau ymestyn dosbarthiadau eraill.</target></trans-unit>
-<trans-unit id="sca622529f55548ec">
-  <source>Annotations cannot be extended.</source>
-<target>Ni ellir ymestyn anodiadau.</target></trans-unit>
-<trans-unit id="s03536c9db8ed23de">
-  <source>Objects cannot participate in inheritance relations.</source>
-<target>Ni all gwrthrychau gymryd rhan mewn perthnasoedd etifeddiaeth.</target></trans-unit>
-<trans-unit id="s979178cfb4d8a3dd">
-  <source>Interfaces can only extend other interfaces.</source>
-<target>Dim ond rhyngwynebau eraill y gall rhyngwynebau eu hymestyn.</target></trans-unit>
-<trans-unit id="s4b43ba347d4af4c7">
-  <source>Classes cannot extend interfaces. Use realization to implement an interface.</source>
-<target>Ni all dosbarthiadau ymestyn rhyngwynebau. Defnyddiwch wireddu i weithredu rhyngwyneb.</target></trans-unit>
-<trans-unit id="s683b5495fe491317">
-  <source>This class already inherits from the selected class.</source>
-<target>Mae’r dosbarth hwn eisoes yn etifeddu o’r dosbarth a ddewiswyd.</target></trans-unit>
-<trans-unit id="sd4b44f1897d9691c">
-  <source>Only interfaces can be realization targets.</source>
-<target>Dim ond rhyngwynebau all fod yn dargedau wireddu.</target></trans-unit>
-<trans-unit id="s99007178f766a0d3">
-  <source>Interfaces cannot realize other elements. Use inheritance to extend an interface.</source>
-<target>Ni all rhyngwynebau wireddu elfennau eraill. Defnyddiwch etifeddiaeth i ymestyn rhyngwyneb.</target></trans-unit>
-<trans-unit id="se2e072d9e76d78e7">
-  <source>Annotations cannot implement interfaces.</source>
-<target>Ni all anodiadau weithredu rhyngwynebau.</target></trans-unit>
-<trans-unit id="s6873f37f88d68bee">
-  <source>Objects cannot participate in realization relations.</source>
-<target>Ni all gwrthrychau gymryd rhan mewn perthnasoedd wireddu.</target></trans-unit>
-<trans-unit id="sdd1a3d0051483ab1">
-  <source>Inheritance cycles are not allowed.</source>
-<target>Ni chaniateir cylchoedd etifeddiaeth.</target></trans-unit>
-<trans-unit id="s9fb6d60ce907b45a">
-  <source>This class is already part of a composition. A class can only have one owner.</source>
-<target>Mae’r dosbarth hwn eisoes yn rhan o gyfansoddiad. Dim ond un perchennog a all fod gan ddosbarth.</target></trans-unit>
-<trans-unit id="s66260080e372437e">
-  <source>A class cannot directly or indirectly own itself.</source>
-<target>Ni all dosbarth fod yn berchen arno’i hun yn uniongyrchol nac yn anuniongyrchol.</target></trans-unit>
-<trans-unit id="sfb4181c4306745a9">
-  <source>Data types and enumerations cannot be the source of a bidirectional association.</source>
-<target>Ni all mathau data a chyfrifiadau fod yn ffynhonnell cysylltiad deugyfeiriadol.</target></trans-unit>
-<trans-unit id="sc774f0def0051c0d">
-  <source>Data types and enumerations cannot be the target of a bidirectional association.</source>
-<target>Ni all mathau data a chyfrifiadau fod yn darged cysylltiad deugyfeiriadol.</target></trans-unit>
-<trans-unit id="s2a9fd53c400e3ce4">
-  <source>Data types and enumerations cannot be the source of an association.</source>
-<target>Ni all mathau data a chyfrifiadau fod yn ffynhonnell cysylltiad.</target></trans-unit>
 <trans-unit id="hceb6b469c6b23074">
-  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Dewiswch ffynhonnell ar gyfer <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
+  <source>Select source for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Dewiswch ffynhonnell ar gyfer <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/>.</target></trans-unit>
 <trans-unit id="h57ece0fa758616cc">
-  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</source>
-<target>Dewiswch darged ar gyfer <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;" />.</target></trans-unit>
+  <source>Select target for <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.msg)}&lt;/strong&gt;"/>.</source>
+<target>Dewiswch darged ar gyfer <x id="0" equiv-text="&lt;strong&gt;${relationLabel(this.interactionMode, this.diagramType === 'object-diagram', this.messages.msg)}&lt;/strong&gt;"/>.</target></trans-unit>
 <trans-unit id="s8eb8977c0da31ca1">
   <source>Add objects via the toolbar above.</source>
 <target>Ychwanegwch wrthrychau drwy’r bar offer uchod.</target></trans-unit>
@@ -288,8 +96,8 @@
   <source>Invalid target multiplicity. Example formats: 1, 0..1, *, 1..*.</source>
 <target>Lluosogrwydd targed annilys. Enghreifftiau o fformat: 1, 0..1, *, 1..*.</target></trans-unit>
 <trans-unit id="s7013794e8f3fcbb8">
-  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> or <x id="1" equiv-text="${&quot;« »&quot;}" />.</source>
-<target>Rhaid amgáu stereoteipiau dibyniaeth rhwng <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}" /> neu <x id="1" equiv-text="${&quot;« »&quot;}" />.</target></trans-unit>
+  <source>Dependency stereotypes must be wrapped in <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> or <x id="1" equiv-text="${&quot;« »&quot;}"/>.</source>
+<target>Rhaid amgáu stereoteipiau dibyniaeth rhwng <x id="0" equiv-text="${&quot;&lt;&lt; &gt;&gt;&quot;}"/> neu <x id="1" equiv-text="${&quot;« »&quot;}"/>.</target></trans-unit>
 <trans-unit id="s16ce96d62ac3e2a5">
   <source>Stereotype</source>
 <target>Stereoteip</target></trans-unit>
@@ -300,11 +108,11 @@
   <source>Relation Name</source>
 <target>Enw perthynas</target></trans-unit>
 <trans-unit id="s94877a0b7d473d81">
-  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Golygu cyswllt: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit link: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Golygu cyswllt: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="sce14ecd1e1169145">
-  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></source>
-<target>Golygu perthynas: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}" /></target></trans-unit>
+  <source>Edit relation: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.msg)}"/></source>
+<target>Golygu perthynas: <x id="0" equiv-text="${relationLabel(type, isObjectDiagram, this.messages.msg)}"/></target></trans-unit>
 <trans-unit id="s5f43af3669b1e098">
   <source>Source</source>
 <target>Ffynhonnell</target></trans-unit>
@@ -590,21 +398,6 @@
 <trans-unit id="s49d9f0805e17f262">
   <source>Credit Card</source>
 <target>Cerdyn credyd</target></trans-unit>
-<trans-unit id="s4b5705c599e644d1">
-  <source>Object names should start with a lowercase letter (e.g. myObject).</source>
-<target>Rhaid i enwau gwrthrychau ddechrau â llythyren fach (e.e. myObject).</target></trans-unit>
-<trans-unit id="sf2a73ce47a27b168">
-  <source>Class names should start with an uppercase letter (e.g. Customer).</source>
-<target>Rhaid i enwau dosbarthiadau ddechrau â phriflythyren (e.e. Customer).</target></trans-unit>
-<trans-unit id="s98629add8883a056">
-  <source>Message names, except replies, should start with a lowercase letter.</source>
-<target>Rhaid i enwau negeseuon, ac eithrio atebion, ddechrau â llythyren fach.</target></trans-unit>
-<trans-unit id="se7c522560dd345a7">
-  <source>Assignment must not contain spaces.</source>
-<target>Ni chaiff aseiniad gynnwys bylchau.</target></trans-unit>
-<trans-unit id="sc25e9b3bfaaf255f">
-  <source>Guard condition must not be empty.</source>
-<target>Ni chaiff amod guard fod yn wag.</target></trans-unit>
 <trans-unit id="s01605966c0d9e035">
   <source>Select sending lifeline</source>
 <target>Dewiswch linell oes sy’n anfon</target></trans-unit>
@@ -654,8 +447,8 @@
   <source>Fragment Type</source>
 <target>Math darn</target></trans-unit>
 <trans-unit id="s80c3f125e401ffec">
-  <source>Condition <x id="0" equiv-text="${index + 1}" /></source>
-<target>Amod <x id="0" equiv-text="${index + 1}" /></target></trans-unit>
+  <source>Condition <x id="0" equiv-text="${index + 1}"/></source>
+<target>Amod <x id="0" equiv-text="${index + 1}"/></target></trans-unit>
 <trans-unit id="s46b57a8cb6af086f">
   <source>Remove Region</source>
 <target>Tynnu rhanbarth</target></trans-unit>
@@ -836,6 +629,22 @@
 <trans-unit id="s4dc5fa690dd0e9f3">
   <source>Configure diagrams</source>
 <target>Ffurfweddu diagramau</target></trans-unit>
+<trans-unit id="s3c604c5ce842d6f2">
+  <source>Fit to view</source>
+<target>Ffitio i’r wedd</target>
+</trans-unit>
+<trans-unit id="s95018940caec4950">
+  <source>UML diagram</source>
+  <target>Diagram UML</target>
+</trans-unit>
+<trans-unit id="sb8c878135ee917b1">
+  <source>The file is not valid JSON.</source>
+  <target>Nid yw’r ffeil yn JSON dilys.</target>
+</trans-unit>
+<trans-unit id="s9c76b46fcc1a83be">
+  <source>The file does not hold UML diagram data.</source>
+  <target>Nid yw’r ffeil yn cynnwys data diagram UML.</target>
+</trans-unit>
 </body>
 </file>
 </xliff>
