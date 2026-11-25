@@ -4,22 +4,80 @@
   "modules": [
     {
       "kind": "javascript-module",
-      "path": "widgets/webwriter-uml-diagram.ts",
+      "path": "src/widgets/webwriter-uml-diagram.ts",
       "declarations": [
         {
           "kind": "class",
           "description": "Interactive editor for UML class, object and sequence diagrams.\nAuthors configure the available diagram types, elements, limits and validation rules and can provide a\nstarting diagram that learners can reset to. Learners model their solution directly in the widget.",
           "name": "WebwriterUmlDiagram",
+          "cssParts": [
+            {
+              "description": "The row of diagram tabs above the frame.",
+              "name": "tabs"
+            },
+            {
+              "description": "The bordered frame around the toolbar and the canvas. Theme: the text and line color of the diagrams follow `--ww-text-color`, the font follows `--ww-font-family`, and the selected and hovered marks and the active tab follow `--ww-theme-accent-1`; without them the colors are unchanged. Pointer, touch and keyboard: every class, relation, lifeline and message is focusable on the canvas, arrow keys move it, Enter opens its drawer, Delete removes it and a long press opens the menu. The widget is laid out for widths from 300 to 2100 px. On paper the toolbars and controls are left out and the shown diagram is fitted to the page and printed whole. Conversions: the shown diagram exports as PlantUML (`.puml`, also as a `pre`), as SVG (`image/svg+xml`, also as an `img` with a data URL) and, with the settings, all diagrams as JSON (`.json`, the content of the data block, lossless). PlantUML and SVG carry names, members, relation types, multiplicities and relation names (class and object diagrams), or lifelines, messages, activations and fragments (sequence diagrams); they drop settings, positions (they are laid out again on import), relation roles, and the other two diagrams. A PlantUML file or `pre` with classes becomes the class diagram, one with `object` the object diagram and one with participants the sequence diagram; lines outside this subset are skipped. The JSON file replaces the settings and all three diagrams.",
+              "name": "frame"
+            }
+          ],
+          "slots": [
+            {
+              "description": "Direct application/json block stores diagram settings and authored models.",
+              "name": "data"
+            }
+          ],
           "members": [
+            {
+              "kind": "field",
+              "name": "options",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ diagramType: { type: \"select\" as const, label: (widget: {msg: MsgFn}) => widget.msg(\"Diagram to show\"), options: [ { value: \"class-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Class diagram\") }, { value: \"object-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Object diagram\") }, { value: \"sequence-diagram\", label: (widget: {msg: MsgFn}) => widget.msg(\"Sequence diagram\") }, ], }, }"
+            },
+            {
+              "kind": "field",
+              "name": "convertFrom",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ pre: \"loadPlantUmlText\", \".puml\": \"importPlantUml\", \".json\": \"importJson\", }"
+            },
+            {
+              "kind": "field",
+              "name": "convertTo",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ img: \"toImage\", pre: \"toPlantUmlText\", \".puml\": \"exportPlantUml\", \"image/svg+xml\": \"exportSvg\", \".json\": \"exportJson\", }"
+            },
+            {
+              "kind": "field",
+              "name": "actions",
+              "type": {
+                "text": "object"
+              },
+              "static": true,
+              "default": "{ openSettings: { label: (widget: {msg: MsgFn}) => widget.msg(\"Configure diagrams\"), icon: \"Settings\", intent: \"default\" as const }, }"
+            },
+            {
+              "kind": "field",
+              "name": "localize"
+            },
+            {
+              "kind": "field",
+              "name": "msg"
+            },
             {
               "kind": "field",
               "name": "classSettings",
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
-              "attribute": "class-settings",
-              "reflects": true
+              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules"
             },
             {
               "kind": "field",
@@ -27,9 +85,7 @@
               "type": {
                 "text": "ClassSettings"
               },
-              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
-              "attribute": "object-settings",
-              "reflects": true
+              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules"
             },
             {
               "kind": "field",
@@ -37,9 +93,7 @@
               "type": {
                 "text": "SequenceSettings"
               },
-              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
-              "attribute": "sequence-settings",
-              "reflects": true
+              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules"
             },
             {
               "kind": "field",
@@ -47,9 +101,7 @@
               "type": {
                 "text": "GlobalSettings"
               },
-              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
-              "attribute": "global-settings",
-              "reflects": true
+              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode"
             },
             {
               "kind": "field",
@@ -68,9 +120,7 @@
               "type": {
                 "text": "SequenceModel"
               },
-              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
-              "attribute": "sequence-model-data",
-              "reflects": true
+              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)"
             },
             {
               "kind": "field",
@@ -79,9 +129,7 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Class diagram content as JSON",
-              "attribute": "class-diagram-data",
-              "reflects": true
+              "description": "Class diagram content as JSON"
             },
             {
               "kind": "field",
@@ -90,9 +138,16 @@
                 "text": "string"
               },
               "default": "''",
-              "description": "Object diagram content as JSON",
-              "attribute": "object-diagram-data",
-              "reflects": true
+              "description": "Object diagram content as JSON"
+            },
+            {
+              "kind": "field",
+              "name": "settingsOpen",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
             },
             {
               "kind": "field",
@@ -151,6 +206,40 @@
             },
             {
               "kind": "field",
+              "name": "_skipDataWrite",
+              "type": {
+                "text": "boolean"
+              },
+              "privacy": "private",
+              "default": "false"
+            },
+            {
+              "kind": "field",
+              "name": "#data",
+              "privacy": "private",
+              "description": "The widget's JSON data block: settings and diagram contents, saved under the keys of the stored object"
+            },
+            {
+              "kind": "method",
+              "name": "_restoreData",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "data",
+                  "default": "this.#data.get()",
+                  "type": {
+                    "text": "Record<string, any>"
+                  }
+                }
+              ]
+            },
+            {
+              "kind": "method",
+              "name": "_writeData",
+              "privacy": "private"
+            },
+            {
+              "kind": "field",
               "name": "_clearProseMirrorNodeSelection",
               "privacy": "private",
               "description": "WebWriter selects the widget on every press, which can turn into a DOM range around it that highlights\nall of its texts. Remove that range (the widget stays selected), but leave text fields alone."
@@ -180,6 +269,35 @@
               "name": "_flushSaves",
               "privacy": "private",
               "description": "Writes all pending diagram changes"
+            },
+            {
+              "kind": "method",
+              "name": "openSettings"
+            },
+            {
+              "kind": "method",
+              "name": "_shownDiagram",
+              "privacy": "private",
+              "return": {
+                "type": {
+                  "text": "{ puml: string | null; svg: string | null }"
+                }
+              },
+              "description": "The shown diagram as PlantUML text and as SVG, or `null` values when it is empty"
+            },
+            {
+              "kind": "method",
+              "name": "_applyPlantUml",
+              "privacy": "private",
+              "parameters": [
+                {
+                  "name": "result",
+                  "type": {
+                    "text": "PlantUmlResult"
+                  }
+                }
+              ],
+              "description": "Replaces the shown diagram with a parsed PlantUML diagram and shows it"
             },
             {
               "kind": "method",
@@ -246,38 +364,6 @@
           ],
           "attributes": [
             {
-              "name": "class-settings",
-              "type": {
-                "text": "ClassSettings"
-              },
-              "description": "Class diagram settings as JSON: available class and relation types, limits and validation rules",
-              "fieldName": "classSettings"
-            },
-            {
-              "name": "object-settings",
-              "type": {
-                "text": "ClassSettings"
-              },
-              "description": "Object diagram settings as JSON: available elements, displayed details, limits and validation rules",
-              "fieldName": "objectSettings"
-            },
-            {
-              "name": "sequence-settings",
-              "type": {
-                "text": "SequenceSettings"
-              },
-              "description": "Sequence diagram settings as JSON: available messages, fragments and activations, limits and validation rules",
-              "fieldName": "sequenceSettings"
-            },
-            {
-              "name": "global-settings",
-              "type": {
-                "text": "GlobalSettings"
-              },
-              "description": "Global settings as JSON: enabled diagram types, checkpoint reset and validation mode",
-              "fieldName": "globalSettings"
-            },
-            {
               "name": "diagram-type",
               "type": {
                 "text": "string"
@@ -285,32 +371,6 @@
               "default": "\"class-diagram\"",
               "description": "Currently shown diagram: `class-diagram`, `object-diagram` or `sequence-diagram`",
               "fieldName": "diagramType"
-            },
-            {
-              "name": "sequence-model-data",
-              "type": {
-                "text": "SequenceModel"
-              },
-              "description": "Sequence diagram content as JSON (lifelines, messages and fragments)",
-              "fieldName": "sequenceModelData"
-            },
-            {
-              "name": "class-diagram-data",
-              "type": {
-                "text": "string"
-              },
-              "default": "''",
-              "description": "Class diagram content as JSON",
-              "fieldName": "classDiagramData"
-            },
-            {
-              "name": "object-diagram-data",
-              "type": {
-                "text": "string"
-              },
-              "default": "''",
-              "description": "Object diagram content as JSON",
-              "fieldName": "objectDiagramData"
             }
           ],
           "superclass": {
@@ -318,9 +378,7 @@
             "package": "@webwriter/lit"
           },
           "tagName": "webwriter-uml-diagram",
-          "customElement": true,
-          "modulePath": "widgets/webwriter-uml-diagram.ts",
-          "definitionPath": "widgets/webwriter-uml-diagram.ts"
+          "customElement": true
         }
       ],
       "exports": [
@@ -329,7 +387,7 @@
           "name": "WebwriterUmlDiagram",
           "declaration": {
             "name": "WebwriterUmlDiagram",
-            "module": "widgets/webwriter-uml-diagram.ts"
+            "module": "src/widgets/webwriter-uml-diagram.ts"
           }
         },
         {
@@ -337,7 +395,7 @@
           "name": "webwriter-uml-diagram",
           "declaration": {
             "name": "WebwriterUmlDiagram",
-            "module": "widgets/webwriter-uml-diagram.ts"
+            "module": "src/widgets/webwriter-uml-diagram.ts"
           }
         }
       ]

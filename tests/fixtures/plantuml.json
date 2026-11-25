@@ -1,0 +1,7 @@
+{
+  "class": "@startuml\n' a small shop\ninterface Payable {\n  +pay(amount : double) : boolean\n}\nabstract class Order {\n  -id : int\n  {static} +count : int\n  +total() : double\n}\nclass Customer<T> {\n  +name : String {readOnly}\n}\nenum Status {\n  OPEN\n  PAID\n}\nclass Invoice <<record>>\nOrder \"1\" *-- \"0..*\" Item : contains\nCustomer \"1\" --> \"0..*\" Order : places\nOrder ..|> Payable\nInvoice --|> Order\nOrder ..> Status\n@enduml\n",
+  "object": "@startuml\nobject \"tom : Member\" as m1 {\n  name = \"Tom\"\n}\nobject \"loan1 : Loan\" as l1\nm1 --> l1 : holds\n@enduml\n",
+  "sequence": "@startuml\nactor \"tom : Member\" as M\nparticipant \"terminal : Terminal\" as T\nparticipant Copy\nM -> T : borrow(1043)\nactivate T\nalt available\n  T -> Copy : ok = isAvailable()\n  Copy --> T : yes\nelse\n  T --> M : \"not available\"\nend\nT ->> Copy : log()\n[-> T : wake()\nT ->] : notify()\ndeactivate T\n@enduml\n",
+  "invalid": "this is not plantuml\n",
+  "empty": "@startuml\n' nothing\n@enduml\n"
+}
