@@ -1,7 +1,7 @@
 # Uml Diagram (`@webwriter/uml-diagram@2.0.0`)
 [License: MIT](LICENSE) | Version: 2.0.0
 
-Create and practice UML class, object and sequence diagrams with configurable elements, limits and validation.
+Create and practice UML class, object, and sequence diagrams.
 
 ## Snippets
 [Snippets](https://webwriter.app/docs/snippets/snippets/) are examples and templates using the package's widgets.
@@ -92,4 +92,4 @@ npm install @webwriter/uml-diagram
 
 
 ---
-*Generated with @webwriter/build@1.14.0*
+*Generated with @webwriter/build@1.15.0*

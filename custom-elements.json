@@ -378,9 +378,7 @@
             "package": "@webwriter/lit"
           },
           "tagName": "webwriter-uml-diagram",
-          "customElement": true,
-          "modulePath": "src/widgets/webwriter-uml-diagram.ts",
-          "definitionPath": "src/widgets/webwriter-uml-diagram.ts"
+          "customElement": true
         }
       ],
       "exports": [
