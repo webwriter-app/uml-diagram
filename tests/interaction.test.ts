@@ -40,6 +40,40 @@ for (const mode of modes) {
       await until(() => editor.shadowRoot.querySelector("sl-drawer[open]"), "drawer opened by the keyboard");
     });
 
+    it("closes the sequence drawer when an external model change removes its lifeline", async function () {
+      const host = await mount(mode, { html: sequenceSnippet });
+      const { editor } = await sequenceReady(host);
+      const node = editor.shadowRoot.querySelector("ww-node");
+      node.focus();
+      key(node, "Enter");
+      await until(() => editor.shadowRoot.querySelector("sl-drawer[open]"), "drawer opened");
+      editor.model = { ...editor.model, lifelines: [], messages: [], fragments: [] };
+      await editor.updateComplete;
+      assert.isNull(editor.editingLifelineId);
+      assert.isFalse(editor.shadowRoot.querySelector("sl-drawer").open);
+    });
+
+    it("fits class and sequence diagrams on demand without changing their authored data", async function () {
+      for (const html of [undefined, sequenceSnippet]) {
+        const host = await mount(mode, { html });
+        const editor = html ? (await sequenceReady(host)).editor : await ready(host);
+        const controls = editor.shadowRoot.querySelector("zoom-controls");
+        const button = controls.shadowRoot.querySelector('sl-icon-button[label="Fit to view"]');
+        assert.isOk(button, "the fit control is available");
+        const before = host.innerHTML;
+        controls.dispatchEvent(new CustomEvent("zoom-in"));
+        await frames();
+        const fitted = new Promise(resolve => editor.addEventListener("ww-viewportfit", resolve, { once: true }));
+        button.click();
+        await fitted;
+        await frames();
+        const canvas = editor.shadowRoot.querySelector("#canvas").getBoundingClientRect();
+        const nodes = [...editor.shadowRoot.querySelectorAll("ww-node")].map((node: Element) => node.getBoundingClientRect());
+        assert.isTrue(nodes.every((rect: DOMRect) => rect.left >= canvas.left - 1 && rect.right <= canvas.right + 1 && rect.top >= canvas.top - 1 && rect.bottom <= canvas.bottom + 1), "all nodes fit in the canvas");
+        assert.equal(host.innerHTML, before, "the view is transient");
+      }
+    });
+
     it("the diagram tabs are one tab stop and the arrow keys move between them", async function () {
       const host = await mount(mode);
       const tabs = host.shadowRoot.querySelector("diagram-tabs");

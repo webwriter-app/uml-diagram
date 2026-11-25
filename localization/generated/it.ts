@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Nome dell'istanza`,
 'sfc49bac6b16bbe35': `Aggiungi valore`,
 'sff5bb7742c2896c8': `Destinazione`,
-    };
+    's3c604c5ce842d6f2': `Adatta alla vista`,
+'s57a6e624d5765397': `Autoriferimento`,
+'sb8dd788adf7b907b': `Proxy`,
+};

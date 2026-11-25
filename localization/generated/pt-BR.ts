@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Nome da instância`,
 'sfc49bac6b16bbe35': `Adicionar valor`,
 'sff5bb7742c2896c8': `Destino`,
-    };
+    's3c604c5ce842d6f2': `Ajustar à visualização`,
+'s57a6e624d5765397': `Autorreferência`,
+'sb8dd788adf7b907b': `Proxy`,
+};

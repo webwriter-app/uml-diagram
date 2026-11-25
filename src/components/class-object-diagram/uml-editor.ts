@@ -73,7 +73,10 @@ export class UMLEditor extends LitElementWw {
     readonly diagram = new ClassDiagram();
 
     /** Pan and zoom of the canvas; an empty canvas cannot be moved */
-    #viewport = new Viewport(this, { can: () => this.diagram.classCount > 0 });
+    #viewport = new Viewport(this, {
+        can: () => this.diagram.classCount > 0,
+        fit: { padding: 24, maxScale: 1, follow: "window", target: () => this.#scene.extent() }
+    });
     #scene = new SceneController(this, { viewport: this.#viewport.core });
 
     @query("#canvas") accessor canvas!: HTMLElement;
@@ -133,8 +136,6 @@ export class UMLEditor extends LitElementWw {
     /** Aborting it removes the listeners that cancel the relation mode */
     #cancelListeners?: AbortController;
 
-    #initialEmit = 0;
-
     /** Aborting it removes the listeners of the print view */
     #printing?: AbortController;
 
@@ -159,7 +160,6 @@ export class UMLEditor extends LitElementWw {
     disconnectedCallback() {
         this.#printing?.abort();
         this._cancelAddRelation();
-        clearTimeout(this.#initialEmit);
         this.#observer.disconnect();
         this.#observed.clear();
         super.disconnectedCallback();
@@ -173,8 +173,8 @@ export class UMLEditor extends LitElementWw {
     }
 
     protected firstUpdated() {
-        // init update for the container and toolbar about number of elements and so on
-        this.#initialEmit = window.setTimeout(() => this.#emit(), 150);
+        // Report loaded counts without making WebWriter persist the unchanged diagram.
+        this.#emitCounts();
     }
 
     protected updated() {
@@ -200,6 +200,7 @@ export class UMLEditor extends LitElementWw {
         this.#preview = new Map();
         if (!this.diagram.node(this.selectedKey) && !this.diagram.relation(this.selectedKey)) this.selectedKey = '';
         this.requestUpdate();
+        this.#emitCounts();
     }
 
     /** Load a checkpoint state into the editor */
@@ -220,6 +221,15 @@ export class UMLEditor extends LitElementWw {
                 classCount: this.diagram.classCount,
                 relationCount: this.diagram.relationCount
             },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    /** Reports toolbar counts without persisting the loaded diagram. */
+    #emitCounts() {
+        this.dispatchEvent(new CustomEvent('diagram-counts-changed', {
+            detail: { classCount: this.diagram.classCount, relationCount: this.diagram.relationCount },
             bubbles: true,
             composed: true
         }));
@@ -692,11 +702,12 @@ export class UMLEditor extends LitElementWw {
                 <ww-scene
                     select="single"
                     data-ww-viewport="canvas"
-                    data-ww-viewport-fit="none"
+                    data-ww-viewport-fit="content"
                     data-ww-viewport-wheel="zoom"
                     data-ww-viewport-zoom="${ZOOM_RANGE.min} ${ZOOM_RANGE.max}"
                     background="dots"
                     background-spacing=${GRID_SIZE}
+                    @ww-ready=${() => this.#viewport.fit()}
                     @ww-select=${this.#onSelect}
                     @ww-move=${this.#onMove}
                     @ww-moving=${this.#onMoving}
@@ -756,6 +767,7 @@ export class UMLEditor extends LitElementWw {
                 ?zoomDisabled=${empty}
                 @zoom-in=${() => this.#zoom(ZOOM_STEP)}
                 @zoom-out=${() => this.#zoom(-ZOOM_STEP)}
+                @fit-to-view=${() => this.#viewport.fit()}
             ></zoom-controls>
 
             <uml-class-dialog 

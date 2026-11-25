@@ -72,13 +72,15 @@ export async function click(target: Element) {
 
 export async function dragBy(target: Element, dx: number, dy: number, midway?: () => Promise<void>) {
   const from = centre(target);
+  const editor = (target.getRootNode() as ShadowRoot).host;
+  const scale = (editor.shadowRoot?.querySelector("zoom-controls") as any)?.zoomLevel ?? 1;
   pointer(target, "pointerdown", from);
   pointer(target, "pointermove", { x: from.x + 8, y: from.y + 8 });
   await frames();
-  pointer(target, "pointermove", { x: from.x + dx, y: from.y + dy });
+  pointer(target, "pointermove", { x: from.x + dx * scale, y: from.y + dy * scale });
   await frames();
   await midway?.();
-  pointer(target, "pointerup", { x: from.x + dx, y: from.y + dy });
+  pointer(target, "pointerup", { x: from.x + dx * scale, y: from.y + dy * scale });
   await frames();
 }
 

@@ -22,6 +22,20 @@ for (const mode of modes) {
       assert.equal(host.shadowRoot.querySelector("sequence-diagram-container").model.lifelines.length, host.sequenceModelData.lifelines.length, "child model");
     });
 
+    it("loading a class diagram updates toolbar counts without emitting a save", async function () {
+      const host = await mount(mode);
+      const before = host.classDiagramData;
+      let saves = 0;
+      host.addEventListener("diagram-data-changed", () => saves++);
+      await wait(350);
+      const container = cls(host);
+      const editor = container.shadowRoot.querySelector("uml-editor");
+      assert.equal(container.currentClassCount, editor.diagram.classCount);
+      assert.equal(container.currentRelationCount, editor.diagram.relationCount);
+      assert.equal(saves, 0, "loading is not an authored edit");
+      assert.equal(host.classDiagramData, before);
+    });
+
     it("a diagram change is written to the block, unrelated keys stay", async function () {
       const host = await mount(mode);
       const withExtra = { ...JSON.parse(block(host).textContent!), extra: { keep: 1 } };

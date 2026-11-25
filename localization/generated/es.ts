@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Nombre de la instancia`,
 'sfc49bac6b16bbe35': `Añadir valor`,
 'sff5bb7742c2896c8': `Destino`,
-    };
+    's3c604c5ce842d6f2': `Ajustar a la vista`,
+'s57a6e624d5765397': `Autorreferencia`,
+'sb8dd788adf7b907b': `Proxy`,
+};

@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Instantienaam`,
 'sfc49bac6b16bbe35': `Waarde toevoegen`,
 'sff5bb7742c2896c8': `Doel`,
-    };
+    's3c604c5ce842d6f2': `Passend in beeld`,
+'s57a6e624d5765397': `Zelfverwijzing`,
+'sb8dd788adf7b907b': `Proxy`,
+};

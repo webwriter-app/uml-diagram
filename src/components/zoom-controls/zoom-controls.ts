@@ -9,11 +9,12 @@ import zoomIn from "@tabler/icons/outline/zoom-in.svg";
 import zoomOut from "@tabler/icons/outline/zoom-out.svg";
 import maximizeIcon from "@tabler/icons/outline/arrows-maximize.svg";
 import minimizeIcon from "@tabler/icons/outline/arrows-minimize.svg";
+import fitIcon from "@tabler/icons/outline/focus-centered.svg";
 import styles from "./zoom-controls.styles";
 
 /**
  * Floating zoom and fullscreen controls shared by the diagram editors.
- * Emits "zoom-in" and "zoom-out" for the editor to handle, and a bubbling,
+ * Emits "zoom-in", "zoom-out" and "fit-to-view" for the editor to handle, and a bubbling,
  * composed "toggle-fullscreen" that is handled by the main widget.
  */
 export class ZoomControls extends LitElementWw {
@@ -38,7 +39,7 @@ export class ZoomControls extends LitElementWw {
 
     @property({ type: Boolean }) accessor isFullscreen: boolean = false;
 
-    /** Disables both zoom buttons, e.g. while the canvas is empty */
+    /** Disables the zoom and fit buttons, e.g. while the canvas is empty */
     @property({ type: Boolean }) accessor zoomDisabled: boolean = false;
 
     render() {
@@ -54,6 +55,14 @@ export class ZoomControls extends LitElementWw {
                 ></sl-icon-button>
             </sl-tooltip>
             <sl-divider vertical></sl-divider>
+            <sl-tooltip content=${this.msg("Fit to view")} hoist>
+                <sl-icon-button
+                    src=${fitIcon}
+                    label=${this.msg("Fit to view")}
+                    ?disabled=${this.zoomDisabled}
+                    @click=${() => this._emit('fit-to-view')}
+                ></sl-icon-button>
+            </sl-tooltip>
             <sl-tooltip content=${this.msg("Zoom Out")} hoist>
                 <sl-icon-button
                     src=${zoomOut}

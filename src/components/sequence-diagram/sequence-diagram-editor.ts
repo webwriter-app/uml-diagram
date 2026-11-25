@@ -128,7 +128,10 @@ export class SequenceEditor extends LitElementWw {
     }
 
     /** Pan and zoom of the canvas; an empty canvas cannot be moved */
-    #viewport = new Viewport(this, { can: () => !this._isEmpty });
+    #viewport = new Viewport(this, {
+        can: () => !this._isEmpty,
+        fit: { padding: 24, maxScale: 1, follow: "window", target: () => this.#scene.extent() }
+    });
     #scene = new SceneController(this, { viewport: this.#viewport.core });
 
     /** Property to collectively store the state of the diagram */
@@ -214,6 +217,16 @@ export class SequenceEditor extends LitElementWw {
 
     protected willUpdate(changedProperties: PropertyValues) {
         super.willUpdate(changedProperties);
+        if (changedProperties.has('model')) {
+            const { lifelines, messages, fragments = [] } = this.model;
+            if (this.editingLifelineId && !lifelines.some(lifeline => lifeline.id === this.editingLifelineId)) this.editingLifelineId = null;
+            if (this.editingMessageId && !messages.some(message => message.id === this.editingMessageId)) this.editingMessageId = null;
+            if (this.editingFragmentId && !fragments.some(fragment => fragment.id === this.editingFragmentId)) this.editingFragmentId = null;
+            const activation = this.editingActivation;
+            if (activation && !lifelines.find(lifeline => lifeline.id === activation.lifelineId)?.activations?.some(item => item.id === activation.id)) {
+                this.editingActivation = null;
+            }
+        }
         if (changedProperties.has('interactionMode') && this.interactionMode !== 'idle') {
             this._notice = null;
         }
@@ -1030,11 +1043,12 @@ export class SequenceEditor extends LitElementWw {
                 style=${this._activeDrag ? `--drag-cursor: ${this._activeDrag.cursor}` : ''}
                 select="none"
                 data-ww-viewport="canvas"
-                data-ww-viewport-fit="none"
+                data-ww-viewport-fit="content"
                 data-ww-viewport-wheel="zoom"
                 data-ww-viewport-zoom="${ZOOM_RANGE.min} ${ZOOM_RANGE.max}"
                 background="dots"
                 background-spacing="40"
+                @ww-ready=${() => this.#viewport.fit()}
                 @ww-move=${this.#onMove}
                 @ww-moving=${this.#onMoving}
                 @ww-resize=${this.#onResize}
@@ -1062,6 +1076,7 @@ export class SequenceEditor extends LitElementWw {
                 ?zoomDisabled=${this._isEmpty}
                 @zoom-in=${() => this._zoomBy(ZOOM_STEP)}
                 @zoom-out=${() => this._zoomBy(-ZOOM_STEP)}
+                @fit-to-view=${() => this.#viewport.fit()}
             ></zoom-controls>
 
             <sl-drawer 

@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Instanzname`,
 'sfc49bac6b16bbe35': `Wert hinzufügen`,
 'sff5bb7742c2896c8': `Ziel`,
-    };
+    's3c604c5ce842d6f2': `An Ansicht anpassen`,
+'s57a6e624d5765397': `Selbstbezug`,
+'sb8dd788adf7b907b': `Proxy`,
+};

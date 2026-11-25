@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Nazwa instancji`,
 'sfc49bac6b16bbe35': `Dodaj wartość`,
 'sff5bb7742c2896c8': `Cel`,
-    };
+    's3c604c5ce842d6f2': `Dopasuj do widoku`,
+'s57a6e624d5765397': `Samoodwołanie`,
+'sb8dd788adf7b907b': `Proxy`,
+};

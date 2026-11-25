@@ -287,4 +287,7 @@
 'sfbcefc193ef97dd5': `Nom de l'instance`,
 'sfc49bac6b16bbe35': `Ajouter une valeur`,
 'sff5bb7742c2896c8': `Cible`,
-    };
+    's3c604c5ce842d6f2': `Ajuster à la vue`,
+'s57a6e624d5765397': `Auto-référence`,
+'sb8dd788adf7b907b': `Proxy`,
+};
