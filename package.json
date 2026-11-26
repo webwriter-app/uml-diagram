@@ -1,6 +1,6 @@
 {
   "name": "@webwriter/uml-diagram",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Create and practice UML class, object, and sequence diagrams.",
   "keywords": [
     "webwriter-widget",
@@ -184,6 +184,7 @@
     },
     "./icon": "./icon.svg",
     "./preview": "./assets/preview.mp4",
+    "./preview/de": "./assets/preview-de.mp4",
     "./editing-config.json": "./editing-config.json",
     "./snippets/library-loan.html": "./snippets/library-loan.html",
     "./snippets/online-shop-checkout.html": "./snippets/online-shop-checkout.html",
