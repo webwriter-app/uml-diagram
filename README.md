@@ -1,5 +1,5 @@
-# Uml Diagram (`@webwriter/uml-diagram@2.1.1`)
-[License: MIT](LICENSE) | Version: 2.1.1
+# Uml Diagram (`@webwriter/uml-diagram@2.1.2`)
+[License: MIT](LICENSE) | Version: 2.1.2
 
 Create and practice UML class, object, and sequence diagrams.
 
